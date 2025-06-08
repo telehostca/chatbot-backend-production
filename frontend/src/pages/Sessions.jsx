@@ -47,10 +47,10 @@ const Sessions = () => {
       });
       
       setSessions(response.data);
-      setTotalPages(response.meta.totalPages);
-      setTotal(response.meta.total);
+      setTotalPages(response.meta?.totalPages || 1);
+      setTotal(response.meta?.total || 0);
       setShowingStart((currentPage - 1) * 10 + 1);
-      setShowingEnd(Math.min(currentPage * 10, response.meta.total));
+      setShowingEnd(Math.min(currentPage * 10, response.meta?.total || 0));
     } catch (error) {
       console.error('Error loading sessions:', error);
     } finally {

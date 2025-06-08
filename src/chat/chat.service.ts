@@ -404,70 +404,94 @@ export class ChatService {
       const { page, limit, chatbotId, search, status } = options;
       const skip = (page - 1) * limit;
 
-      const queryBuilder = this.sessionRepository
-        .createQueryBuilder('session')
-        .leftJoin('session.messages', 'messages')
-        .addSelect(['messages.content', 'messages.sender', 'messages.timestamp'])
-        .orderBy('session.lastActivity', 'DESC');
+      // Verificar si la tabla existe antes de hacer la consulta
+      try {
+        const queryBuilder = this.sessionRepository
+          .createQueryBuilder('session')
+          .leftJoin('session.messages', 'messages')
+          .addSelect(['messages.content', 'messages.sender', 'messages.timestamp'])
+          .orderBy('session.lastActivity', 'DESC');
 
-      // Filtrar por chatbot si se especifica
-      if (chatbotId) {
-        queryBuilder.andWhere('session.activeChatbotId = :chatbotId', { chatbotId });
-      }
+        // Filtrar por chatbot si se especifica
+        if (chatbotId) {
+          queryBuilder.andWhere('session.activeChatbotId = :chatbotId', { chatbotId });
+        }
 
-      // Filtrar por estado si se especifica
-      if (status) {
-        queryBuilder.andWhere('session.status = :status', { status });
-      }
+        // Filtrar por estado si se especifica
+        if (status) {
+          queryBuilder.andWhere('session.status = :status', { status });
+        }
 
-      // Búsqueda por nombre de cliente o número de teléfono
-      if (search) {
-        queryBuilder.andWhere(
-          '(session.phoneNumber LIKE :search OR session.clientName LIKE :search OR session.clientId LIKE :search)',
-          { search: `%${search}%` }
-        );
-      }
+        // Búsqueda por nombre de cliente o número de teléfono
+        if (search) {
+          queryBuilder.andWhere(
+            '(session.phoneNumber LIKE :search OR session.clientName LIKE :search OR session.clientId LIKE :search)',
+            { search: `%${search}%` }
+          );
+        }
 
-      const [sessions, total] = await queryBuilder
-        .skip(skip)
-        .take(limit)
-        .getManyAndCount();
+        const [sessions, total] = await queryBuilder
+          .skip(skip)
+          .take(limit)
+          .getManyAndCount();
 
-      // Formatear las sesiones para el frontend
-      const formattedSessions = sessions.map(session => {
-        const lastMessage = session.messages && session.messages.length > 0 
-          ? session.messages[session.messages.length - 1] 
-          : null;
+        // Formatear las sesiones para el frontend
+        const formattedSessions = sessions.map(session => {
+          const lastMessage = session.messages && session.messages.length > 0 
+            ? session.messages[session.messages.length - 1] 
+            : null;
+
+          return {
+            id: session.id,
+            phoneNumber: session.phoneNumber,
+            clientName: session.clientName,
+            clientId: session.clientId,
+            status: session.status,
+            chatbotName: 'Chatbot', // TODO: Obtener nombre real del chatbot
+            organizationName: 'Organización', // TODO: Obtener organización real
+            lastMessage: lastMessage?.content,
+            lastMessageAt: lastMessage?.timestamp,
+            messageCount: session.messages?.length || 0,
+            searchCount: session.searchCount || 0,
+            createdAt: session.createdAt,
+            duration: this.calculateSessionDuration(session.createdAt, session.lastActivity)
+          };
+        });
 
         return {
-          id: session.id,
-          phoneNumber: session.phoneNumber,
-          clientName: session.clientName,
-          clientId: session.clientId,
-          status: session.status,
-          chatbotName: 'Chatbot', // TODO: Obtener nombre real del chatbot
-          organizationName: 'Organización', // TODO: Obtener organización real
-          lastMessage: lastMessage?.content,
-          lastMessageAt: lastMessage?.timestamp,
-          messageCount: session.messages?.length || 0,
-          searchCount: session.searchCount || 0,
-          createdAt: session.createdAt,
-          duration: this.calculateSessionDuration(session.createdAt, session.lastActivity)
+          data: formattedSessions,
+          meta: {
+            total,
+            page,
+            limit,
+            totalPages: Math.ceil(total / limit)
+          }
         };
-      });
-
-      return {
-        data: formattedSessions,
-        meta: {
-          total,
-          page,
-          limit,
-          totalPages: Math.ceil(total / limit)
-        }
-      };
+      } catch (dbError) {
+        // Si hay error de base de datos, devolver datos vacíos
+        this.logger.warn(`Tabla persistent_sessions no disponible: ${dbError.message}`);
+        return {
+          data: [],
+          meta: {
+            total: 0,
+            page,
+            limit,
+            totalPages: 0
+          }
+        };
+      }
     } catch (error) {
       this.logger.error(`Error obteniendo sesiones: ${error.message}`);
-      throw error;
+      // Devolver estructura válida en caso de error
+      return {
+        data: [],
+        meta: {
+          total: 0,
+          page: options.page,
+          limit: options.limit,
+          totalPages: 0
+        }
+      };
     }
   }
 

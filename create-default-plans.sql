@@ -1,0 +1,1 @@
+INSERT INTO user_plans (id, name, description, price, "billingCycle", features, "maxChatbots", "maxMessages", "isActive", "createdAt", "updatedAt") SELECT uuid_generate_v4(), 'Plan Gratuito', 'Plan básico gratuito', 0.00, 'monthly', '{"chatbots": 1, "messages": 1000}', 1, 1000, true, NOW(), NOW() WHERE NOT EXISTS (SELECT 1 FROM user_plans WHERE name = 'Plan Gratuito');

@@ -76,9 +76,15 @@ import { TestSaasController } from './test-saas.controller';
           throw new Error('No se encontró la configuración de database.users');
         }
         
-        const baseConfig = {
+        // Configuración exclusiva para PostgreSQL
+        return {
           name: 'users',
-          type: usersDbConfig.type,
+          type: 'postgres',
+          host: usersDbConfig.host,
+          port: usersDbConfig.port,
+          username: usersDbConfig.username,
+          password: usersDbConfig.password,
+          database: usersDbConfig.database,
           entities: [
             // 👥 Entidades del sistema SaaS
             User,
@@ -114,30 +120,12 @@ import { TestSaasController } from './test-saas.controller';
             KnowledgeBase,
             DocumentChunk
           ],
-          synchronize: false, // 🚫 Deshabilitado para evitar conflictos con tablas existentes
+          synchronize: false, // ❌ Deshabilitado para usar migraciones manuales
           autoLoadEntities: false,
           logging: configService.get('nodeEnv') === 'development',
-        };
-
-        // Configuración específica para SQLite
-        if (usersDbConfig.type === 'sqlite') {
-          return {
-            ...baseConfig,
-            database: usersDbConfig.database,
-          };
-        } 
-        
-        // Configuración para PostgreSQL u otros
-        return {
-          ...baseConfig,
-          host: usersDbConfig.host,
-          port: usersDbConfig.port,
-          username: usersDbConfig.username,
-          password: usersDbConfig.password,
-          database: usersDbConfig.database,
-          retryAttempts: usersDbConfig.retryAttempts,
-          retryDelay: usersDbConfig.retryDelay,
-          ssl: usersDbConfig.ssl,
+          retryAttempts: usersDbConfig.retryAttempts || 3,
+          retryDelay: usersDbConfig.retryDelay || 3000,
+          ssl: usersDbConfig.ssl || false,
         };
       },
       inject: [ConfigService],

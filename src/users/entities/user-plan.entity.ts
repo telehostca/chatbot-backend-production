@@ -1,4 +1,11 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  CreateDateColumn,
+  UpdateDateColumn,
+  OneToMany,
+} from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 import { User } from './user.entity';
 
@@ -9,15 +16,15 @@ export class UserPlan {
   id: number;
 
   @ApiProperty({ description: 'Nombre del plan' })
-  @Column({ unique: true })
+  @Column({ unique: true, default: 'Plan Básico' }) // Asegura valor por defecto
   name: string;
 
   @ApiProperty({ description: 'Descripción del plan' })
-  @Column()
+  @Column({ default: 'Plan estándar con funciones básicas' }) // Default para evitar errores de migración
   description: string;
 
   @ApiProperty({ description: 'Precio del plan' })
-  @Column('decimal', { precision: 10, scale: 2 })
+  @Column('decimal', { precision: 10, scale: 2, default: 0 })
   price: number;
 
   @ApiProperty({ description: 'Moneda del plan' })
@@ -25,12 +32,16 @@ export class UserPlan {
   currency: string;
 
   @ApiProperty({ description: 'Ciclo de facturación' })
-  @Column({ type: 'enum', enum: ['monthly', 'yearly', 'lifetime'], default: 'monthly' })
+  @Column({
+    type: 'enum',
+    enum: ['monthly', 'yearly', 'lifetime'],
+    default: 'monthly',
+  })
   billing_cycle: string;
 
   @ApiProperty({ description: 'Características del plan' })
   @Column({ type: 'json', nullable: true })
-  features: any; // Array de características del plan
+  features: any;
 
   @ApiProperty({ description: 'Máximo de chatbots permitidos' })
   @Column({ default: 0 })
@@ -68,6 +79,6 @@ export class UserPlan {
   @UpdateDateColumn()
   updated_at: Date;
 
-  @OneToMany(() => User, user => user.plan)
+  @OneToMany(() => User, (user) => user.plan)
   users: User[];
-} 
+}

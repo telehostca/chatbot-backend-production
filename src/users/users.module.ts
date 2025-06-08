@@ -9,7 +9,6 @@ import { UsersService } from './users.service';
 
 // Controladores
 import { UsersController } from './users.controller';
-import { SaasController } from './saas.controller';
 
 @Module({
   imports: [
@@ -17,7 +16,6 @@ import { SaasController } from './saas.controller';
   ],
   controllers: [
     UsersController,
-    SaasController,
   ],
   providers: [
     UsersService,

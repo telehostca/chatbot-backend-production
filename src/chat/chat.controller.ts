@@ -38,15 +38,49 @@ export class ChatController {
     @Query('status') status?: string
   ) {
     try {
-      const sessions = await this.chatService.getSessions({
-        page: parseInt(page.toString()),
-        limit: parseInt(limit.toString()),
-        chatbotId,
-        search,
-        status
-      });
-      
-      return sessions;
+      // Datos de prueba temporales mientras se configura la base de datos
+      const mockSessions = [
+        {
+          id: '1',
+          phoneNumber: '584241234567',
+          clientName: 'Cliente de Prueba 1',
+          clientId: 'CLI001',
+          status: 'active',
+          chatbotName: 'Chatbot Principal',
+          organizationName: 'Organización Test',
+          lastMessage: 'Hola, necesito ayuda',
+          lastMessageAt: new Date().toISOString(),
+          messageCount: 5,
+          searchCount: 2,
+          createdAt: new Date().toISOString(),
+          duration: '2 horas'
+        },
+        {
+          id: '2',
+          phoneNumber: '584161234567',
+          clientName: 'Cliente de Prueba 2',
+          clientId: 'CLI002',
+          status: 'active',
+          chatbotName: 'Chatbot Secundario',
+          organizationName: 'Organización Test',
+          lastMessage: '¿Tienen productos disponibles?',
+          lastMessageAt: new Date(Date.now() - 3600000).toISOString(),
+          messageCount: 3,
+          searchCount: 1,
+          createdAt: new Date(Date.now() - 7200000).toISOString(),
+          duration: '1 hora'
+        }
+      ];
+
+      return {
+        data: mockSessions,
+        meta: {
+          total: mockSessions.length,
+          page: parseInt(page.toString()),
+          limit: parseInt(limit.toString()),
+          totalPages: 1
+        }
+      };
     } catch (error) {
       return {
         error: 'Error obteniendo sesiones',

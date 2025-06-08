@@ -18,43 +18,43 @@ export class PersistentSession {
   /**
    * Número de teléfono normalizado del usuario
    */
-  @Column({ unique: true })
+  @Column({ unique: true, name: 'phone_number' })
   phoneNumber: string;
 
   /**
    * Código del cliente en la base de datos externa (si está autenticado)
    */
-  @Column({ nullable: true })
+  @Column({ nullable: true, name: 'client_id' })
   clientId: string;
 
   /**
    * Nombre del cliente
    */
-  @Column({ nullable: true })
+  @Column({ nullable: true, name: 'client_name' })
   clientName: string;
 
   /**
    * Número de identificación (cédula/RIF)
    */
-  @Column({ nullable: true })
+  @Column({ nullable: true, name: 'identification_number' })
   identificationNumber: string;
 
   /**
    * Nombre de perfil de WhatsApp
    */
-  @Column({ nullable: true })
+  @Column({ nullable: true, name: 'client_pushname' })
   clientPushname: string;
 
   /**
    * Si el cliente está autenticado
    */
-  @Column({ default: false })
+  @Column({ default: false, name: 'is_authenticated' })
   isAuthenticated: boolean;
 
   /**
    * Si es un cliente nuevo (no existe en BD externa)
    */
-  @Column({ default: true })
+  @Column({ default: true, name: 'is_new_client' })
   isNewClient: boolean;
 
   /**
@@ -72,37 +72,37 @@ export class PersistentSession {
   /**
    * Último mensaje del usuario
    */
-  @Column('text', { nullable: true })
+  @Column('text', { nullable: true, name: 'last_user_message' })
   lastUserMessage: string;
 
   /**
    * Última respuesta del bot
    */
-  @Column('text', { nullable: true })
+  @Column('text', { nullable: true, name: 'last_bot_response' })
   lastBotResponse: string;
 
   /**
    * Momento del último mensaje
    */
-  @Column({ nullable: true })
+  @Column({ nullable: true, name: 'last_activity' })
   lastActivity: Date;
 
   /**
    * Contador total de mensajes en la sesión
    */
-  @Column({ default: 0 })
+  @Column({ default: 0, name: 'message_count' })
   messageCount: number;
 
   /**
    * Contador de búsquedas realizadas
    */
-  @Column({ default: 0 })
+  @Column({ default: 0, name: 'search_count' })
   searchCount: number;
 
   /**
    * ID del chatbot activo para esta sesión
    */
-  @Column({ nullable: true })
+  @Column({ nullable: true, name: 'active_chatbot_id' })
   activeChatbotId: string;
 
   /**
@@ -132,12 +132,12 @@ export class PersistentSession {
   /**
    * Momento de creación de la sesión
    */
-  @CreateDateColumn()
+  @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 
   /**
    * Momento de última actualización
    */
-  @UpdateDateColumn()
+  @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date;
 } 

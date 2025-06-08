@@ -46,13 +46,31 @@ const Sessions = () => {
         search: searchQuery
       });
       
-      setSessions(response.data);
+      // Verificar si hay error en la respuesta
+      if (response.error) {
+        console.error('API Error:', response.error, response.details);
+        setSessions([]);
+        setTotalPages(1);
+        setTotal(0);
+        setShowingStart(0);
+        setShowingEnd(0);
+        return;
+      }
+      
+      // Asegurarse de que sessions sea siempre un array
+      setSessions(Array.isArray(response.data) ? response.data : []);
       setTotalPages(response.meta?.totalPages || 1);
       setTotal(response.meta?.total || 0);
       setShowingStart((currentPage - 1) * 10 + 1);
       setShowingEnd(Math.min(currentPage * 10, response.meta?.total || 0));
     } catch (error) {
       console.error('Error loading sessions:', error);
+      // En caso de error, establecer un array vacío
+      setSessions([]);
+      setTotalPages(1);
+      setTotal(0);
+      setShowingStart(0);
+      setShowingEnd(0);
     } finally {
       setLoading(false);
     }
@@ -256,7 +274,7 @@ const Sessions = () => {
                     </div>
                   </td>
                 </tr>
-              ) : sessions.length === 0 ? (
+              ) : (!Array.isArray(sessions) || sessions.length === 0) ? (
                 <tr>
                   <td colSpan="8" className="px-6 py-12 text-center">
                     <div className="text-6xl mb-4">💬</div>
@@ -272,7 +290,7 @@ const Sessions = () => {
                   </td>
                 </tr>
               ) : (
-                sessions.map((session) => (
+                Array.isArray(sessions) && sessions.map((session) => (
                   <tr key={session.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
@@ -357,7 +375,7 @@ const Sessions = () => {
         </div>
 
         {/* Paginación */}
-        {!loading && sessions.length > 0 && (
+        {!loading && Array.isArray(sessions) && sessions.length > 0 && (
           <div className="flex items-center justify-between px-6 py-4 border-t border-gray-200">
             <div className="text-sm text-gray-700">
               Mostrando {showingStart} a {showingEnd} de {total} sesiones

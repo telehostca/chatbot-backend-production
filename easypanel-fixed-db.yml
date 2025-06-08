@@ -2,13 +2,13 @@ services:
   backend:
     build:
       context: .
-      dockerfile: Dockerfile.smart
+      dockerfile: Dockerfile
     ports:
       - 3000:3000
     environment:
       - NODE_ENV=production
       - PORT=3000
-      # Configuración PostgreSQL (Easypanel) - hostname corregido
+      # Configuración PostgreSQL (Easypanel) - hostname corregido basado en logs
       - DB_TYPE=postgres
       - DB_HOST=telehost_chatwaba
       - DB_PORT=5432

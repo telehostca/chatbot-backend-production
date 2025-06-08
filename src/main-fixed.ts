@@ -8,7 +8,7 @@
  * - Documentación Swagger
  * - Servicio de frontend React CON CLIENT-SIDE ROUTING
  * 
- * @file main.ts
+ * @file main-fixed.ts
  */
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';

@@ -120,3 +120,69 @@ SELECT
 FROM pg_tables 
 WHERE schemaname = 'public' 
 ORDER BY tablename; 
+
+-- 🚨 FIX CRÍTICO PARA CHATBOT_INSTANCES
+-- Actualiza la estructura para que coincida con lo que espera la aplicación
+
+DROP TABLE IF EXISTS chatbot_instances CASCADE;
+CREATE TABLE chatbot_instances (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL UNIQUE,
+    slug VARCHAR(255) NOT NULL UNIQUE,
+    organization_id INTEGER,
+    status VARCHAR(50) DEFAULT 'active',
+    config JSONB DEFAULT '{}',
+    whatsapp_config JSONB DEFAULT '{}',
+    database_config JSONB DEFAULT '{}',
+    ai_config JSONB DEFAULT '{}',
+    rag_config JSONB DEFAULT '{}',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Insertar chatbot de ejemplo
+INSERT INTO chatbot_instances (name, slug, organization_id, status)
+VALUES (
+    'Chatbot Demo', 
+    'demo-bot', 
+    (SELECT id FROM organizations WHERE name = 'Organización Demo' LIMIT 1),
+    'active'
+)
+ON CONFLICT (slug) DO NOTHING;
+
+-- Crear índices para chatbot_instances
+CREATE INDEX IF NOT EXISTS idx_chatbot_instances_slug ON chatbot_instances(slug);
+CREATE INDEX IF NOT EXISTS idx_chatbot_instances_org ON chatbot_instances(organization_id);
+
+-- 🚨 FIX CRÍTICO PARA CHATBOT_INSTANCES
+-- Actualiza la estructura para que coincida con lo que espera la aplicación
+
+DROP TABLE IF EXISTS chatbot_instances CASCADE;
+CREATE TABLE chatbot_instances (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL UNIQUE,
+    slug VARCHAR(255) NOT NULL UNIQUE,
+    organization_id INTEGER,
+    status VARCHAR(50) DEFAULT 'active',
+    config JSONB DEFAULT '{}',
+    whatsapp_config JSONB DEFAULT '{}',
+    database_config JSONB DEFAULT '{}',
+    ai_config JSONB DEFAULT '{}',
+    rag_config JSONB DEFAULT '{}',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Insertar chatbot de ejemplo
+INSERT INTO chatbot_instances (name, slug, organization_id, status)
+VALUES (
+    'Chatbot Demo', 
+    'demo-bot', 
+    (SELECT id FROM organizations WHERE name = 'Organización Demo' LIMIT 1),
+    'active'
+)
+ON CONFLICT (slug) DO NOTHING;
+
+-- Crear índices para chatbot_instances
+CREATE INDEX IF NOT EXISTS idx_chatbot_instances_slug ON chatbot_instances(slug);
+CREATE INDEX IF NOT EXISTS idx_chatbot_instances_org ON chatbot_instances(organization_id); 

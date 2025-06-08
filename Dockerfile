@@ -48,12 +48,12 @@ COPY --chown=nodejs:nodejs package*.json ./
 ENV NODE_ENV=production
 ENV PORT=3000
 ENV DB_TYPE=postgres
-ENV DB_HOST=telehost_chatwaba
+ENV DB_HOST=postgresql
 ENV DB_PORT=5432
 ENV DB_USERNAME=postgres
 ENV DB_PASSWORD=9ad22d8eb9a3fd48f227
 ENV DB_DATABASE=telehost
-ENV DATABASE_URL=postgresql://postgres:9ad22d8eb9a3fd48f227@telehost_chatwaba:5432/telehost
+ENV DATABASE_URL=postgresql://postgres:9ad22d8eb9a3fd48f227@postgresql:5432/telehost
 
 # Configurar variables de crypto para Node.js
 ENV NODE_OPTIONS="--require crypto"

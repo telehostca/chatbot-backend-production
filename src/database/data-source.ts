@@ -44,11 +44,11 @@ config({ path: join(__dirname, '../../.env') });
 config({ path: join(__dirname, '../../env.local') });
 
 // 🐘 Configuración PostgreSQL únicamente
-const dbHost = process.env.DB_HOST || 'telehost_chatwaba';
-const dbPort = parseInt(process.env.DB_PORT || '5432');
-const dbUsername = process.env.DB_USERNAME || 'postgres';
-const dbPassword = process.env.DB_PASSWORD || '9ad22d8eb9a3fd48f227';
-const dbDatabase = process.env.DB_DATABASE || 'telehost';
+const dbHost = process.env.DB_HOST || process.env.TYPEORM_HOST || 'postgresql';
+const dbPort = parseInt(process.env.DB_PORT || process.env.TYPEORM_PORT || '5432');
+const dbUsername = process.env.DB_USERNAME || process.env.TYPEORM_USERNAME || 'postgres';
+const dbPassword = process.env.DB_PASSWORD || process.env.TYPEORM_PASSWORD || '9ad22d8eb9a3fd48f227';
+const dbDatabase = process.env.DB_DATABASE || process.env.TYPEORM_DATABASE || 'telehost';
 const dbSsl = process.env.DB_SSL === 'true' || process.env.NODE_ENV === 'production';
 
 console.log('🚀 Sistema SaaS - PostgreSQL Configuration:', {

@@ -34,7 +34,7 @@ async function bootstrap() {
   // 🐘 Sistema SaaS - PostgreSQL configurado
   logger.log('🚀 Iniciando Sistema SaaS con PostgreSQL');
   logger.log(`📊 Modo: ${process.env.NODE_ENV || 'development'}`);
-  logger.log(`🔗 Base de datos: ${process.env.DB_HOST || 'telehost_chatwaba'}:${process.env.DB_PORT || 5432}/${process.env.DB_DATABASE || 'telehost'}`);
+  logger.log(`🔗 Base de datos: ${process.env.DB_HOST || 'postgresql'}:${process.env.DB_PORT || 5432}/${process.env.DB_DATABASE || 'telehost'}`);
   logger.log('✅ PostgreSQL configurado para sistema SaaS');
 
   // Crear directorio de logs si no existe

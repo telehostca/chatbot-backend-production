@@ -8,19 +8,19 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=3000
-      # Configuración PostgreSQL (Easypanel)
+      # Configuración PostgreSQL (Easypanel) - hostname corregido
       - DB_TYPE=postgres
-      - DB_HOST=telehost_chatwaba
+      - DB_HOST=postgresql
       - DB_PORT=5432
       - DB_USERNAME=postgres
       - DB_PASSWORD=9ad22d8eb9a3fd48f227
       - DB_DATABASE=telehost
       - DB_SSL_MODE=disable
       - POSTGRES_PASSWORD=9ad22d8eb9a3fd48f227
-      - DATABASE_URL=postgresql://postgres:9ad22d8eb9a3fd48f227@telehost_chatwaba:5432/telehost
+      - DATABASE_URL=postgresql://postgres:9ad22d8eb9a3fd48f227@postgresql:5432/telehost
       # TypeORM Configuration
       - TYPEORM_CONNECTION=postgres
-      - TYPEORM_HOST=telehost_chatwaba
+      - TYPEORM_HOST=postgresql
       - TYPEORM_PORT=5432
       - TYPEORM_USERNAME=postgres
       - TYPEORM_PASSWORD=9ad22d8eb9a3fd48f227

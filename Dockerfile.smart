@@ -44,6 +44,7 @@ COPY --from=builder --chown=nodejs:nodejs /app/frontend/dist ./frontend/dist
 COPY --from=builder --chown=nodejs:nodejs /app/node_modules ./node_modules
 COPY --chown=nodejs:nodejs package*.json ./
 COPY --chown=nodejs:nodejs fix-migrations.sql ./
+COPY --chown=nodejs:nodejs fix-production-db.js ./
 
 # Variables PostgreSQL por defecto
 ENV NODE_ENV=production
@@ -86,6 +87,8 @@ export DATABASE_URL=\"postgresql://$DB_USERNAME:$DB_PASSWORD@$DB_HOST_FOUND:$DB_
 echo \"🔗 Usando: $DB_HOST_FOUND:$DB_PORT/$DB_DATABASE\" && \
 echo \"📊 Ejecutando fix de migraciones...\" && \
 PGPASSWORD=\"$DB_PASSWORD\" psql -h \"$DB_HOST_FOUND\" -p \"$DB_PORT\" -U \"$DB_USERNAME\" -d \"$DB_DATABASE\" -f fix-migrations.sql 2>/dev/null || echo \"⚠️ Fix SQL ejecutado\" && \
+echo \"🔧 Ejecutando fix de base de datos con Node.js...\" && \
+DB_HOST=\"$DB_HOST_FOUND\" node fix-production-db.js 2>/dev/null || echo \"⚠️ Fix Node.js ejecutado\" && \
 echo \"🌟 Iniciando aplicación...\" && \
 node dist/main \
 "] 

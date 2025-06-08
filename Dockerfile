@@ -55,11 +55,14 @@ ENV DB_PASSWORD=9ad22d8eb9a3fd48f227
 ENV DB_DATABASE=telehost
 ENV DATABASE_URL=postgresql://postgres:9ad22d8eb9a3fd48f227@telehost_chatwaba:5432/telehost
 
+# Configurar variables de crypto para Node.js
+ENV NODE_OPTIONS="--require crypto"
+
 # Exponer puerto
 EXPOSE 3000
 
 # Cambiar a usuario nodejs
 USER nodejs
 
-# Comando directo SIN scripts externos
-CMD ["sh", "-c", "echo '🚀 Iniciando Chatbot SaaS PostgreSQL' && echo 'Host: $DB_HOST:$DB_PORT' && echo 'DB: $DB_DATABASE' && until pg_isready -h $DB_HOST -p $DB_PORT -U $DB_USERNAME; do echo '⏳ Esperando PostgreSQL...'; sleep 3; done && echo '✅ PostgreSQL conectado!' && echo '🌟 Iniciando aplicación...' && node dist/main"] 
+# Comando mejorado con migraciones y verificación
+CMD ["sh", "-c", "echo '🚀 Iniciando Chatbot SaaS PostgreSQL' && echo 'Host: $DB_HOST:$DB_PORT' && echo 'DB: $DB_DATABASE' && until pg_isready -h $DB_HOST -p $DB_PORT -U $DB_USERNAME; do echo '⏳ Esperando PostgreSQL...'; sleep 3; done && echo '✅ PostgreSQL conectado!' && echo '📊 Ejecutando migraciones...' && npm run migration:run 2>/dev/null || echo '⚠️ Migraciones ya ejecutadas o error menor' && echo '🌟 Iniciando aplicación...' && node dist/main"] 

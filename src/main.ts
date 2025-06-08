@@ -22,13 +22,19 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import * as express from 'express';
 
+// Polyfill para crypto global (soluciona el error de SchedulerOrchestrator)
+import * as crypto from 'crypto';
+if (!(global as any).crypto) {
+  (global as any).crypto = crypto;
+}
+
 async function bootstrap() {
   const logger = new Logger('Bootstrap');
   
   // 🐘 Sistema SaaS - PostgreSQL configurado
   logger.log('🚀 Iniciando Sistema SaaS con PostgreSQL');
   logger.log(`📊 Modo: ${process.env.NODE_ENV || 'development'}`);
-  logger.log(`🔗 Base de datos: localhost:5432/chatbot_backend`);
+  logger.log(`🔗 Base de datos: ${process.env.DB_HOST || 'telehost_chatwaba'}:${process.env.DB_PORT || 5432}/${process.env.DB_DATABASE || 'telehost'}`);
   logger.log('✅ PostgreSQL configurado para sistema SaaS');
 
   // Crear directorio de logs si no existe

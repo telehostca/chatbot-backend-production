@@ -1,0 +1,34 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.fixed
+    ports:
+      - 3000:3000
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - DB_TYPE=sqlite
+      - DB_DATABASE=/app/database/chatbot.sqlite
+      - JWT_SECRET=${JWT_SECRET:-your_jwt_secret}
+      - CORS_ORIGIN=${CORS_ORIGIN:-*}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-your_openai_key}
+      - EVOLUTION_API_URL=${EVOLUTION_API_URL}
+      - EVOLUTION_API_KEY=${EVOLUTION_API_KEY}
+      - WHATSAPP_INSTANCE=${WHATSAPP_INSTANCE}
+      - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY}
+    volumes:
+      - data:/app/uploads
+      - data:/app/logs
+      - data:/app/database
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+
+volumes:
+  data:
+    driver: local 

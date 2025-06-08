@@ -1,0 +1,68 @@
+@import "tailwindcss";
+
+
+
+/* Estilos personalizados */
+.notification-success {
+  @apply bg-green-100 border-green-300 text-green-900;
+}
+
+.notification-error {
+  @apply bg-red-100 border-red-300 text-red-900;
+}
+
+.notification-warning {
+  @apply bg-yellow-100 border-yellow-300 text-yellow-900;
+}
+
+.notification-info {
+  @apply bg-blue-100 border-blue-300 text-blue-900;
+}
+
+/* Animaciones suaves */
+.fade-in {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Estilos para botones */
+.btn-primary {
+  @apply bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-colors;
+}
+
+.btn-secondary {
+  @apply bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600 transition-colors;
+}
+
+.btn-success {
+  @apply bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition-colors;
+}
+
+.btn-danger {
+  @apply bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition-colors;
+}
+
+/* Glassmorphism card para dashboard futurista */
+.glass-card {
+  @apply bg-white/10 backdrop-blur-md rounded-2xl shadow-xl border border-white/20 p-8 flex flex-col items-center transition-all duration-300 hover:scale-105 hover:shadow-2xl;
+}
+
+/* Sidebar futurista */
+.sidebar-futuristic {
+  @apply bg-gradient-to-b from-gray-900/90 via-blue-900/80 to-purple-900/90 shadow-2xl border-r border-white/10;
+}
+
+.glass-nav-link {
+  @apply backdrop-blur-md;
+}

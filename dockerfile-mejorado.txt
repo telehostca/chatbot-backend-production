@@ -1,0 +1,99 @@
+# Etapa de construcción
+FROM node:20.11-bullseye AS builder
+
+WORKDIR /app
+
+# Copiar archivos de configuración
+COPY package*.json ./
+COPY tsconfig.json ./
+
+# Instalar dependencias con flag de seguridad adicional
+RUN npm ci --ignore-scripts --no-audit
+
+# Copiar código fuente
+COPY src/ ./src/
+COPY frontend/ ./frontend/
+
+# Construir backend
+RUN npm run build
+
+# Construir frontend
+RUN cd frontend && npm ci --ignore-scripts --no-audit && npm run build
+
+# Etapa de producción
+FROM node:20.11-bullseye
+
+# Instalar sqlite3 y dependencias necesarias
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    sqlite3 \
+    python3 \
+    build-essential \
+    wget \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Crear usuario no root
+RUN groupadd -r nodejs && useradd -r -g nodejs -s /bin/bash -d /home/nodejs nodejs
+
+WORKDIR /app
+
+# Crear directorios necesarios con permisos adecuados
+RUN mkdir -p /app/uploads /app/logs /app/database && \
+    chown -R nodejs:nodejs /app
+
+# Copiar solo los archivos necesarios
+COPY --from=builder --chown=nodejs:nodejs /app/dist ./dist
+COPY --from=builder --chown=nodejs:nodejs /app/frontend/dist ./frontend/dist
+COPY --from=builder --chown=nodejs:nodejs /app/node_modules ./node_modules
+COPY --chown=nodejs:nodejs package*.json ./
+
+# Instalar explícitamente sqlite3 con opciones de compilación específicas
+RUN npm install sqlite3 --build-from-source --sqlite=/usr/lib --verbose
+
+# Crear script de inicio personalizado
+RUN echo '#!/bin/bash\n\
+set -e\n\
+\n\
+# Crear directorios si no existen\n\
+mkdir -p /app/database\n\
+mkdir -p /app/logs\n\
+mkdir -p /app/uploads\n\
+\n\
+# Crear la base de datos si no existe\n\
+if [ ! -f /app/database/chatbot.sqlite ]; then\n\
+  echo "Creando base de datos SQLite..."\n\
+  touch /app/database/chatbot.sqlite\n\
+fi\n\
+\n\
+# Asegurar permisos correctos\n\
+chown -R nodejs:nodejs /app/database\n\
+chown -R nodejs:nodejs /app/logs\n\
+chown -R nodejs:nodejs /app/uploads\n\
+chmod 644 /app/database/chatbot.sqlite\n\
+\n\
+# Verificar instalaciones\n\
+echo "Versión de SQLite:"\n\
+sqlite3 --version\n\
+\n\
+echo "Verificando instalación de sqlite3 en Node.js:"\n\
+node -e "try { require(\"sqlite3\"); console.log(\"sqlite3 está instalado correctamente.\"); } catch(e) { console.error(\"Error al cargar sqlite3:\", e); }"\n\
+\n\
+# Crear una pequeña base de datos de prueba\n\
+echo "Creando base de datos de prueba..."\n\
+sqlite3 /app/database/test.sqlite "CREATE TABLE IF NOT EXISTS test (id INTEGER PRIMARY KEY, name TEXT); INSERT INTO test VALUES (1, \"test\");" && echo "Base de datos de prueba creada correctamente."\n\
+\n\
+# Iniciar la aplicación\n\
+echo "Iniciando la aplicación..."\n\
+NODE_OPTIONS="--trace-warnings" exec node dist/main\n\
+' > /app/entrypoint.sh && \
+    chmod +x /app/entrypoint.sh && \
+    chown nodejs:nodejs /app/entrypoint.sh
+
+# Exponer puerto
+EXPOSE 3000
+
+# Cambiar al usuario no root
+USER nodejs
+
+# Usar script de inicio personalizado
+ENTRYPOINT ["/app/entrypoint.sh"] 

@@ -1,0 +1,5182 @@
+{
+  "schemaDetection": {
+    "success": true,
+    "schema": {
+      "tables": [
+        {
+          "name": "bancos",
+          "primaryKey": "codigo",
+          "columns": [
+            {
+              "name": "codigo",
+              "type": "character varying",
+              "isPrimary": true,
+              "isForeign": false,
+              "isNullable": false,
+              "defaultValue": null,
+              "maxLength": 5
+            },
+            {
+              "name": "banco",
+              "type": "character varying",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": false,
+              "defaultValue": null,
+              "maxLength": 100
+            },
+            {
+              "name": "services",
+              "type": "ARRAY",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": true,
+              "defaultValue": null,
+              "maxLength": null
+            },
+            {
+              "name": "status",
+              "type": "character varying",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": true,
+              "defaultValue": null,
+              "maxLength": 2
+            }
+          ],
+          "estimatedPurpose": "Configuración financiera"
+        },
+        {
+          "name": "bnctoken",
+          "primaryKey": "workingkey",
+          "columns": [
+            {
+              "name": "workingkey",
+              "type": "character varying",
+              "isPrimary": true,
+              "isForeign": false,
+              "isNullable": false,
+              "defaultValue": null,
+              "maxLength": 255
+            },
+            {
+              "name": "fecha",
+              "type": "date",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": true,
+              "defaultValue": null,
+              "maxLength": null
+            }
+          ],
+          "estimatedPurpose": "Tabla del sistema"
+        },
+        {
+          "name": "clientes",
+          "primaryKey": "idcliente",
+          "columns": [
+            {
+              "name": "idcliente",
+              "type": "integer",
+              "isPrimary": true,
+              "isForeign": false,
+              "isNullable": false,
+              "defaultValue": "nextval('clientes_idcliente_seq'::regclass)",
+              "maxLength": null
+            },
+            {
+              "name": "codigocliente",
+              "type": "character varying",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": false,
+              "defaultValue": null,
+              "maxLength": 255
+            },
+            {
+              "name": "nombre",
+              "type": "character varying",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": true,
+              "defaultValue": null,
+              "maxLength": 255
+            },
+            {
+              "name": "rif",
+              "type": "character varying",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": true,
+              "defaultValue": null,
+              "maxLength": 255
+            },
+            {
+              "name": "direccion1",
+              "type": "character varying",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": true,
+              "defaultValue": null,
+              "maxLength": 255
+            },
+            {
+              "name": "direccion2",
+              "type": "character varying",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": true,
+              "defaultValue": null,
+              "maxLength": 255
+            },
+            {
+              "name": "idpais",
+              "type": "integer",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": true,
+              "defaultValue": null,
+              "maxLength": null
+            },
+            {
+              "name": "idestado",
+              "type": "integer",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": true,
+              "defaultValue": null,
+              "maxLength": null
+            },
+            {
+              "name": "idciudad",
+              "type": "integer",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": true,
+              "defaultValue": null,
+              "maxLength": null
+            },
+            {
+              "name": "idmunicipio",
+              "type": "integer",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": true,
+              "defaultValue": null,
+              "maxLength": null
+            },
+            {
+              "name": "codigopostal",
+              "type": "character varying",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": true,
+              "defaultValue": null,
+              "maxLength": 50
+            },
+            {
+              "name": "telefono1",
+              "type": "character varying",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": true,
+              "defaultValue": null,
+              "maxLength": 50
+            },
+            {
+              "name": "telefono2",
+              "type": "character varying",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": true,
+              "defaultValue": null,
+              "maxLength": 50
+            },
+            {
+              "name": "email",
+              "type": "character varying",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": true,
+              "defaultValue": null,
+              "maxLength": 255
+            },
+            {
+              "name": "tienecredito",
+              "type": "integer",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": true,
+              "defaultValue": null,
+              "maxLength": null
+            },
+            {
+              "name": "esexento",
+              "type": "integer",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": true,
+              "defaultValue": null,
+              "maxLength": null
+            },
+            {
+              "name": "diascredito",
+              "type": "integer",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": true,
+              "defaultValue": null,
+              "maxLength": null
+            },
+            {
+              "name": "saldo",
+              "type": "numeric",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": true,
+              "defaultValue": null,
+              "maxLength": null
+            },
+            {
+              "name": "pagos",
+              "type": "numeric",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": true,
+              "defaultValue": null,
+              "maxLength": null
+            },
+            {
+              "name": "fechaultimaventa",
+              "type": "date",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": true,
+              "defaultValue": null,
+              "maxLength": null
+            },
+            {
+              "name": "fechacreacion",
+              "type": "timestamp without time zone",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": true,
+              "defaultValue": null,
+              "maxLength": null
+            },
+            {
+              "name": "fechacredito",
+              "type": "date",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": true,
+              "defaultValue": null,
+              "maxLength": null
+            },
+            {
+              "name": "esagentederetencion",
+              "type": "integer",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": true,
+              "defaultValue": null,
+              "maxLength": null
+            },
+            {
+              "name": "redsocial1",
+              "type": "character varying",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": true,
+              "defaultValue": null,
+              "maxLength": 255
+            },
+            {
+              "name": "redsocial2",
+              "type": "character varying",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": true,
+              "defaultValue": null,
+              "maxLength": 255
+            },
+            {
+              "name": "redsocial3",
+              "type": "character varying",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": true,
+              "defaultValue": null,
+              "maxLength": 255
+            },
+            {
+              "name": "status",
+              "type": "character varying",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": true,
+              "defaultValue": null,
+              "maxLength": 50
+            },
+            {
+              "name": "coordenadas",
+              "type": "character varying",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": true,
+              "defaultValue": null,
+              "maxLength": 255
+            }
+          ],
+          "estimatedPurpose": "Gestión de clientes"
+        },
+        {
+          "name": "colaboradores",
+          "primaryKey": "idcolaborador",
+          "columns": [
+            {
+              "name": "idcolaborador",
+              "type": "integer",
+              "isPrimary": true,
+              "isForeign": false,
+              "isNullable": false,
+              "defaultValue": "nextval('colaboradores_idcolaborador_seq'::regclass)",
+              "maxLength": null
+            },
+            {
+              "name": "nombre",
+              "type": "character varying",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": false,
+              "defaultValue": null,
+              "maxLength": 100
+            },
+            {
+              "name": "cedula",
+              "type": "character varying",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": true,
+              "defaultValue": null,
+              "maxLength": 12
+            },
+            {
+              "name": "direccion",
+              "type": "character varying",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": true,
+              "defaultValue": null,
+              "maxLength": 120
+            },
+            {
+              "name": "telefono1",
+              "type": "character varying",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": true,
+              "defaultValue": null,
+              "maxLength": 30
+            },
+            {
+              "name": "telefono2",
+              "type": "character varying",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": true,
+              "defaultValue": null,
+              "maxLength": 30
+            },
+            {
+              "name": "vehiculo",
+              "type": "character varying",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": true,
+              "defaultValue": null,
+              "maxLength": 100
+            },
+            {
+              "name": "foto",
+              "type": "bytea",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": true,
+              "defaultValue": null,
+              "maxLength": null
+            },
+            {
+              "name": "placa",
+              "type": "character varying",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": true,
+              "defaultValue": null,
+              "maxLength": 20
+            },
+            {
+              "name": "comentario",
+              "type": "character varying",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": true,
+              "defaultValue": null,
+              "maxLength": 120
+            },
+            {
+              "name": "status",
+              "type": "character varying",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": true,
+              "defaultValue": null,
+              "maxLength": 2
+            }
+          ],
+          "estimatedPurpose": "Recursos humanos"
+        },
+        {
+          "name": "delivery",
+          "primaryKey": "",
+          "columns": [
+            {
+              "name": "idencabedoc",
+              "type": "bigint",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": false,
+              "defaultValue": null,
+              "maxLength": null
+            },
+            {
+              "name": "idcolaborador",
+              "type": "bigint",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": false,
+              "defaultValue": null,
+              "maxLength": null
+            },
+            {
+              "name": "direccion",
+              "type": "character varying",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": true,
+              "defaultValue": null,
+              "maxLength": 200
+            },
+            {
+              "name": "telefono",
+              "type": "character varying",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": true,
+              "defaultValue": null,
+              "maxLength": 100
+            },
+            {
+              "name": "fecha_creacion",
+              "type": "timestamp without time zone",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": true,
+              "defaultValue": "CURRENT_TIMESTAMP",
+              "maxLength": null
+            },
+            {
+              "name": "hora_creacion",
+              "type": "time without time zone",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": true,
+              "defaultValue": "CURRENT_TIME",
+              "maxLength": null
+            }
+          ],
+          "estimatedPurpose": "Sistema de delivery"
+        },
+        {
+          "name": "departamentos",
+          "primaryKey": "coddepto",
+          "columns": [
+            {
+              "name": "coddepto",
+              "type": "character varying",
+              "isPrimary": true,
+              "isForeign": false,
+              "isNullable": false,
+              "defaultValue": null,
+              "maxLength": 15
+            },
+            {
+              "name": "departamento",
+              "type": "character varying",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": true,
+              "defaultValue": null,
+              "maxLength": 150
+            }
+          ],
+          "estimatedPurpose": "Tabla del sistema"
+        },
+        {
+          "name": "depositos",
+          "primaryKey": "iddeposito",
+          "columns": [
+            {
+              "name": "iddeposito",
+              "type": "integer",
+              "isPrimary": true,
+              "isForeign": false,
+              "isNullable": false,
+              "defaultValue": "nextval('depositos_iddeposito_seq'::regclass)",
+              "maxLength": null
+            },
+            {
+              "name": "deposito",
+              "type": "character varying",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": false,
+              "defaultValue": null,
+              "maxLength": 100
+            },
+            {
+              "name": "codigodeposito",
+              "type": "character varying",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": true,
+              "defaultValue": null,
+              "maxLength": 100
+            }
+          ],
+          "estimatedPurpose": "Gestión de almacenes"
+        },
+        {
+          "name": "encabedoc",
+          "primaryKey": "idencabedoc",
+          "columns": [
+            {
+              "name": "idencabedoc",
+              "type": "integer",
+              "isPrimary": true,
+              "isForeign": false,
+              "isNullable": false,
+              "defaultValue": "nextval('encabedoc_idencabedoc_seq'::regclass)",
+              "maxLength": null
+            },
+            {
+              "name": "codcliente",
+              "type": "character varying",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": false,
+              "defaultValue": null,
+              "maxLength": 25
+            },
+            {
+              "name": "nombrecliente",
+              "type": "character varying",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": false,
+              "defaultValue": null,
+              "maxLength": 150
+            },
+            {
+              "name": "rif",
+              "type": "character varying",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": false,
+              "defaultValue": null,
+              "maxLength": 20
+            },
+            {
+              "name": "telefonos",
+              "type": "character varying",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": false,
+              "defaultValue": null,
+              "maxLength": 30
+            },
+            {
+              "name": "vendedorcodigo",
+              "type": "character varying",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": false,
+              "defaultValue": null,
+              "maxLength": 15
+            },
+            {
+              "name": "nombrevendedor",
+              "type": "character varying",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": false,
+              "defaultValue": null,
+              "maxLength": 100
+            },
+            {
+              "name": "monedacodigo",
+              "type": "character varying",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": false,
+              "defaultValue": null,
+              "maxLength": 15
+            },
+            {
+              "name": "moneda",
+              "type": "character varying",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": false,
+              "defaultValue": null,
+              "maxLength": 30
+            },
+            {
+              "name": "depositocodigo",
+              "type": "character varying",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": false,
+              "defaultValue": null,
+              "maxLength": 15
+            },
+            {
+              "name": "usuariocodigo",
+              "type": "character varying",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": false,
+              "defaultValue": null,
+              "maxLength": 15
+            },
+            {
+              "name": "tasa",
+              "type": "numeric",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": false,
+              "defaultValue": null,
+              "maxLength": null
+            },
+            {
+              "name": "subtotal",
+              "type": "numeric",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": false,
+              "defaultValue": null,
+              "maxLength": null
+            },
+            {
+              "name": "iva",
+              "type": "numeric",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": false,
+              "defaultValue": null,
+              "maxLength": null
+            },
+            {
+              "name": "total",
+              "type": "numeric",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": false,
+              "defaultValue": null,
+              "maxLength": null
+            },
+            {
+              "name": "esexento",
+              "type": "boolean",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": false,
+              "defaultValue": null,
+              "maxLength": null
+            },
+            {
+              "name": "fechaemision",
+              "type": "date",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": false,
+              "defaultValue": null,
+              "maxLength": null
+            },
+            {
+              "name": "hora",
+              "type": "time without time zone",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": false,
+              "defaultValue": null,
+              "maxLength": null
+            },
+            {
+              "name": "status",
+              "type": "character varying",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": false,
+              "defaultValue": null,
+              "maxLength": 2
+            },
+            {
+              "name": "observaciones",
+              "type": "character varying",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": true,
+              "defaultValue": null,
+              "maxLength": 200
+            }
+          ],
+          "estimatedPurpose": "Documentos de venta"
+        },
+        {
+          "name": "inventario",
+          "primaryKey": "idinven",
+          "columns": [
+            {
+              "name": "idinven",
+              "type": "integer",
+              "isPrimary": true,
+              "isForeign": false,
+              "isNullable": false,
+              "defaultValue": "nextval('inventario_idinven_seq'::regclass)",
+              "maxLength": null
+            },
+            {
+              "name": "codigodeposito",
+              "type": "character varying",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": true,
+              "defaultValue": null,
+              "maxLength": 25
+            },
+            {
+              "name": "codigo",
+              "type": "character varying",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": true,
+              "defaultValue": null,
+              "maxLength": 25
+            },
+            {
+              "name": "nombre",
+              "type": "character varying",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": true,
+              "defaultValue": null,
+              "maxLength": 200
+            },
+            {
+              "name": "existenciaunidad",
+              "type": "numeric",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": true,
+              "defaultValue": null,
+              "maxLength": null
+            },
+            {
+              "name": "existenciamayor",
+              "type": "numeric",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": true,
+              "defaultValue": null,
+              "maxLength": null
+            },
+            {
+              "name": "codunidad",
+              "type": "character varying",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": true,
+              "defaultValue": null,
+              "maxLength": 25
+            },
+            {
+              "name": "nombreunidad",
+              "type": "character varying",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": true,
+              "defaultValue": null,
+              "maxLength": 25
+            },
+            {
+              "name": "codunidadalterna",
+              "type": "character varying",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": true,
+              "defaultValue": null,
+              "maxLength": 25
+            },
+            {
+              "name": "nombreunidadalterna",
+              "type": "character varying",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": true,
+              "defaultValue": null,
+              "maxLength": 25
+            },
+            {
+              "name": "status",
+              "type": "character varying",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": true,
+              "defaultValue": null,
+              "maxLength": 1
+            },
+            {
+              "name": "factor",
+              "type": "numeric",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": true,
+              "defaultValue": null,
+              "maxLength": null
+            },
+            {
+              "name": "foto",
+              "type": "text",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": true,
+              "defaultValue": null,
+              "maxLength": null
+            },
+            {
+              "name": "coddepto",
+              "type": "character varying",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": true,
+              "defaultValue": null,
+              "maxLength": 15
+            },
+            {
+              "name": "preciounidad",
+              "type": "numeric",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": true,
+              "defaultValue": null,
+              "maxLength": null
+            },
+            {
+              "name": "preciomayor",
+              "type": "numeric",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": true,
+              "defaultValue": null,
+              "maxLength": null
+            },
+            {
+              "name": "alicuotaiva",
+              "type": "numeric",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": true,
+              "defaultValue": null,
+              "maxLength": null
+            }
+          ],
+          "estimatedPurpose": "Control de inventario"
+        },
+        {
+          "name": "licencia",
+          "primaryKey": "codcliente",
+          "columns": [
+            {
+              "name": "codcliente",
+              "type": "character varying",
+              "isPrimary": true,
+              "isForeign": false,
+              "isNullable": false,
+              "defaultValue": null,
+              "maxLength": 25
+            },
+            {
+              "name": "cliente",
+              "type": "character varying",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": true,
+              "defaultValue": null,
+              "maxLength": 100
+            },
+            {
+              "name": "clave",
+              "type": "character varying",
+              "isPrimary": true,
+              "isForeign": false,
+              "isNullable": false,
+              "defaultValue": null,
+              "maxLength": 255
+            },
+            {
+              "name": "direccion",
+              "type": "character varying",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": true,
+              "defaultValue": null,
+              "maxLength": 200
+            },
+            {
+              "name": "telefono",
+              "type": "character varying",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": true,
+              "defaultValue": null,
+              "maxLength": 60
+            },
+            {
+              "name": "email",
+              "type": "character varying",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": true,
+              "defaultValue": null,
+              "maxLength": 60
+            }
+          ],
+          "estimatedPurpose": "Tabla del sistema"
+        },
+        {
+          "name": "log",
+          "primaryKey": "idlog",
+          "columns": [
+            {
+              "name": "idlog",
+              "type": "integer",
+              "isPrimary": true,
+              "isForeign": false,
+              "isNullable": false,
+              "defaultValue": "nextval('log_idlog_seq'::regclass)",
+              "maxLength": null
+            },
+            {
+              "name": "fecha",
+              "type": "date",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": true,
+              "defaultValue": null,
+              "maxLength": null
+            },
+            {
+              "name": "hora",
+              "type": "time without time zone",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": true,
+              "defaultValue": null,
+              "maxLength": null
+            },
+            {
+              "name": "accion",
+              "type": "character varying",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": true,
+              "defaultValue": null,
+              "maxLength": 250
+            }
+          ],
+          "estimatedPurpose": "Tabla del sistema"
+        },
+        {
+          "name": "logtrigger",
+          "primaryKey": "id",
+          "columns": [
+            {
+              "name": "id",
+              "type": "integer",
+              "isPrimary": true,
+              "isForeign": false,
+              "isNullable": false,
+              "defaultValue": null,
+              "maxLength": null
+            },
+            {
+              "name": "idencabedoc",
+              "type": "integer",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": true,
+              "defaultValue": null,
+              "maxLength": null
+            },
+            {
+              "name": "fecha",
+              "type": "timestamp with time zone",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": true,
+              "defaultValue": "now()",
+              "maxLength": null
+            },
+            {
+              "name": "ejecucion_exitosa",
+              "type": "boolean",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": true,
+              "defaultValue": "false",
+              "maxLength": null
+            }
+          ],
+          "estimatedPurpose": "Tabla del sistema"
+        },
+        {
+          "name": "monedas",
+          "primaryKey": "idmoneda",
+          "columns": [
+            {
+              "name": "idmoneda",
+              "type": "integer",
+              "isPrimary": true,
+              "isForeign": false,
+              "isNullable": false,
+              "defaultValue": "nextval('monedas_idmoneda_seq'::regclass)",
+              "maxLength": null
+            },
+            {
+              "name": "moneda",
+              "type": "character varying",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": false,
+              "defaultValue": null,
+              "maxLength": 100
+            },
+            {
+              "name": "codmoneda",
+              "type": "character",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": false,
+              "defaultValue": null,
+              "maxLength": 15
+            },
+            {
+              "name": "factorcambio",
+              "type": "numeric",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": true,
+              "defaultValue": null,
+              "maxLength": null
+            }
+          ],
+          "estimatedPurpose": "Configuración financiera"
+        },
+        {
+          "name": "movimientosdoc",
+          "primaryKey": "idmovimientosdoc",
+          "columns": [
+            {
+              "name": "idmovimientosdoc",
+              "type": "integer",
+              "isPrimary": true,
+              "isForeign": false,
+              "isNullable": false,
+              "defaultValue": "nextval('movimientosdoc_idmovimientosdoc_seq'::regclass)",
+              "maxLength": null
+            },
+            {
+              "name": "idencabedoc",
+              "type": "integer",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": false,
+              "defaultValue": null,
+              "maxLength": null
+            },
+            {
+              "name": "codigo",
+              "type": "character varying",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": false,
+              "defaultValue": null,
+              "maxLength": 30
+            },
+            {
+              "name": "nombre",
+              "type": "character varying",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": false,
+              "defaultValue": null,
+              "maxLength": 200
+            },
+            {
+              "name": "descripcionreal",
+              "type": "character varying",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": true,
+              "defaultValue": null,
+              "maxLength": 200
+            },
+            {
+              "name": "idmarca",
+              "type": "integer",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": true,
+              "defaultValue": null,
+              "maxLength": null
+            },
+            {
+              "name": "marca",
+              "type": "character varying",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": true,
+              "defaultValue": null,
+              "maxLength": 100
+            },
+            {
+              "name": "serial",
+              "type": "character varying",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": true,
+              "defaultValue": null,
+              "maxLength": 100
+            },
+            {
+              "name": "arreglo",
+              "type": "character varying",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": true,
+              "defaultValue": null,
+              "maxLength": 100
+            },
+            {
+              "name": "esimportacion",
+              "type": "boolean",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": false,
+              "defaultValue": null,
+              "maxLength": null
+            },
+            {
+              "name": "esexento",
+              "type": "boolean",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": false,
+              "defaultValue": null,
+              "maxLength": null
+            },
+            {
+              "name": "peso",
+              "type": "numeric",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": false,
+              "defaultValue": null,
+              "maxLength": null
+            },
+            {
+              "name": "cantidad",
+              "type": "numeric",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": false,
+              "defaultValue": null,
+              "maxLength": null
+            },
+            {
+              "name": "precio",
+              "type": "numeric",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": false,
+              "defaultValue": null,
+              "maxLength": null
+            },
+            {
+              "name": "iva",
+              "type": "numeric",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": false,
+              "defaultValue": null,
+              "maxLength": null
+            },
+            {
+              "name": "preciototal",
+              "type": "numeric",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": false,
+              "defaultValue": null,
+              "maxLength": null
+            },
+            {
+              "name": "status",
+              "type": "character varying",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": false,
+              "defaultValue": null,
+              "maxLength": 3
+            },
+            {
+              "name": "desstatus",
+              "type": "character varying",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": false,
+              "defaultValue": null,
+              "maxLength": 100
+            },
+            {
+              "name": "tiempoentrega",
+              "type": "character varying",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": false,
+              "defaultValue": null,
+              "maxLength": 50
+            }
+          ],
+          "estimatedPurpose": "Detalles de documentos"
+        },
+        {
+          "name": "pagos",
+          "primaryKey": "idencabedoc",
+          "columns": [
+            {
+              "name": "idencabedoc",
+              "type": "bigint",
+              "isPrimary": true,
+              "isForeign": false,
+              "isNullable": false,
+              "defaultValue": null,
+              "maxLength": null
+            },
+            {
+              "name": "idtipo",
+              "type": "bigint",
+              "isPrimary": true,
+              "isForeign": false,
+              "isNullable": false,
+              "defaultValue": null,
+              "maxLength": null
+            },
+            {
+              "name": "monto",
+              "type": "numeric",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": true,
+              "defaultValue": null,
+              "maxLength": null
+            },
+            {
+              "name": "codigobanco",
+              "type": "integer",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": true,
+              "defaultValue": null,
+              "maxLength": null
+            },
+            {
+              "name": "banco",
+              "type": "character varying",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": true,
+              "defaultValue": null,
+              "maxLength": 100
+            },
+            {
+              "name": "clienteid",
+              "type": "character varying",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": true,
+              "defaultValue": null,
+              "maxLength": 50
+            },
+            {
+              "name": "telefono",
+              "type": "character varying",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": true,
+              "defaultValue": null,
+              "maxLength": 30
+            },
+            {
+              "name": "fechatrans",
+              "type": "date",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": true,
+              "defaultValue": null,
+              "maxLength": null
+            },
+            {
+              "name": "montorecibido",
+              "type": "numeric",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": true,
+              "defaultValue": null,
+              "maxLength": null
+            },
+            {
+              "name": "balancedelta",
+              "type": "character varying",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": true,
+              "defaultValue": null,
+              "maxLength": 15
+            },
+            {
+              "name": "codoperacion",
+              "type": "character varying",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": true,
+              "defaultValue": null,
+              "maxLength": 20
+            },
+            {
+              "name": "nrocontrol",
+              "type": "character varying",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": true,
+              "defaultValue": null,
+              "maxLength": 30
+            },
+            {
+              "name": "concepto",
+              "type": "character varying",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": true,
+              "defaultValue": null,
+              "maxLength": 120
+            },
+            {
+              "name": "cuentadebitada",
+              "type": "character varying",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": true,
+              "defaultValue": null,
+              "maxLength": 20
+            },
+            {
+              "name": "existemovimiento",
+              "type": "boolean",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": true,
+              "defaultValue": null,
+              "maxLength": null
+            },
+            {
+              "name": "referencia",
+              "type": "character varying",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": true,
+              "defaultValue": null,
+              "maxLength": 100
+            },
+            {
+              "name": "tipomovimiento",
+              "type": "character varying",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": true,
+              "defaultValue": null,
+              "maxLength": 20
+            },
+            {
+              "name": "status",
+              "type": "character varying",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": true,
+              "defaultValue": "'P'::character varying",
+              "maxLength": 2
+            }
+          ],
+          "estimatedPurpose": "Gestión de pagos"
+        },
+        {
+          "name": "productosxfoto",
+          "primaryKey": "codigo",
+          "columns": [
+            {
+              "name": "codigo",
+              "type": "integer",
+              "isPrimary": true,
+              "isForeign": false,
+              "isNullable": false,
+              "defaultValue": "nextval('productosxfoto_codigo_seq'::regclass)",
+              "maxLength": null
+            },
+            {
+              "name": "codproducto",
+              "type": "character varying",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": true,
+              "defaultValue": null,
+              "maxLength": 25
+            },
+            {
+              "name": "foto",
+              "type": "bytea",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": true,
+              "defaultValue": null,
+              "maxLength": null
+            }
+          ],
+          "estimatedPurpose": "Control de inventario"
+        },
+        {
+          "name": "sinonimos",
+          "primaryKey": "id",
+          "columns": [
+            {
+              "name": "id",
+              "type": "integer",
+              "isPrimary": true,
+              "isForeign": false,
+              "isNullable": false,
+              "defaultValue": "nextval('sinonimos_id_seq'::regclass)",
+              "maxLength": null
+            },
+            {
+              "name": "codigo",
+              "type": "character varying",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": true,
+              "defaultValue": null,
+              "maxLength": 255
+            },
+            {
+              "name": "nombre",
+              "type": "text",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": true,
+              "defaultValue": null,
+              "maxLength": null
+            }
+          ],
+          "estimatedPurpose": "Tabla del sistema"
+        },
+        {
+          "name": "supervisores",
+          "primaryKey": "id",
+          "columns": [
+            {
+              "name": "id",
+              "type": "bigint",
+              "isPrimary": true,
+              "isForeign": false,
+              "isNullable": false,
+              "defaultValue": "nextval('supervisores_id_seq'::regclass)",
+              "maxLength": null
+            },
+            {
+              "name": "nombre",
+              "type": "character varying",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": false,
+              "defaultValue": null,
+              "maxLength": 100
+            },
+            {
+              "name": "telefono",
+              "type": "character varying",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": true,
+              "defaultValue": null,
+              "maxLength": 30
+            },
+            {
+              "name": "cedula",
+              "type": "character varying",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": true,
+              "defaultValue": null,
+              "maxLength": 10
+            }
+          ],
+          "estimatedPurpose": "Tabla del sistema"
+        },
+        {
+          "name": "tipospagos",
+          "primaryKey": "idtipo",
+          "columns": [
+            {
+              "name": "idtipo",
+              "type": "bigint",
+              "isPrimary": true,
+              "isForeign": false,
+              "isNullable": false,
+              "defaultValue": null,
+              "maxLength": null
+            },
+            {
+              "name": "pago",
+              "type": "character varying",
+              "isPrimary": false,
+              "isForeign": false,
+              "isNullable": true,
+              "defaultValue": null,
+              "maxLength": 100
+            }
+          ],
+          "estimatedPurpose": "Gestión de pagos"
+        }
+      ],
+      "detectedPatterns": [
+        "Sistema de Facturación Completo",
+        "Sistema de Delivery",
+        "Pagos Venezolanos",
+        "Documentos Maestro-Detalle"
+      ],
+      "totalTables": 19
+    },
+    "suggestedConfig": {
+      "chatbotId": "",
+      "databaseType": "postgres",
+      "description": "Sistema auto-detectado - Sistema de Facturación Completo, Sistema de Delivery, Pagos Venezolanos, Documentos Maestro-Detalle",
+      "tables": {
+        "bancos": {
+          "tableName": "bancos",
+          "primaryKey": "codigo",
+          "columns": [
+            {
+              "name": "codigo",
+              "type": "character varying",
+              "standardName": "codigo"
+            },
+            {
+              "name": "banco",
+              "type": "character varying",
+              "standardName": "banco"
+            },
+            {
+              "name": "services",
+              "type": "ARRAY",
+              "standardName": "services"
+            },
+            {
+              "name": "status",
+              "type": "character varying",
+              "standardName": "status"
+            }
+          ],
+          "purpose": "Configuración financiera",
+          "totalColumns": 4
+        },
+        "bnctoken": {
+          "tableName": "bnctoken",
+          "primaryKey": "workingkey",
+          "columns": [
+            {
+              "name": "workingkey",
+              "type": "character varying",
+              "standardName": "workingkey"
+            },
+            {
+              "name": "fecha",
+              "type": "date",
+              "standardName": "fecha"
+            }
+          ],
+          "purpose": "Tabla del sistema",
+          "totalColumns": 2
+        },
+        "clientes": {
+          "tableName": "clientes",
+          "primaryKey": "idcliente",
+          "columns": [
+            {
+              "name": "idcliente",
+              "type": "integer",
+              "standardName": "idcliente"
+            },
+            {
+              "name": "codigocliente",
+              "type": "character varying",
+              "standardName": "codigocliente"
+            },
+            {
+              "name": "nombre",
+              "type": "character varying",
+              "standardName": "nombre"
+            },
+            {
+              "name": "rif",
+              "type": "character varying",
+              "standardName": "rif"
+            },
+            {
+              "name": "direccion1",
+              "type": "character varying",
+              "standardName": "direccion1"
+            },
+            {
+              "name": "direccion2",
+              "type": "character varying",
+              "standardName": "direccion2"
+            },
+            {
+              "name": "idpais",
+              "type": "integer",
+              "standardName": "idpais"
+            },
+            {
+              "name": "idestado",
+              "type": "integer",
+              "standardName": "idestado"
+            },
+            {
+              "name": "idciudad",
+              "type": "integer",
+              "standardName": "idciudad"
+            },
+            {
+              "name": "idmunicipio",
+              "type": "integer",
+              "standardName": "idmunicipio"
+            },
+            {
+              "name": "codigopostal",
+              "type": "character varying",
+              "standardName": "codigopostal"
+            },
+            {
+              "name": "telefono1",
+              "type": "character varying",
+              "standardName": "telefono1"
+            },
+            {
+              "name": "telefono2",
+              "type": "character varying",
+              "standardName": "telefono2"
+            },
+            {
+              "name": "email",
+              "type": "character varying",
+              "standardName": "email"
+            },
+            {
+              "name": "tienecredito",
+              "type": "integer",
+              "standardName": "tienecredito"
+            },
+            {
+              "name": "esexento",
+              "type": "integer",
+              "standardName": "esexento"
+            },
+            {
+              "name": "diascredito",
+              "type": "integer",
+              "standardName": "diascredito"
+            },
+            {
+              "name": "saldo",
+              "type": "numeric",
+              "standardName": "saldo"
+            },
+            {
+              "name": "pagos",
+              "type": "numeric",
+              "standardName": "pagos"
+            },
+            {
+              "name": "fechaultimaventa",
+              "type": "date",
+              "standardName": "fechaultimaventa"
+            },
+            {
+              "name": "fechacreacion",
+              "type": "timestamp without time zone",
+              "standardName": "fechacreacion"
+            },
+            {
+              "name": "fechacredito",
+              "type": "date",
+              "standardName": "fechacredito"
+            },
+            {
+              "name": "esagentederetencion",
+              "type": "integer",
+              "standardName": "esagentederetencion"
+            },
+            {
+              "name": "redsocial1",
+              "type": "character varying",
+              "standardName": "redsocial1"
+            },
+            {
+              "name": "redsocial2",
+              "type": "character varying",
+              "standardName": "redsocial2"
+            },
+            {
+              "name": "redsocial3",
+              "type": "character varying",
+              "standardName": "redsocial3"
+            },
+            {
+              "name": "status",
+              "type": "character varying",
+              "standardName": "status"
+            },
+            {
+              "name": "coordenadas",
+              "type": "character varying",
+              "standardName": "coordenadas"
+            }
+          ],
+          "purpose": "Gestión de clientes",
+          "totalColumns": 28
+        },
+        "colaboradores": {
+          "tableName": "colaboradores",
+          "primaryKey": "idcolaborador",
+          "columns": [
+            {
+              "name": "idcolaborador",
+              "type": "integer",
+              "standardName": "idcolaborador"
+            },
+            {
+              "name": "nombre",
+              "type": "character varying",
+              "standardName": "nombre"
+            },
+            {
+              "name": "cedula",
+              "type": "character varying",
+              "standardName": "cedula"
+            },
+            {
+              "name": "direccion",
+              "type": "character varying",
+              "standardName": "direccion"
+            },
+            {
+              "name": "telefono1",
+              "type": "character varying",
+              "standardName": "telefono1"
+            },
+            {
+              "name": "telefono2",
+              "type": "character varying",
+              "standardName": "telefono2"
+            },
+            {
+              "name": "vehiculo",
+              "type": "character varying",
+              "standardName": "vehiculo"
+            },
+            {
+              "name": "foto",
+              "type": "bytea",
+              "standardName": "foto"
+            },
+            {
+              "name": "placa",
+              "type": "character varying",
+              "standardName": "placa"
+            },
+            {
+              "name": "comentario",
+              "type": "character varying",
+              "standardName": "comentario"
+            },
+            {
+              "name": "status",
+              "type": "character varying",
+              "standardName": "status"
+            }
+          ],
+          "purpose": "Recursos humanos",
+          "totalColumns": 11
+        },
+        "delivery": {
+          "tableName": "delivery",
+          "primaryKey": "id",
+          "columns": [
+            {
+              "name": "idencabedoc",
+              "type": "bigint",
+              "standardName": "idencabedoc"
+            },
+            {
+              "name": "idcolaborador",
+              "type": "bigint",
+              "standardName": "idcolaborador"
+            },
+            {
+              "name": "direccion",
+              "type": "character varying",
+              "standardName": "direccion"
+            },
+            {
+              "name": "telefono",
+              "type": "character varying",
+              "standardName": "telefono"
+            },
+            {
+              "name": "fecha_creacion",
+              "type": "timestamp without time zone",
+              "standardName": "fecha_creacion"
+            },
+            {
+              "name": "hora_creacion",
+              "type": "time without time zone",
+              "standardName": "hora_creacion"
+            }
+          ],
+          "purpose": "Sistema de delivery",
+          "totalColumns": 6
+        },
+        "departamentos": {
+          "tableName": "departamentos",
+          "primaryKey": "coddepto",
+          "columns": [
+            {
+              "name": "coddepto",
+              "type": "character varying",
+              "standardName": "coddepto"
+            },
+            {
+              "name": "departamento",
+              "type": "character varying",
+              "standardName": "departamento"
+            }
+          ],
+          "purpose": "Tabla del sistema",
+          "totalColumns": 2
+        },
+        "depositos": {
+          "tableName": "depositos",
+          "primaryKey": "iddeposito",
+          "columns": [
+            {
+              "name": "iddeposito",
+              "type": "integer",
+              "standardName": "iddeposito"
+            },
+            {
+              "name": "deposito",
+              "type": "character varying",
+              "standardName": "deposito"
+            },
+            {
+              "name": "codigodeposito",
+              "type": "character varying",
+              "standardName": "codigodeposito"
+            }
+          ],
+          "purpose": "Gestión de almacenes",
+          "totalColumns": 3
+        },
+        "encabezadoDoc": {
+          "tableName": "encabedoc",
+          "primaryKey": "idencabedoc",
+          "columns": [
+            {
+              "name": "idencabedoc",
+              "type": "integer",
+              "standardName": "idencabedoc"
+            },
+            {
+              "name": "codcliente",
+              "type": "character varying",
+              "standardName": "codcliente"
+            },
+            {
+              "name": "nombrecliente",
+              "type": "character varying",
+              "standardName": "nombrecliente"
+            },
+            {
+              "name": "rif",
+              "type": "character varying",
+              "standardName": "rif"
+            },
+            {
+              "name": "telefonos",
+              "type": "character varying",
+              "standardName": "telefonos"
+            },
+            {
+              "name": "vendedorcodigo",
+              "type": "character varying",
+              "standardName": "vendedorcodigo"
+            },
+            {
+              "name": "nombrevendedor",
+              "type": "character varying",
+              "standardName": "nombrevendedor"
+            },
+            {
+              "name": "monedacodigo",
+              "type": "character varying",
+              "standardName": "monedacodigo"
+            },
+            {
+              "name": "moneda",
+              "type": "character varying",
+              "standardName": "moneda"
+            },
+            {
+              "name": "depositocodigo",
+              "type": "character varying",
+              "standardName": "depositocodigo"
+            },
+            {
+              "name": "usuariocodigo",
+              "type": "character varying",
+              "standardName": "usuariocodigo"
+            },
+            {
+              "name": "tasa",
+              "type": "numeric",
+              "standardName": "tasa"
+            },
+            {
+              "name": "subtotal",
+              "type": "numeric",
+              "standardName": "subtotal"
+            },
+            {
+              "name": "iva",
+              "type": "numeric",
+              "standardName": "iva"
+            },
+            {
+              "name": "total",
+              "type": "numeric",
+              "standardName": "total"
+            },
+            {
+              "name": "esexento",
+              "type": "boolean",
+              "standardName": "esexento"
+            },
+            {
+              "name": "fechaemision",
+              "type": "date",
+              "standardName": "fechaemision"
+            },
+            {
+              "name": "hora",
+              "type": "time without time zone",
+              "standardName": "hora"
+            },
+            {
+              "name": "status",
+              "type": "character varying",
+              "standardName": "status"
+            },
+            {
+              "name": "observaciones",
+              "type": "character varying",
+              "standardName": "observaciones"
+            }
+          ],
+          "purpose": "Documentos de venta",
+          "totalColumns": 20
+        },
+        "productos": {
+          "tableName": "inventario",
+          "primaryKey": "idinven",
+          "columns": [
+            {
+              "name": "idinven",
+              "type": "integer",
+              "standardName": "idinven"
+            },
+            {
+              "name": "codigodeposito",
+              "type": "character varying",
+              "standardName": "codigodeposito"
+            },
+            {
+              "name": "codigo",
+              "type": "character varying",
+              "standardName": "codigo"
+            },
+            {
+              "name": "nombre",
+              "type": "character varying",
+              "standardName": "nombre"
+            },
+            {
+              "name": "existenciaunidad",
+              "type": "numeric",
+              "standardName": "existenciaunidad"
+            },
+            {
+              "name": "existenciamayor",
+              "type": "numeric",
+              "standardName": "existenciamayor"
+            },
+            {
+              "name": "codunidad",
+              "type": "character varying",
+              "standardName": "codunidad"
+            },
+            {
+              "name": "nombreunidad",
+              "type": "character varying",
+              "standardName": "nombreunidad"
+            },
+            {
+              "name": "codunidadalterna",
+              "type": "character varying",
+              "standardName": "codunidadalterna"
+            },
+            {
+              "name": "nombreunidadalterna",
+              "type": "character varying",
+              "standardName": "nombreunidadalterna"
+            },
+            {
+              "name": "status",
+              "type": "character varying",
+              "standardName": "status"
+            },
+            {
+              "name": "factor",
+              "type": "numeric",
+              "standardName": "factor"
+            },
+            {
+              "name": "foto",
+              "type": "text",
+              "standardName": "foto"
+            },
+            {
+              "name": "coddepto",
+              "type": "character varying",
+              "standardName": "coddepto"
+            },
+            {
+              "name": "preciounidad",
+              "type": "numeric",
+              "standardName": "preciounidad"
+            },
+            {
+              "name": "preciomayor",
+              "type": "numeric",
+              "standardName": "preciomayor"
+            },
+            {
+              "name": "alicuotaiva",
+              "type": "numeric",
+              "standardName": "alicuotaiva"
+            }
+          ],
+          "purpose": "Control de inventario",
+          "totalColumns": 17
+        },
+        "licencia": {
+          "tableName": "licencia",
+          "primaryKey": "codcliente",
+          "columns": [
+            {
+              "name": "codcliente",
+              "type": "character varying",
+              "standardName": "codcliente"
+            },
+            {
+              "name": "cliente",
+              "type": "character varying",
+              "standardName": "cliente"
+            },
+            {
+              "name": "clave",
+              "type": "character varying",
+              "standardName": "clave"
+            },
+            {
+              "name": "direccion",
+              "type": "character varying",
+              "standardName": "direccion"
+            },
+            {
+              "name": "telefono",
+              "type": "character varying",
+              "standardName": "telefono"
+            },
+            {
+              "name": "email",
+              "type": "character varying",
+              "standardName": "email"
+            }
+          ],
+          "purpose": "Tabla del sistema",
+          "totalColumns": 6
+        },
+        "log": {
+          "tableName": "log",
+          "primaryKey": "idlog",
+          "columns": [
+            {
+              "name": "idlog",
+              "type": "integer",
+              "standardName": "idlog"
+            },
+            {
+              "name": "fecha",
+              "type": "date",
+              "standardName": "fecha"
+            },
+            {
+              "name": "hora",
+              "type": "time without time zone",
+              "standardName": "hora"
+            },
+            {
+              "name": "accion",
+              "type": "character varying",
+              "standardName": "accion"
+            }
+          ],
+          "purpose": "Tabla del sistema",
+          "totalColumns": 4
+        },
+        "logtrigger": {
+          "tableName": "logtrigger",
+          "primaryKey": "id",
+          "columns": [
+            {
+              "name": "id",
+              "type": "integer",
+              "standardName": "id"
+            },
+            {
+              "name": "idencabedoc",
+              "type": "integer",
+              "standardName": "idencabedoc"
+            },
+            {
+              "name": "fecha",
+              "type": "timestamp with time zone",
+              "standardName": "fecha"
+            },
+            {
+              "name": "ejecucion_exitosa",
+              "type": "boolean",
+              "standardName": "ejecucion_exitosa"
+            }
+          ],
+          "purpose": "Tabla del sistema",
+          "totalColumns": 4
+        },
+        "monedas": {
+          "tableName": "monedas",
+          "primaryKey": "idmoneda",
+          "columns": [
+            {
+              "name": "idmoneda",
+              "type": "integer",
+              "standardName": "idmoneda"
+            },
+            {
+              "name": "moneda",
+              "type": "character varying",
+              "standardName": "moneda"
+            },
+            {
+              "name": "codmoneda",
+              "type": "character",
+              "standardName": "codmoneda"
+            },
+            {
+              "name": "factorcambio",
+              "type": "numeric",
+              "standardName": "factorcambio"
+            }
+          ],
+          "purpose": "Configuración financiera",
+          "totalColumns": 4
+        },
+        "movimientosDoc": {
+          "tableName": "movimientosdoc",
+          "primaryKey": "idmovimientosdoc",
+          "columns": [
+            {
+              "name": "idmovimientosdoc",
+              "type": "integer",
+              "standardName": "idmovimientosdoc"
+            },
+            {
+              "name": "idencabedoc",
+              "type": "integer",
+              "standardName": "idencabedoc"
+            },
+            {
+              "name": "codigo",
+              "type": "character varying",
+              "standardName": "codigo"
+            },
+            {
+              "name": "nombre",
+              "type": "character varying",
+              "standardName": "nombre"
+            },
+            {
+              "name": "descripcionreal",
+              "type": "character varying",
+              "standardName": "descripcionreal"
+            },
+            {
+              "name": "idmarca",
+              "type": "integer",
+              "standardName": "idmarca"
+            },
+            {
+              "name": "marca",
+              "type": "character varying",
+              "standardName": "marca"
+            },
+            {
+              "name": "serial",
+              "type": "character varying",
+              "standardName": "serial"
+            },
+            {
+              "name": "arreglo",
+              "type": "character varying",
+              "standardName": "arreglo"
+            },
+            {
+              "name": "esimportacion",
+              "type": "boolean",
+              "standardName": "esimportacion"
+            },
+            {
+              "name": "esexento",
+              "type": "boolean",
+              "standardName": "esexento"
+            },
+            {
+              "name": "peso",
+              "type": "numeric",
+              "standardName": "peso"
+            },
+            {
+              "name": "cantidad",
+              "type": "numeric",
+              "standardName": "cantidad"
+            },
+            {
+              "name": "precio",
+              "type": "numeric",
+              "standardName": "precio"
+            },
+            {
+              "name": "iva",
+              "type": "numeric",
+              "standardName": "iva"
+            },
+            {
+              "name": "preciototal",
+              "type": "numeric",
+              "standardName": "preciototal"
+            },
+            {
+              "name": "status",
+              "type": "character varying",
+              "standardName": "status"
+            },
+            {
+              "name": "desstatus",
+              "type": "character varying",
+              "standardName": "desstatus"
+            },
+            {
+              "name": "tiempoentrega",
+              "type": "character varying",
+              "standardName": "tiempoentrega"
+            }
+          ],
+          "purpose": "Detalles de documentos",
+          "totalColumns": 19
+        },
+        "metodosPago": {
+          "tableName": "pagos",
+          "primaryKey": "idencabedoc",
+          "columns": [
+            {
+              "name": "idencabedoc",
+              "type": "bigint",
+              "standardName": "idencabedoc"
+            },
+            {
+              "name": "idtipo",
+              "type": "bigint",
+              "standardName": "idtipo"
+            },
+            {
+              "name": "monto",
+              "type": "numeric",
+              "standardName": "monto"
+            },
+            {
+              "name": "codigobanco",
+              "type": "integer",
+              "standardName": "codigobanco"
+            },
+            {
+              "name": "banco",
+              "type": "character varying",
+              "standardName": "banco"
+            },
+            {
+              "name": "clienteid",
+              "type": "character varying",
+              "standardName": "clienteid"
+            },
+            {
+              "name": "telefono",
+              "type": "character varying",
+              "standardName": "telefono"
+            },
+            {
+              "name": "fechatrans",
+              "type": "date",
+              "standardName": "fechatrans"
+            },
+            {
+              "name": "montorecibido",
+              "type": "numeric",
+              "standardName": "montorecibido"
+            },
+            {
+              "name": "balancedelta",
+              "type": "character varying",
+              "standardName": "balancedelta"
+            },
+            {
+              "name": "codoperacion",
+              "type": "character varying",
+              "standardName": "codoperacion"
+            },
+            {
+              "name": "nrocontrol",
+              "type": "character varying",
+              "standardName": "nrocontrol"
+            },
+            {
+              "name": "concepto",
+              "type": "character varying",
+              "standardName": "concepto"
+            },
+            {
+              "name": "cuentadebitada",
+              "type": "character varying",
+              "standardName": "cuentadebitada"
+            },
+            {
+              "name": "existemovimiento",
+              "type": "boolean",
+              "standardName": "existemovimiento"
+            },
+            {
+              "name": "referencia",
+              "type": "character varying",
+              "standardName": "referencia"
+            },
+            {
+              "name": "tipomovimiento",
+              "type": "character varying",
+              "standardName": "tipomovimiento"
+            },
+            {
+              "name": "status",
+              "type": "character varying",
+              "standardName": "status"
+            }
+          ],
+          "purpose": "Gestión de pagos",
+          "totalColumns": 18
+        },
+        "productosxfoto": {
+          "tableName": "productosxfoto",
+          "primaryKey": "codigo",
+          "columns": [
+            {
+              "name": "codigo",
+              "type": "integer",
+              "standardName": "codigo"
+            },
+            {
+              "name": "codproducto",
+              "type": "character varying",
+              "standardName": "codproducto"
+            },
+            {
+              "name": "foto",
+              "type": "bytea",
+              "standardName": "foto"
+            }
+          ],
+          "purpose": "Control de inventario",
+          "totalColumns": 3
+        },
+        "sinonimos": {
+          "tableName": "sinonimos",
+          "primaryKey": "id",
+          "columns": [
+            {
+              "name": "id",
+              "type": "integer",
+              "standardName": "id"
+            },
+            {
+              "name": "codigo",
+              "type": "character varying",
+              "standardName": "codigo"
+            },
+            {
+              "name": "nombre",
+              "type": "text",
+              "standardName": "nombre"
+            }
+          ],
+          "purpose": "Tabla del sistema",
+          "totalColumns": 3
+        },
+        "supervisores": {
+          "tableName": "supervisores",
+          "primaryKey": "id",
+          "columns": [
+            {
+              "name": "id",
+              "type": "bigint",
+              "standardName": "id"
+            },
+            {
+              "name": "nombre",
+              "type": "character varying",
+              "standardName": "nombre"
+            },
+            {
+              "name": "telefono",
+              "type": "character varying",
+              "standardName": "telefono"
+            },
+            {
+              "name": "cedula",
+              "type": "character varying",
+              "standardName": "cedula"
+            }
+          ],
+          "purpose": "Tabla del sistema",
+          "totalColumns": 4
+        },
+        "tipospagos": {
+          "tableName": "tipospagos",
+          "primaryKey": "idtipo",
+          "columns": [
+            {
+              "name": "idtipo",
+              "type": "bigint",
+              "standardName": "idtipo"
+            },
+            {
+              "name": "pago",
+              "type": "character varying",
+              "standardName": "pago"
+            }
+          ],
+          "purpose": "Gestión de pagos",
+          "totalColumns": 2
+        }
+      },
+      "relationships": [],
+      "queries": {
+        "buscarBancos": "SELECT * FROM bancos WHERE codigo = $1",
+        "listarBancos": "SELECT * FROM bancos ORDER BY codigo DESC LIMIT 50",
+        "contarBancos": "SELECT COUNT(*) as total FROM bancos",
+        "buscarBnctoken": "SELECT * FROM bnctoken WHERE workingkey = $1",
+        "listarBnctoken": "SELECT * FROM bnctoken ORDER BY workingkey DESC LIMIT 50",
+        "contarBnctoken": "SELECT COUNT(*) as total FROM bnctoken",
+        "buscarClientes": "SELECT * FROM clientes WHERE idcliente = $1",
+        "listarClientes": "SELECT * FROM clientes ORDER BY idcliente DESC LIMIT 50",
+        "contarClientes": "SELECT COUNT(*) as total FROM clientes",
+        "buscarColaboradores": "SELECT * FROM colaboradores WHERE idcolaborador = $1",
+        "listarColaboradores": "SELECT * FROM colaboradores ORDER BY idcolaborador DESC LIMIT 50",
+        "contarColaboradores": "SELECT COUNT(*) as total FROM colaboradores",
+        "buscarDelivery": "SELECT * FROM delivery WHERE id = $1",
+        "listarDelivery": "SELECT * FROM delivery ORDER BY id DESC LIMIT 50",
+        "contarDelivery": "SELECT COUNT(*) as total FROM delivery",
+        "buscarDepartamentos": "SELECT * FROM departamentos WHERE coddepto = $1",
+        "listarDepartamentos": "SELECT * FROM departamentos ORDER BY coddepto DESC LIMIT 50",
+        "contarDepartamentos": "SELECT COUNT(*) as total FROM departamentos",
+        "buscarDepositos": "SELECT * FROM depositos WHERE iddeposito = $1",
+        "listarDepositos": "SELECT * FROM depositos ORDER BY iddeposito DESC LIMIT 50",
+        "contarDepositos": "SELECT COUNT(*) as total FROM depositos",
+        "buscarEncabezadoDoc": "SELECT * FROM encabedoc WHERE idencabedoc = $1",
+        "listarEncabezadoDoc": "SELECT * FROM encabedoc ORDER BY idencabedoc DESC LIMIT 50",
+        "contarEncabezadoDoc": "SELECT COUNT(*) as total FROM encabedoc",
+        "buscarProductos": "SELECT * FROM inventario WHERE idinven = $1",
+        "listarProductos": "SELECT * FROM inventario ORDER BY idinven DESC LIMIT 50",
+        "contarProductos": "SELECT COUNT(*) as total FROM inventario",
+        "buscarLicencia": "SELECT * FROM licencia WHERE codcliente = $1",
+        "listarLicencia": "SELECT * FROM licencia ORDER BY codcliente DESC LIMIT 50",
+        "contarLicencia": "SELECT COUNT(*) as total FROM licencia",
+        "buscarLog": "SELECT * FROM log WHERE idlog = $1",
+        "listarLog": "SELECT * FROM log ORDER BY idlog DESC LIMIT 50",
+        "contarLog": "SELECT COUNT(*) as total FROM log",
+        "buscarLogtrigger": "SELECT * FROM logtrigger WHERE id = $1",
+        "listarLogtrigger": "SELECT * FROM logtrigger ORDER BY id DESC LIMIT 50",
+        "contarLogtrigger": "SELECT COUNT(*) as total FROM logtrigger",
+        "buscarMonedas": "SELECT * FROM monedas WHERE idmoneda = $1",
+        "listarMonedas": "SELECT * FROM monedas ORDER BY idmoneda DESC LIMIT 50",
+        "contarMonedas": "SELECT COUNT(*) as total FROM monedas",
+        "buscarMovimientosDoc": "SELECT * FROM movimientosdoc WHERE idmovimientosdoc = $1",
+        "listarMovimientosDoc": "SELECT * FROM movimientosdoc ORDER BY idmovimientosdoc DESC LIMIT 50",
+        "contarMovimientosDoc": "SELECT COUNT(*) as total FROM movimientosdoc",
+        "buscarMetodosPago": "SELECT * FROM pagos WHERE idencabedoc = $1",
+        "listarMetodosPago": "SELECT * FROM pagos ORDER BY idencabedoc DESC LIMIT 50",
+        "contarMetodosPago": "SELECT COUNT(*) as total FROM pagos",
+        "buscarProductosxfoto": "SELECT * FROM productosxfoto WHERE codigo = $1",
+        "listarProductosxfoto": "SELECT * FROM productosxfoto ORDER BY codigo DESC LIMIT 50",
+        "contarProductosxfoto": "SELECT COUNT(*) as total FROM productosxfoto",
+        "buscarSinonimos": "SELECT * FROM sinonimos WHERE id = $1",
+        "listarSinonimos": "SELECT * FROM sinonimos ORDER BY id DESC LIMIT 50",
+        "contarSinonimos": "SELECT COUNT(*) as total FROM sinonimos",
+        "buscarSupervisores": "SELECT * FROM supervisores WHERE id = $1",
+        "listarSupervisores": "SELECT * FROM supervisores ORDER BY id DESC LIMIT 50",
+        "contarSupervisores": "SELECT COUNT(*) as total FROM supervisores",
+        "buscarTipospagos": "SELECT * FROM tipospagos WHERE idtipo = $1",
+        "listarTipospagos": "SELECT * FROM tipospagos ORDER BY idtipo DESC LIMIT 50",
+        "contarTipospagos": "SELECT COUNT(*) as total FROM tipospagos"
+      },
+      "agentInstructions": {
+        "generalContext": "Sistema postgres con 19 tablas detectadas",
+        "responseFormats": {
+          "successMessages": {
+            "create": "Registro creado",
+            "update": "Registro actualizado",
+            "delete": "Registro eliminado"
+          },
+          "errorMessages": {
+            "not_found": "Registro no encontrado",
+            "validation_error": "Datos inválidos"
+          },
+          "dataPresentation": {
+            "list": "Lista de registros",
+            "detail": "Detalle del registro"
+          }
+        }
+      },
+      "businessRules": []
+    },
+    "message": "Esquema detectado: 19 tablas encontradas"
+  },
+  "aiContext": {
+    "success": true,
+    "enhancedTables": {
+      "bancos": {
+        "name": "bancos",
+        "mappedName": "bancos",
+        "columns": [
+          {
+            "name": "codigo",
+            "type": "character varying",
+            "standardName": "codigo"
+          },
+          {
+            "name": "banco",
+            "type": "character varying",
+            "standardName": "banco"
+          },
+          {
+            "name": "services",
+            "type": "ARRAY",
+            "standardName": "services"
+          },
+          {
+            "name": "status",
+            "type": "character varying",
+            "standardName": "status"
+          }
+        ],
+        "primaryKey": "codigo",
+        "purpose": "Configuración financiera",
+        "totalColumns": 4,
+        "tableContext": {
+          "purpose": "Configuración financiera",
+          "queryInstructions": "Para consultar bancos, usa siempre la clave primaria para búsquedas exactas. Filtrar siempre por estado activo/válido",
+          "insertInstructions": "Al insertar en bancos, validar siempre los campos requeridos",
+          "businessLogic": "Aplicar soft delete en lugar de eliminación física. Controlar transiciones de estado válidas",
+          "aiTips": "Siempre confirmar la operación antes de ejecutar, Proporcionar feedback claro del resultado",
+          "generatedAt": "2025-06-06T07:08:26.901Z",
+          "confidence": 0.5
+        }
+      },
+      "bnctoken": {
+        "name": "bnctoken",
+        "mappedName": "bnctoken",
+        "columns": [
+          {
+            "name": "workingkey",
+            "type": "character varying",
+            "standardName": "workingkey"
+          },
+          {
+            "name": "fecha",
+            "type": "date",
+            "standardName": "fecha"
+          }
+        ],
+        "primaryKey": "workingkey",
+        "purpose": "Tabla del sistema",
+        "totalColumns": 2,
+        "tableContext": {
+          "purpose": "Tabla del sistema",
+          "queryInstructions": "Para consultar bnctoken, usa siempre la clave primaria para búsquedas exactas",
+          "insertInstructions": "Al insertar en bnctoken, validar siempre los campos requeridos. Establecer timestamps de creación automáticamente",
+          "businessLogic": "Aplicar soft delete en lugar de eliminación física",
+          "aiTips": "Siempre confirmar la operación antes de ejecutar, Proporcionar feedback claro del resultado, Mostrar fechas en formato amigable, Incluir información temporal relevante",
+          "generatedAt": "2025-06-06T07:08:26.901Z",
+          "confidence": 0.6
+        }
+      },
+      "clientes": {
+        "name": "clientes",
+        "mappedName": "clientes",
+        "columns": [
+          {
+            "name": "idcliente",
+            "type": "integer",
+            "standardName": "idcliente"
+          },
+          {
+            "name": "codigocliente",
+            "type": "character varying",
+            "standardName": "codigocliente"
+          },
+          {
+            "name": "nombre",
+            "type": "character varying",
+            "standardName": "nombre"
+          },
+          {
+            "name": "rif",
+            "type": "character varying",
+            "standardName": "rif"
+          },
+          {
+            "name": "direccion1",
+            "type": "character varying",
+            "standardName": "direccion1"
+          },
+          {
+            "name": "direccion2",
+            "type": "character varying",
+            "standardName": "direccion2"
+          },
+          {
+            "name": "idpais",
+            "type": "integer",
+            "standardName": "idpais"
+          },
+          {
+            "name": "idestado",
+            "type": "integer",
+            "standardName": "idestado"
+          },
+          {
+            "name": "idciudad",
+            "type": "integer",
+            "standardName": "idciudad"
+          },
+          {
+            "name": "idmunicipio",
+            "type": "integer",
+            "standardName": "idmunicipio"
+          },
+          {
+            "name": "codigopostal",
+            "type": "character varying",
+            "standardName": "codigopostal"
+          },
+          {
+            "name": "telefono1",
+            "type": "character varying",
+            "standardName": "telefono1"
+          },
+          {
+            "name": "telefono2",
+            "type": "character varying",
+            "standardName": "telefono2"
+          },
+          {
+            "name": "email",
+            "type": "character varying",
+            "standardName": "email"
+          },
+          {
+            "name": "tienecredito",
+            "type": "integer",
+            "standardName": "tienecredito"
+          },
+          {
+            "name": "esexento",
+            "type": "integer",
+            "standardName": "esexento"
+          },
+          {
+            "name": "diascredito",
+            "type": "integer",
+            "standardName": "diascredito"
+          },
+          {
+            "name": "saldo",
+            "type": "numeric",
+            "standardName": "saldo"
+          },
+          {
+            "name": "pagos",
+            "type": "numeric",
+            "standardName": "pagos"
+          },
+          {
+            "name": "fechaultimaventa",
+            "type": "date",
+            "standardName": "fechaultimaventa"
+          },
+          {
+            "name": "fechacreacion",
+            "type": "timestamp without time zone",
+            "standardName": "fechacreacion"
+          },
+          {
+            "name": "fechacredito",
+            "type": "date",
+            "standardName": "fechacredito"
+          },
+          {
+            "name": "esagentederetencion",
+            "type": "integer",
+            "standardName": "esagentederetencion"
+          },
+          {
+            "name": "redsocial1",
+            "type": "character varying",
+            "standardName": "redsocial1"
+          },
+          {
+            "name": "redsocial2",
+            "type": "character varying",
+            "standardName": "redsocial2"
+          },
+          {
+            "name": "redsocial3",
+            "type": "character varying",
+            "standardName": "redsocial3"
+          },
+          {
+            "name": "status",
+            "type": "character varying",
+            "standardName": "status"
+          },
+          {
+            "name": "coordenadas",
+            "type": "character varying",
+            "standardName": "coordenadas"
+          }
+        ],
+        "primaryKey": "idcliente",
+        "purpose": "Gestión de clientes",
+        "totalColumns": 28,
+        "tableContext": {
+          "purpose": "Gestión completa de clientes del sistema. Almacena información personal, de contacto y comercial de los clientes. Es central para todas las operaciones de ventas y facturación.",
+          "queryInstructions": "Para consultar clientes, usa siempre la clave primaria para búsquedas exactas. Buscar clientes por nombre usando LIKE con % para coincidencias parciales. Verificar siempre el estado activo del cliente antes de procesar. Incluir fechas de creación para auditoría. Filtrar siempre por estado activo/válido",
+          "insertInstructions": "Al insertar en clientes, validar siempre los campos requeridos. Validar formato de email y unicidad si aplicable. Asignar código único de cliente automáticamente. Establecer fecha de registro actual. Establecer timestamps de creación automáticamente. Validar integridad referencial de todas las FK",
+          "businessLogic": "Aplicar soft delete en lugar de eliminación física. No permitir eliminar clientes con documentos asociados. Validar datos de contacto antes de guardar. Mantener historial de cambios en información crítica. Controlar transiciones de estado válidas",
+          "aiTips": "Siempre confirmar la operación antes de ejecutar, Proporcionar feedback claro del resultado, Sugerir información faltante al crear clientes, Mostrar resumen de actividad reciente del cliente, Ofrecer búsqueda inteligente por nombre parcial, Mostrar fechas en formato amigable, Incluir información temporal relevante",
+          "generatedAt": "2025-06-06T07:08:26.902Z",
+          "confidence": 1
+        }
+      },
+      "colaboradores": {
+        "name": "colaboradores",
+        "mappedName": "colaboradores",
+        "columns": [
+          {
+            "name": "idcolaborador",
+            "type": "integer",
+            "standardName": "idcolaborador"
+          },
+          {
+            "name": "nombre",
+            "type": "character varying",
+            "standardName": "nombre"
+          },
+          {
+            "name": "cedula",
+            "type": "character varying",
+            "standardName": "cedula"
+          },
+          {
+            "name": "direccion",
+            "type": "character varying",
+            "standardName": "direccion"
+          },
+          {
+            "name": "telefono1",
+            "type": "character varying",
+            "standardName": "telefono1"
+          },
+          {
+            "name": "telefono2",
+            "type": "character varying",
+            "standardName": "telefono2"
+          },
+          {
+            "name": "vehiculo",
+            "type": "character varying",
+            "standardName": "vehiculo"
+          },
+          {
+            "name": "foto",
+            "type": "bytea",
+            "standardName": "foto"
+          },
+          {
+            "name": "placa",
+            "type": "character varying",
+            "standardName": "placa"
+          },
+          {
+            "name": "comentario",
+            "type": "character varying",
+            "standardName": "comentario"
+          },
+          {
+            "name": "status",
+            "type": "character varying",
+            "standardName": "status"
+          }
+        ],
+        "primaryKey": "idcolaborador",
+        "purpose": "Recursos humanos",
+        "totalColumns": 11,
+        "tableContext": {
+          "purpose": "Recursos humanos",
+          "queryInstructions": "Para consultar colaboradores, usa siempre la clave primaria para búsquedas exactas. Filtrar siempre por estado activo/válido",
+          "insertInstructions": "Al insertar en colaboradores, validar siempre los campos requeridos. Validar integridad referencial de todas las FK",
+          "businessLogic": "Aplicar soft delete en lugar de eliminación física. Controlar transiciones de estado válidas",
+          "aiTips": "Siempre confirmar la operación antes de ejecutar, Proporcionar feedback claro del resultado",
+          "generatedAt": "2025-06-06T07:08:26.902Z",
+          "confidence": 0.7
+        }
+      },
+      "delivery": {
+        "name": "delivery",
+        "mappedName": "delivery",
+        "columns": [
+          {
+            "name": "idencabedoc",
+            "type": "bigint",
+            "standardName": "idencabedoc"
+          },
+          {
+            "name": "idcolaborador",
+            "type": "bigint",
+            "standardName": "idcolaborador"
+          },
+          {
+            "name": "direccion",
+            "type": "character varying",
+            "standardName": "direccion"
+          },
+          {
+            "name": "telefono",
+            "type": "character varying",
+            "standardName": "telefono"
+          },
+          {
+            "name": "fecha_creacion",
+            "type": "timestamp without time zone",
+            "standardName": "fecha_creacion"
+          },
+          {
+            "name": "hora_creacion",
+            "type": "time without time zone",
+            "standardName": "hora_creacion"
+          }
+        ],
+        "primaryKey": "id",
+        "purpose": "Sistema de delivery",
+        "totalColumns": 6,
+        "tableContext": {
+          "purpose": "Sistema de delivery",
+          "queryInstructions": "Para consultar delivery, usa siempre la clave primaria para búsquedas exactas",
+          "insertInstructions": "Al insertar en delivery, validar siempre los campos requeridos. Establecer timestamps de creación automáticamente. Validar integridad referencial de todas las FK",
+          "businessLogic": "Aplicar soft delete en lugar de eliminación física",
+          "aiTips": "Siempre confirmar la operación antes de ejecutar, Proporcionar feedback claro del resultado, Mostrar fechas en formato amigable, Incluir información temporal relevante",
+          "generatedAt": "2025-06-06T07:08:26.902Z",
+          "confidence": 0.6
+        }
+      },
+      "departamentos": {
+        "name": "departamentos",
+        "mappedName": "departamentos",
+        "columns": [
+          {
+            "name": "coddepto",
+            "type": "character varying",
+            "standardName": "coddepto"
+          },
+          {
+            "name": "departamento",
+            "type": "character varying",
+            "standardName": "departamento"
+          }
+        ],
+        "primaryKey": "coddepto",
+        "purpose": "Tabla del sistema",
+        "totalColumns": 2,
+        "tableContext": {
+          "purpose": "Tabla del sistema",
+          "queryInstructions": "Para consultar departamentos, usa siempre la clave primaria para búsquedas exactas",
+          "insertInstructions": "Al insertar en departamentos, validar siempre los campos requeridos",
+          "businessLogic": "Aplicar soft delete en lugar de eliminación física",
+          "aiTips": "Siempre confirmar la operación antes de ejecutar, Proporcionar feedback claro del resultado",
+          "generatedAt": "2025-06-06T07:08:26.903Z",
+          "confidence": 0.5
+        }
+      },
+      "depositos": {
+        "name": "depositos",
+        "mappedName": "depositos",
+        "columns": [
+          {
+            "name": "iddeposito",
+            "type": "integer",
+            "standardName": "iddeposito"
+          },
+          {
+            "name": "deposito",
+            "type": "character varying",
+            "standardName": "deposito"
+          },
+          {
+            "name": "codigodeposito",
+            "type": "character varying",
+            "standardName": "codigodeposito"
+          }
+        ],
+        "primaryKey": "iddeposito",
+        "purpose": "Gestión de almacenes",
+        "totalColumns": 3,
+        "tableContext": {
+          "purpose": "Gestión de almacenes",
+          "queryInstructions": "Para consultar depositos, usa siempre la clave primaria para búsquedas exactas",
+          "insertInstructions": "Al insertar en depositos, validar siempre los campos requeridos. Validar integridad referencial de todas las FK",
+          "businessLogic": "Aplicar soft delete en lugar de eliminación física",
+          "aiTips": "Siempre confirmar la operación antes de ejecutar, Proporcionar feedback claro del resultado",
+          "generatedAt": "2025-06-06T07:08:26.903Z",
+          "confidence": 0.6
+        }
+      },
+      "encabezadoDoc": {
+        "name": "encabedoc",
+        "mappedName": "encabezadoDoc",
+        "columns": [
+          {
+            "name": "idencabedoc",
+            "type": "integer",
+            "standardName": "idencabedoc"
+          },
+          {
+            "name": "codcliente",
+            "type": "character varying",
+            "standardName": "codcliente"
+          },
+          {
+            "name": "nombrecliente",
+            "type": "character varying",
+            "standardName": "nombrecliente"
+          },
+          {
+            "name": "rif",
+            "type": "character varying",
+            "standardName": "rif"
+          },
+          {
+            "name": "telefonos",
+            "type": "character varying",
+            "standardName": "telefonos"
+          },
+          {
+            "name": "vendedorcodigo",
+            "type": "character varying",
+            "standardName": "vendedorcodigo"
+          },
+          {
+            "name": "nombrevendedor",
+            "type": "character varying",
+            "standardName": "nombrevendedor"
+          },
+          {
+            "name": "monedacodigo",
+            "type": "character varying",
+            "standardName": "monedacodigo"
+          },
+          {
+            "name": "moneda",
+            "type": "character varying",
+            "standardName": "moneda"
+          },
+          {
+            "name": "depositocodigo",
+            "type": "character varying",
+            "standardName": "depositocodigo"
+          },
+          {
+            "name": "usuariocodigo",
+            "type": "character varying",
+            "standardName": "usuariocodigo"
+          },
+          {
+            "name": "tasa",
+            "type": "numeric",
+            "standardName": "tasa"
+          },
+          {
+            "name": "subtotal",
+            "type": "numeric",
+            "standardName": "subtotal"
+          },
+          {
+            "name": "iva",
+            "type": "numeric",
+            "standardName": "iva"
+          },
+          {
+            "name": "total",
+            "type": "numeric",
+            "standardName": "total"
+          },
+          {
+            "name": "esexento",
+            "type": "boolean",
+            "standardName": "esexento"
+          },
+          {
+            "name": "fechaemision",
+            "type": "date",
+            "standardName": "fechaemision"
+          },
+          {
+            "name": "hora",
+            "type": "time without time zone",
+            "standardName": "hora"
+          },
+          {
+            "name": "status",
+            "type": "character varying",
+            "standardName": "status"
+          },
+          {
+            "name": "observaciones",
+            "type": "character varying",
+            "standardName": "observaciones"
+          }
+        ],
+        "primaryKey": "idencabedoc",
+        "purpose": "Documentos de venta",
+        "totalColumns": 20,
+        "tableContext": {
+          "purpose": "Documentos maestros del sistema (facturas, cotizaciones, órdenes). Cada registro representa un documento comercial con su información general antes de los detalles.",
+          "queryInstructions": "Para consultar encabedoc, usa siempre la clave primaria para búsquedas exactas. Filtrar por rango de fechas para reportes. Incluir información del cliente en las consultas. Considerar el estado del documento (borrador, confirmado, anulado). Filtrar siempre por estado activo/válido. Incluir cálculos de totales cuando sea relevante",
+          "insertInstructions": "Al insertar en encabedoc, validar siempre los campos requeridos. Generar número consecutivo de documento. Validar existencia del cliente referenciado. Establecer fecha actual si no se proporciona. Calcular totales basado en los movimientos. Establecer timestamps de creación automáticamente. Validar integridad referencial de todas las FK",
+          "businessLogic": "Aplicar soft delete en lugar de eliminación física. No permitir modificar documentos confirmados. Validar totales contra suma de movimientos. Generar numeración consecutiva automática. Validar que los montos sean positivos. Usar precisión decimal apropiada para cálculos financieros. Controlar transiciones de estado válidas",
+          "aiTips": "Siempre confirmar la operación antes de ejecutar, Proporcionar feedback claro del resultado, Mostrar resumen financiero al crear documentos, Sugerir productos frecuentes del cliente, Validar límites de crédito automáticamente, Formatear montos en la moneda local, Mostrar cálculos paso a paso, Mostrar fechas en formato amigable, Incluir información temporal relevante",
+          "generatedAt": "2025-06-06T07:08:26.904Z",
+          "confidence": 1
+        }
+      },
+      "productos": {
+        "name": "inventario",
+        "mappedName": "productos",
+        "columns": [
+          {
+            "name": "idinven",
+            "type": "integer",
+            "standardName": "idinven"
+          },
+          {
+            "name": "codigodeposito",
+            "type": "character varying",
+            "standardName": "codigodeposito"
+          },
+          {
+            "name": "codigo",
+            "type": "character varying",
+            "standardName": "codigo"
+          },
+          {
+            "name": "nombre",
+            "type": "character varying",
+            "standardName": "nombre"
+          },
+          {
+            "name": "existenciaunidad",
+            "type": "numeric",
+            "standardName": "existenciaunidad"
+          },
+          {
+            "name": "existenciamayor",
+            "type": "numeric",
+            "standardName": "existenciamayor"
+          },
+          {
+            "name": "codunidad",
+            "type": "character varying",
+            "standardName": "codunidad"
+          },
+          {
+            "name": "nombreunidad",
+            "type": "character varying",
+            "standardName": "nombreunidad"
+          },
+          {
+            "name": "codunidadalterna",
+            "type": "character varying",
+            "standardName": "codunidadalterna"
+          },
+          {
+            "name": "nombreunidadalterna",
+            "type": "character varying",
+            "standardName": "nombreunidadalterna"
+          },
+          {
+            "name": "status",
+            "type": "character varying",
+            "standardName": "status"
+          },
+          {
+            "name": "factor",
+            "type": "numeric",
+            "standardName": "factor"
+          },
+          {
+            "name": "foto",
+            "type": "text",
+            "standardName": "foto"
+          },
+          {
+            "name": "coddepto",
+            "type": "character varying",
+            "standardName": "coddepto"
+          },
+          {
+            "name": "preciounidad",
+            "type": "numeric",
+            "standardName": "preciounidad"
+          },
+          {
+            "name": "preciomayor",
+            "type": "numeric",
+            "standardName": "preciomayor"
+          },
+          {
+            "name": "alicuotaiva",
+            "type": "numeric",
+            "standardName": "alicuotaiva"
+          }
+        ],
+        "primaryKey": "idinven",
+        "purpose": "Control de inventario",
+        "totalColumns": 17,
+        "tableContext": {
+          "purpose": "Control de inventario y productos. Gestiona stock, precios, códigos y toda la información de productos comercializables.",
+          "queryInstructions": "Para consultar inventario, usa siempre la clave primaria para búsquedas exactas. Verificar stock disponible antes de cualquier operación. Consultar por código de producto para búsquedas exactas. Usar filtros de categoría para búsquedas amplias. Filtrar siempre por estado activo/válido. Incluir cálculos de totales cuando sea relevante",
+          "insertInstructions": "Al insertar en inventario, validar siempre los campos requeridos. Generar código único de producto. Establecer stock inicial en cero si no se especifica. Validar categoría y unidad de medida. Validar integridad referencial de todas las FK",
+          "businessLogic": "Aplicar soft delete en lugar de eliminación física. No permitir stock negativo. Actualizar fechas de última modificación en cambios de precio. Validar códigos únicos de producto. Validar que los montos sean positivos. Usar precisión decimal apropiada para cálculos financieros. Controlar transiciones de estado válidas",
+          "aiTips": "Siempre confirmar la operación antes de ejecutar, Proporcionar feedback claro del resultado, Alertar sobre stock bajo automáticamente, Sugerir productos relacionados en búsquedas, Mostrar historial de precios en consultas, Formatear montos en la moneda local, Mostrar cálculos paso a paso",
+          "generatedAt": "2025-06-06T07:08:26.904Z",
+          "confidence": 0.7
+        }
+      },
+      "licencia": {
+        "name": "licencia",
+        "mappedName": "licencia",
+        "columns": [
+          {
+            "name": "codcliente",
+            "type": "character varying",
+            "standardName": "codcliente"
+          },
+          {
+            "name": "cliente",
+            "type": "character varying",
+            "standardName": "cliente"
+          },
+          {
+            "name": "clave",
+            "type": "character varying",
+            "standardName": "clave"
+          },
+          {
+            "name": "direccion",
+            "type": "character varying",
+            "standardName": "direccion"
+          },
+          {
+            "name": "telefono",
+            "type": "character varying",
+            "standardName": "telefono"
+          },
+          {
+            "name": "email",
+            "type": "character varying",
+            "standardName": "email"
+          }
+        ],
+        "primaryKey": "codcliente",
+        "purpose": "Tabla del sistema",
+        "totalColumns": 6,
+        "tableContext": {
+          "purpose": "Tabla del sistema",
+          "queryInstructions": "Para consultar licencia, usa siempre la clave primaria para búsquedas exactas",
+          "insertInstructions": "Al insertar en licencia, validar siempre los campos requeridos",
+          "businessLogic": "Aplicar soft delete en lugar de eliminación física",
+          "aiTips": "Siempre confirmar la operación antes de ejecutar, Proporcionar feedback claro del resultado",
+          "generatedAt": "2025-06-06T07:08:26.904Z",
+          "confidence": 0.5
+        }
+      },
+      "log": {
+        "name": "log",
+        "mappedName": "log",
+        "columns": [
+          {
+            "name": "idlog",
+            "type": "integer",
+            "standardName": "idlog"
+          },
+          {
+            "name": "fecha",
+            "type": "date",
+            "standardName": "fecha"
+          },
+          {
+            "name": "hora",
+            "type": "time without time zone",
+            "standardName": "hora"
+          },
+          {
+            "name": "accion",
+            "type": "character varying",
+            "standardName": "accion"
+          }
+        ],
+        "primaryKey": "idlog",
+        "purpose": "Tabla del sistema",
+        "totalColumns": 4,
+        "tableContext": {
+          "purpose": "Tabla del sistema",
+          "queryInstructions": "Para consultar log, usa siempre la clave primaria para búsquedas exactas",
+          "insertInstructions": "Al insertar en log, validar siempre los campos requeridos. Establecer timestamps de creación automáticamente. Validar integridad referencial de todas las FK",
+          "businessLogic": "Aplicar soft delete en lugar de eliminación física",
+          "aiTips": "Siempre confirmar la operación antes de ejecutar, Proporcionar feedback claro del resultado, Mostrar fechas en formato amigable, Incluir información temporal relevante",
+          "generatedAt": "2025-06-06T07:08:26.904Z",
+          "confidence": 0.6
+        }
+      },
+      "logtrigger": {
+        "name": "logtrigger",
+        "mappedName": "logtrigger",
+        "columns": [
+          {
+            "name": "id",
+            "type": "integer",
+            "standardName": "id"
+          },
+          {
+            "name": "idencabedoc",
+            "type": "integer",
+            "standardName": "idencabedoc"
+          },
+          {
+            "name": "fecha",
+            "type": "timestamp with time zone",
+            "standardName": "fecha"
+          },
+          {
+            "name": "ejecucion_exitosa",
+            "type": "boolean",
+            "standardName": "ejecucion_exitosa"
+          }
+        ],
+        "primaryKey": "id",
+        "purpose": "Tabla del sistema",
+        "totalColumns": 4,
+        "tableContext": {
+          "purpose": "Tabla del sistema",
+          "queryInstructions": "Para consultar logtrigger, usa siempre la clave primaria para búsquedas exactas",
+          "insertInstructions": "Al insertar en logtrigger, validar siempre los campos requeridos. Establecer timestamps de creación automáticamente. Validar integridad referencial de todas las FK",
+          "businessLogic": "Aplicar soft delete en lugar de eliminación física",
+          "aiTips": "Siempre confirmar la operación antes de ejecutar, Proporcionar feedback claro del resultado, Mostrar fechas en formato amigable, Incluir información temporal relevante",
+          "generatedAt": "2025-06-06T07:08:26.906Z",
+          "confidence": 0.6
+        }
+      },
+      "monedas": {
+        "name": "monedas",
+        "mappedName": "monedas",
+        "columns": [
+          {
+            "name": "idmoneda",
+            "type": "integer",
+            "standardName": "idmoneda"
+          },
+          {
+            "name": "moneda",
+            "type": "character varying",
+            "standardName": "moneda"
+          },
+          {
+            "name": "codmoneda",
+            "type": "character",
+            "standardName": "codmoneda"
+          },
+          {
+            "name": "factorcambio",
+            "type": "numeric",
+            "standardName": "factorcambio"
+          }
+        ],
+        "primaryKey": "idmoneda",
+        "purpose": "Configuración financiera",
+        "totalColumns": 4,
+        "tableContext": {
+          "purpose": "Configuración financiera",
+          "queryInstructions": "Para consultar monedas, usa siempre la clave primaria para búsquedas exactas",
+          "insertInstructions": "Al insertar en monedas, validar siempre los campos requeridos. Validar integridad referencial de todas las FK",
+          "businessLogic": "Aplicar soft delete en lugar de eliminación física",
+          "aiTips": "Siempre confirmar la operación antes de ejecutar, Proporcionar feedback claro del resultado",
+          "generatedAt": "2025-06-06T07:08:26.907Z",
+          "confidence": 0.6
+        }
+      },
+      "movimientosDoc": {
+        "name": "movimientosdoc",
+        "mappedName": "movimientosDoc",
+        "columns": [
+          {
+            "name": "idmovimientosdoc",
+            "type": "integer",
+            "standardName": "idmovimientosdoc"
+          },
+          {
+            "name": "idencabedoc",
+            "type": "integer",
+            "standardName": "idencabedoc"
+          },
+          {
+            "name": "codigo",
+            "type": "character varying",
+            "standardName": "codigo"
+          },
+          {
+            "name": "nombre",
+            "type": "character varying",
+            "standardName": "nombre"
+          },
+          {
+            "name": "descripcionreal",
+            "type": "character varying",
+            "standardName": "descripcionreal"
+          },
+          {
+            "name": "idmarca",
+            "type": "integer",
+            "standardName": "idmarca"
+          },
+          {
+            "name": "marca",
+            "type": "character varying",
+            "standardName": "marca"
+          },
+          {
+            "name": "serial",
+            "type": "character varying",
+            "standardName": "serial"
+          },
+          {
+            "name": "arreglo",
+            "type": "character varying",
+            "standardName": "arreglo"
+          },
+          {
+            "name": "esimportacion",
+            "type": "boolean",
+            "standardName": "esimportacion"
+          },
+          {
+            "name": "esexento",
+            "type": "boolean",
+            "standardName": "esexento"
+          },
+          {
+            "name": "peso",
+            "type": "numeric",
+            "standardName": "peso"
+          },
+          {
+            "name": "cantidad",
+            "type": "numeric",
+            "standardName": "cantidad"
+          },
+          {
+            "name": "precio",
+            "type": "numeric",
+            "standardName": "precio"
+          },
+          {
+            "name": "iva",
+            "type": "numeric",
+            "standardName": "iva"
+          },
+          {
+            "name": "preciototal",
+            "type": "numeric",
+            "standardName": "preciototal"
+          },
+          {
+            "name": "status",
+            "type": "character varying",
+            "standardName": "status"
+          },
+          {
+            "name": "desstatus",
+            "type": "character varying",
+            "standardName": "desstatus"
+          },
+          {
+            "name": "tiempoentrega",
+            "type": "character varying",
+            "standardName": "tiempoentrega"
+          }
+        ],
+        "primaryKey": "idmovimientosdoc",
+        "purpose": "Detalles de documentos",
+        "totalColumns": 19,
+        "tableContext": {
+          "purpose": "Detalles/líneas de los documentos comerciales. Cada registro representa un producto o servicio específico dentro de un documento maestro.",
+          "queryInstructions": "Para consultar movimientosdoc, usa siempre la clave primaria para búsquedas exactas. Filtrar siempre por estado activo/válido. Incluir cálculos de totales cuando sea relevante",
+          "insertInstructions": "Al insertar en movimientosdoc, validar siempre los campos requeridos. Validar existencia del documento padre. Verificar disponibilidad de stock si es venta. Calcular subtotales automáticamente. Validar integridad referencial de todas las FK",
+          "businessLogic": "Aplicar soft delete en lugar de eliminación física. Actualizar stock automáticamente en ventas. Recalcular totales del documento padre. Validar cantidades positivas. Validar que los montos sean positivos. Usar precisión decimal apropiada para cálculos financieros. Controlar transiciones de estado válidas",
+          "aiTips": "Siempre confirmar la operación antes de ejecutar, Proporcionar feedback claro del resultado, Formatear montos en la moneda local, Mostrar cálculos paso a paso",
+          "generatedAt": "2025-06-06T07:08:26.907Z",
+          "confidence": 1
+        }
+      },
+      "metodosPago": {
+        "name": "pagos",
+        "mappedName": "metodosPago",
+        "columns": [
+          {
+            "name": "idencabedoc",
+            "type": "bigint",
+            "standardName": "idencabedoc"
+          },
+          {
+            "name": "idtipo",
+            "type": "bigint",
+            "standardName": "idtipo"
+          },
+          {
+            "name": "monto",
+            "type": "numeric",
+            "standardName": "monto"
+          },
+          {
+            "name": "codigobanco",
+            "type": "integer",
+            "standardName": "codigobanco"
+          },
+          {
+            "name": "banco",
+            "type": "character varying",
+            "standardName": "banco"
+          },
+          {
+            "name": "clienteid",
+            "type": "character varying",
+            "standardName": "clienteid"
+          },
+          {
+            "name": "telefono",
+            "type": "character varying",
+            "standardName": "telefono"
+          },
+          {
+            "name": "fechatrans",
+            "type": "date",
+            "standardName": "fechatrans"
+          },
+          {
+            "name": "montorecibido",
+            "type": "numeric",
+            "standardName": "montorecibido"
+          },
+          {
+            "name": "balancedelta",
+            "type": "character varying",
+            "standardName": "balancedelta"
+          },
+          {
+            "name": "codoperacion",
+            "type": "character varying",
+            "standardName": "codoperacion"
+          },
+          {
+            "name": "nrocontrol",
+            "type": "character varying",
+            "standardName": "nrocontrol"
+          },
+          {
+            "name": "concepto",
+            "type": "character varying",
+            "standardName": "concepto"
+          },
+          {
+            "name": "cuentadebitada",
+            "type": "character varying",
+            "standardName": "cuentadebitada"
+          },
+          {
+            "name": "existemovimiento",
+            "type": "boolean",
+            "standardName": "existemovimiento"
+          },
+          {
+            "name": "referencia",
+            "type": "character varying",
+            "standardName": "referencia"
+          },
+          {
+            "name": "tipomovimiento",
+            "type": "character varying",
+            "standardName": "tipomovimiento"
+          },
+          {
+            "name": "status",
+            "type": "character varying",
+            "standardName": "status"
+          }
+        ],
+        "primaryKey": "idencabedoc",
+        "purpose": "Gestión de pagos",
+        "totalColumns": 18,
+        "tableContext": {
+          "purpose": "Gestión de pagos y transacciones financieras. Registra cómo y cuándo se realizan los pagos de los documentos.",
+          "queryInstructions": "Para consultar pagos, usa siempre la clave primaria para búsquedas exactas. Filtrar siempre por estado activo/válido",
+          "insertInstructions": "Al insertar en pagos, validar siempre los campos requeridos. Establecer timestamps de creación automáticamente. Validar integridad referencial de todas las FK",
+          "businessLogic": "Aplicar soft delete en lugar de eliminación física. Controlar transiciones de estado válidas",
+          "aiTips": "Siempre confirmar la operación antes de ejecutar, Proporcionar feedback claro del resultado, Calcular vueltos automáticamente, Sugerir métodos de pago disponibles, Confirmar montos antes de procesar, Mostrar fechas en formato amigable, Incluir información temporal relevante",
+          "generatedAt": "2025-06-06T07:08:26.908Z",
+          "confidence": 0.7
+        }
+      },
+      "productosxfoto": {
+        "name": "productosxfoto",
+        "mappedName": "productosxfoto",
+        "columns": [
+          {
+            "name": "codigo",
+            "type": "integer",
+            "standardName": "codigo"
+          },
+          {
+            "name": "codproducto",
+            "type": "character varying",
+            "standardName": "codproducto"
+          },
+          {
+            "name": "foto",
+            "type": "bytea",
+            "standardName": "foto"
+          }
+        ],
+        "primaryKey": "codigo",
+        "purpose": "Control de inventario",
+        "totalColumns": 3,
+        "tableContext": {
+          "purpose": "Control de inventario y productos. Gestiona stock, precios, códigos y toda la información de productos comercializables.",
+          "queryInstructions": "Para consultar productosxfoto, usa siempre la clave primaria para búsquedas exactas. Verificar stock disponible antes de cualquier operación. Consultar por código de producto para búsquedas exactas. Usar filtros de categoría para búsquedas amplias",
+          "insertInstructions": "Al insertar en productosxfoto, validar siempre los campos requeridos. Generar código único de producto. Establecer stock inicial en cero si no se especifica. Validar categoría y unidad de medida",
+          "businessLogic": "Aplicar soft delete en lugar de eliminación física. No permitir stock negativo. Actualizar fechas de última modificación en cambios de precio. Validar códigos únicos de producto",
+          "aiTips": "Siempre confirmar la operación antes de ejecutar, Proporcionar feedback claro del resultado, Alertar sobre stock bajo automáticamente, Sugerir productos relacionados en búsquedas, Mostrar historial de precios en consultas",
+          "generatedAt": "2025-06-06T07:08:26.908Z",
+          "confidence": 0.8
+        }
+      },
+      "sinonimos": {
+        "name": "sinonimos",
+        "mappedName": "sinonimos",
+        "columns": [
+          {
+            "name": "id",
+            "type": "integer",
+            "standardName": "id"
+          },
+          {
+            "name": "codigo",
+            "type": "character varying",
+            "standardName": "codigo"
+          },
+          {
+            "name": "nombre",
+            "type": "text",
+            "standardName": "nombre"
+          }
+        ],
+        "primaryKey": "id",
+        "purpose": "Tabla del sistema",
+        "totalColumns": 3,
+        "tableContext": {
+          "purpose": "Tabla del sistema",
+          "queryInstructions": "Para consultar sinonimos, usa siempre la clave primaria para búsquedas exactas",
+          "insertInstructions": "Al insertar en sinonimos, validar siempre los campos requeridos",
+          "businessLogic": "Aplicar soft delete en lugar de eliminación física",
+          "aiTips": "Siempre confirmar la operación antes de ejecutar, Proporcionar feedback claro del resultado",
+          "generatedAt": "2025-06-06T07:08:26.908Z",
+          "confidence": 0.6
+        }
+      },
+      "supervisores": {
+        "name": "supervisores",
+        "mappedName": "supervisores",
+        "columns": [
+          {
+            "name": "id",
+            "type": "bigint",
+            "standardName": "id"
+          },
+          {
+            "name": "nombre",
+            "type": "character varying",
+            "standardName": "nombre"
+          },
+          {
+            "name": "telefono",
+            "type": "character varying",
+            "standardName": "telefono"
+          },
+          {
+            "name": "cedula",
+            "type": "character varying",
+            "standardName": "cedula"
+          }
+        ],
+        "primaryKey": "id",
+        "purpose": "Tabla del sistema",
+        "totalColumns": 4,
+        "tableContext": {
+          "purpose": "Tabla del sistema",
+          "queryInstructions": "Para consultar supervisores, usa siempre la clave primaria para búsquedas exactas",
+          "insertInstructions": "Al insertar en supervisores, validar siempre los campos requeridos",
+          "businessLogic": "Aplicar soft delete en lugar de eliminación física",
+          "aiTips": "Siempre confirmar la operación antes de ejecutar, Proporcionar feedback claro del resultado",
+          "generatedAt": "2025-06-06T07:08:26.909Z",
+          "confidence": 0.6
+        }
+      },
+      "tipospagos": {
+        "name": "tipospagos",
+        "mappedName": "tipospagos",
+        "columns": [
+          {
+            "name": "idtipo",
+            "type": "bigint",
+            "standardName": "idtipo"
+          },
+          {
+            "name": "pago",
+            "type": "character varying",
+            "standardName": "pago"
+          }
+        ],
+        "primaryKey": "idtipo",
+        "purpose": "Gestión de pagos",
+        "totalColumns": 2,
+        "tableContext": {
+          "purpose": "Gestión de pagos y transacciones financieras. Registra cómo y cuándo se realizan los pagos de los documentos.",
+          "queryInstructions": "Para consultar tipospagos, usa siempre la clave primaria para búsquedas exactas",
+          "insertInstructions": "Al insertar en tipospagos, validar siempre los campos requeridos. Validar integridad referencial de todas las FK",
+          "businessLogic": "Aplicar soft delete en lugar de eliminación física",
+          "aiTips": "Siempre confirmar la operación antes de ejecutar, Proporcionar feedback claro del resultado, Calcular vueltos automáticamente, Sugerir métodos de pago disponibles, Confirmar montos antes de procesar",
+          "generatedAt": "2025-06-06T07:08:26.909Z",
+          "confidence": 0.6
+        }
+      }
+    },
+    "message": "Contexto de IA generado para 19 tablas"
+  },
+  "finalConfig": {
+    "chatbotId": "gomez-bot-test",
+    "databaseType": "postgres",
+    "description": "Sistema auto-detectado - Sistema de Facturación Completo, Sistema de Delivery, Pagos Venezolanos, Documentos Maestro-Detalle",
+    "tables": {
+      "bancos": {
+        "tableName": "bancos",
+        "primaryKey": "codigo",
+        "columns": [
+          {
+            "name": "codigo",
+            "type": "character varying",
+            "standardName": "codigo"
+          },
+          {
+            "name": "banco",
+            "type": "character varying",
+            "standardName": "banco"
+          },
+          {
+            "name": "services",
+            "type": "ARRAY",
+            "standardName": "services"
+          },
+          {
+            "name": "status",
+            "type": "character varying",
+            "standardName": "status"
+          }
+        ],
+        "tableContext": {
+          "purpose": "Configuración financiera",
+          "queryInstructions": "Para consultar bancos, usa siempre la clave primaria para búsquedas exactas. Filtrar siempre por estado activo/válido",
+          "insertInstructions": "Al insertar en bancos, validar siempre los campos requeridos",
+          "businessLogic": "Aplicar soft delete en lugar de eliminación física. Controlar transiciones de estado válidas",
+          "aiTips": "Siempre confirmar la operación antes de ejecutar, Proporcionar feedback claro del resultado",
+          "generatedAt": "2025-06-06T07:08:26.901Z",
+          "confidence": 0.5
+        }
+      },
+      "bnctoken": {
+        "tableName": "bnctoken",
+        "primaryKey": "workingkey",
+        "columns": [
+          {
+            "name": "workingkey",
+            "type": "character varying",
+            "standardName": "workingkey"
+          },
+          {
+            "name": "fecha",
+            "type": "date",
+            "standardName": "fecha"
+          }
+        ],
+        "tableContext": {
+          "purpose": "Tabla del sistema",
+          "queryInstructions": "Para consultar bnctoken, usa siempre la clave primaria para búsquedas exactas",
+          "insertInstructions": "Al insertar en bnctoken, validar siempre los campos requeridos. Establecer timestamps de creación automáticamente",
+          "businessLogic": "Aplicar soft delete en lugar de eliminación física",
+          "aiTips": "Siempre confirmar la operación antes de ejecutar, Proporcionar feedback claro del resultado, Mostrar fechas en formato amigable, Incluir información temporal relevante",
+          "generatedAt": "2025-06-06T07:08:26.901Z",
+          "confidence": 0.6
+        }
+      },
+      "clientes": {
+        "tableName": "clientes",
+        "primaryKey": "idcliente",
+        "columns": [
+          {
+            "name": "idcliente",
+            "type": "integer",
+            "standardName": "idcliente"
+          },
+          {
+            "name": "codigocliente",
+            "type": "character varying",
+            "standardName": "codigocliente"
+          },
+          {
+            "name": "nombre",
+            "type": "character varying",
+            "standardName": "nombre"
+          },
+          {
+            "name": "rif",
+            "type": "character varying",
+            "standardName": "rif"
+          },
+          {
+            "name": "direccion1",
+            "type": "character varying",
+            "standardName": "direccion1"
+          },
+          {
+            "name": "direccion2",
+            "type": "character varying",
+            "standardName": "direccion2"
+          },
+          {
+            "name": "idpais",
+            "type": "integer",
+            "standardName": "idpais"
+          },
+          {
+            "name": "idestado",
+            "type": "integer",
+            "standardName": "idestado"
+          },
+          {
+            "name": "idciudad",
+            "type": "integer",
+            "standardName": "idciudad"
+          },
+          {
+            "name": "idmunicipio",
+            "type": "integer",
+            "standardName": "idmunicipio"
+          },
+          {
+            "name": "codigopostal",
+            "type": "character varying",
+            "standardName": "codigopostal"
+          },
+          {
+            "name": "telefono1",
+            "type": "character varying",
+            "standardName": "telefono1"
+          },
+          {
+            "name": "telefono2",
+            "type": "character varying",
+            "standardName": "telefono2"
+          },
+          {
+            "name": "email",
+            "type": "character varying",
+            "standardName": "email"
+          },
+          {
+            "name": "tienecredito",
+            "type": "integer",
+            "standardName": "tienecredito"
+          },
+          {
+            "name": "esexento",
+            "type": "integer",
+            "standardName": "esexento"
+          },
+          {
+            "name": "diascredito",
+            "type": "integer",
+            "standardName": "diascredito"
+          },
+          {
+            "name": "saldo",
+            "type": "numeric",
+            "standardName": "saldo"
+          },
+          {
+            "name": "pagos",
+            "type": "numeric",
+            "standardName": "pagos"
+          },
+          {
+            "name": "fechaultimaventa",
+            "type": "date",
+            "standardName": "fechaultimaventa"
+          },
+          {
+            "name": "fechacreacion",
+            "type": "timestamp without time zone",
+            "standardName": "fechacreacion"
+          },
+          {
+            "name": "fechacredito",
+            "type": "date",
+            "standardName": "fechacredito"
+          },
+          {
+            "name": "esagentederetencion",
+            "type": "integer",
+            "standardName": "esagentederetencion"
+          },
+          {
+            "name": "redsocial1",
+            "type": "character varying",
+            "standardName": "redsocial1"
+          },
+          {
+            "name": "redsocial2",
+            "type": "character varying",
+            "standardName": "redsocial2"
+          },
+          {
+            "name": "redsocial3",
+            "type": "character varying",
+            "standardName": "redsocial3"
+          },
+          {
+            "name": "status",
+            "type": "character varying",
+            "standardName": "status"
+          },
+          {
+            "name": "coordenadas",
+            "type": "character varying",
+            "standardName": "coordenadas"
+          }
+        ],
+        "tableContext": {
+          "purpose": "Gestión completa de clientes del sistema. Almacena información personal, de contacto y comercial de los clientes. Es central para todas las operaciones de ventas y facturación.",
+          "queryInstructions": "Para consultar clientes, usa siempre la clave primaria para búsquedas exactas. Buscar clientes por nombre usando LIKE con % para coincidencias parciales. Verificar siempre el estado activo del cliente antes de procesar. Incluir fechas de creación para auditoría. Filtrar siempre por estado activo/válido",
+          "insertInstructions": "Al insertar en clientes, validar siempre los campos requeridos. Validar formato de email y unicidad si aplicable. Asignar código único de cliente automáticamente. Establecer fecha de registro actual. Establecer timestamps de creación automáticamente. Validar integridad referencial de todas las FK",
+          "businessLogic": "Aplicar soft delete en lugar de eliminación física. No permitir eliminar clientes con documentos asociados. Validar datos de contacto antes de guardar. Mantener historial de cambios en información crítica. Controlar transiciones de estado válidas",
+          "aiTips": "Siempre confirmar la operación antes de ejecutar, Proporcionar feedback claro del resultado, Sugerir información faltante al crear clientes, Mostrar resumen de actividad reciente del cliente, Ofrecer búsqueda inteligente por nombre parcial, Mostrar fechas en formato amigable, Incluir información temporal relevante",
+          "generatedAt": "2025-06-06T07:08:26.902Z",
+          "confidence": 1
+        }
+      },
+      "colaboradores": {
+        "tableName": "colaboradores",
+        "primaryKey": "idcolaborador",
+        "columns": [
+          {
+            "name": "idcolaborador",
+            "type": "integer",
+            "standardName": "idcolaborador"
+          },
+          {
+            "name": "nombre",
+            "type": "character varying",
+            "standardName": "nombre"
+          },
+          {
+            "name": "cedula",
+            "type": "character varying",
+            "standardName": "cedula"
+          },
+          {
+            "name": "direccion",
+            "type": "character varying",
+            "standardName": "direccion"
+          },
+          {
+            "name": "telefono1",
+            "type": "character varying",
+            "standardName": "telefono1"
+          },
+          {
+            "name": "telefono2",
+            "type": "character varying",
+            "standardName": "telefono2"
+          },
+          {
+            "name": "vehiculo",
+            "type": "character varying",
+            "standardName": "vehiculo"
+          },
+          {
+            "name": "foto",
+            "type": "bytea",
+            "standardName": "foto"
+          },
+          {
+            "name": "placa",
+            "type": "character varying",
+            "standardName": "placa"
+          },
+          {
+            "name": "comentario",
+            "type": "character varying",
+            "standardName": "comentario"
+          },
+          {
+            "name": "status",
+            "type": "character varying",
+            "standardName": "status"
+          }
+        ],
+        "tableContext": {
+          "purpose": "Recursos humanos",
+          "queryInstructions": "Para consultar colaboradores, usa siempre la clave primaria para búsquedas exactas. Filtrar siempre por estado activo/válido",
+          "insertInstructions": "Al insertar en colaboradores, validar siempre los campos requeridos. Validar integridad referencial de todas las FK",
+          "businessLogic": "Aplicar soft delete en lugar de eliminación física. Controlar transiciones de estado válidas",
+          "aiTips": "Siempre confirmar la operación antes de ejecutar, Proporcionar feedback claro del resultado",
+          "generatedAt": "2025-06-06T07:08:26.902Z",
+          "confidence": 0.7
+        }
+      },
+      "delivery": {
+        "tableName": "delivery",
+        "primaryKey": "id",
+        "columns": [
+          {
+            "name": "idencabedoc",
+            "type": "bigint",
+            "standardName": "idencabedoc"
+          },
+          {
+            "name": "idcolaborador",
+            "type": "bigint",
+            "standardName": "idcolaborador"
+          },
+          {
+            "name": "direccion",
+            "type": "character varying",
+            "standardName": "direccion"
+          },
+          {
+            "name": "telefono",
+            "type": "character varying",
+            "standardName": "telefono"
+          },
+          {
+            "name": "fecha_creacion",
+            "type": "timestamp without time zone",
+            "standardName": "fecha_creacion"
+          },
+          {
+            "name": "hora_creacion",
+            "type": "time without time zone",
+            "standardName": "hora_creacion"
+          }
+        ],
+        "tableContext": {
+          "purpose": "Sistema de delivery",
+          "queryInstructions": "Para consultar delivery, usa siempre la clave primaria para búsquedas exactas",
+          "insertInstructions": "Al insertar en delivery, validar siempre los campos requeridos. Establecer timestamps de creación automáticamente. Validar integridad referencial de todas las FK",
+          "businessLogic": "Aplicar soft delete en lugar de eliminación física",
+          "aiTips": "Siempre confirmar la operación antes de ejecutar, Proporcionar feedback claro del resultado, Mostrar fechas en formato amigable, Incluir información temporal relevante",
+          "generatedAt": "2025-06-06T07:08:26.902Z",
+          "confidence": 0.6
+        }
+      },
+      "departamentos": {
+        "tableName": "departamentos",
+        "primaryKey": "coddepto",
+        "columns": [
+          {
+            "name": "coddepto",
+            "type": "character varying",
+            "standardName": "coddepto"
+          },
+          {
+            "name": "departamento",
+            "type": "character varying",
+            "standardName": "departamento"
+          }
+        ],
+        "tableContext": {
+          "purpose": "Tabla del sistema",
+          "queryInstructions": "Para consultar departamentos, usa siempre la clave primaria para búsquedas exactas",
+          "insertInstructions": "Al insertar en departamentos, validar siempre los campos requeridos",
+          "businessLogic": "Aplicar soft delete en lugar de eliminación física",
+          "aiTips": "Siempre confirmar la operación antes de ejecutar, Proporcionar feedback claro del resultado",
+          "generatedAt": "2025-06-06T07:08:26.903Z",
+          "confidence": 0.5
+        }
+      },
+      "depositos": {
+        "tableName": "depositos",
+        "primaryKey": "iddeposito",
+        "columns": [
+          {
+            "name": "iddeposito",
+            "type": "integer",
+            "standardName": "iddeposito"
+          },
+          {
+            "name": "deposito",
+            "type": "character varying",
+            "standardName": "deposito"
+          },
+          {
+            "name": "codigodeposito",
+            "type": "character varying",
+            "standardName": "codigodeposito"
+          }
+        ],
+        "tableContext": {
+          "purpose": "Gestión de almacenes",
+          "queryInstructions": "Para consultar depositos, usa siempre la clave primaria para búsquedas exactas",
+          "insertInstructions": "Al insertar en depositos, validar siempre los campos requeridos. Validar integridad referencial de todas las FK",
+          "businessLogic": "Aplicar soft delete en lugar de eliminación física",
+          "aiTips": "Siempre confirmar la operación antes de ejecutar, Proporcionar feedback claro del resultado",
+          "generatedAt": "2025-06-06T07:08:26.903Z",
+          "confidence": 0.6
+        }
+      },
+      "encabezadoDoc": {
+        "tableName": "encabedoc",
+        "primaryKey": "idencabedoc",
+        "columns": [
+          {
+            "name": "idencabedoc",
+            "type": "integer",
+            "standardName": "idencabedoc"
+          },
+          {
+            "name": "codcliente",
+            "type": "character varying",
+            "standardName": "codcliente"
+          },
+          {
+            "name": "nombrecliente",
+            "type": "character varying",
+            "standardName": "nombrecliente"
+          },
+          {
+            "name": "rif",
+            "type": "character varying",
+            "standardName": "rif"
+          },
+          {
+            "name": "telefonos",
+            "type": "character varying",
+            "standardName": "telefonos"
+          },
+          {
+            "name": "vendedorcodigo",
+            "type": "character varying",
+            "standardName": "vendedorcodigo"
+          },
+          {
+            "name": "nombrevendedor",
+            "type": "character varying",
+            "standardName": "nombrevendedor"
+          },
+          {
+            "name": "monedacodigo",
+            "type": "character varying",
+            "standardName": "monedacodigo"
+          },
+          {
+            "name": "moneda",
+            "type": "character varying",
+            "standardName": "moneda"
+          },
+          {
+            "name": "depositocodigo",
+            "type": "character varying",
+            "standardName": "depositocodigo"
+          },
+          {
+            "name": "usuariocodigo",
+            "type": "character varying",
+            "standardName": "usuariocodigo"
+          },
+          {
+            "name": "tasa",
+            "type": "numeric",
+            "standardName": "tasa"
+          },
+          {
+            "name": "subtotal",
+            "type": "numeric",
+            "standardName": "subtotal"
+          },
+          {
+            "name": "iva",
+            "type": "numeric",
+            "standardName": "iva"
+          },
+          {
+            "name": "total",
+            "type": "numeric",
+            "standardName": "total"
+          },
+          {
+            "name": "esexento",
+            "type": "boolean",
+            "standardName": "esexento"
+          },
+          {
+            "name": "fechaemision",
+            "type": "date",
+            "standardName": "fechaemision"
+          },
+          {
+            "name": "hora",
+            "type": "time without time zone",
+            "standardName": "hora"
+          },
+          {
+            "name": "status",
+            "type": "character varying",
+            "standardName": "status"
+          },
+          {
+            "name": "observaciones",
+            "type": "character varying",
+            "standardName": "observaciones"
+          }
+        ],
+        "tableContext": {
+          "purpose": "Documentos maestros del sistema (facturas, cotizaciones, órdenes). Cada registro representa un documento comercial con su información general antes de los detalles.",
+          "queryInstructions": "Para consultar encabedoc, usa siempre la clave primaria para búsquedas exactas. Filtrar por rango de fechas para reportes. Incluir información del cliente en las consultas. Considerar el estado del documento (borrador, confirmado, anulado). Filtrar siempre por estado activo/válido. Incluir cálculos de totales cuando sea relevante",
+          "insertInstructions": "Al insertar en encabedoc, validar siempre los campos requeridos. Generar número consecutivo de documento. Validar existencia del cliente referenciado. Establecer fecha actual si no se proporciona. Calcular totales basado en los movimientos. Establecer timestamps de creación automáticamente. Validar integridad referencial de todas las FK",
+          "businessLogic": "Aplicar soft delete en lugar de eliminación física. No permitir modificar documentos confirmados. Validar totales contra suma de movimientos. Generar numeración consecutiva automática. Validar que los montos sean positivos. Usar precisión decimal apropiada para cálculos financieros. Controlar transiciones de estado válidas",
+          "aiTips": "Siempre confirmar la operación antes de ejecutar, Proporcionar feedback claro del resultado, Mostrar resumen financiero al crear documentos, Sugerir productos frecuentes del cliente, Validar límites de crédito automáticamente, Formatear montos en la moneda local, Mostrar cálculos paso a paso, Mostrar fechas en formato amigable, Incluir información temporal relevante",
+          "generatedAt": "2025-06-06T07:08:26.904Z",
+          "confidence": 1
+        }
+      },
+      "productos": {
+        "tableName": "inventario",
+        "primaryKey": "idinven",
+        "columns": [
+          {
+            "name": "idinven",
+            "type": "integer",
+            "standardName": "idinven"
+          },
+          {
+            "name": "codigodeposito",
+            "type": "character varying",
+            "standardName": "codigodeposito"
+          },
+          {
+            "name": "codigo",
+            "type": "character varying",
+            "standardName": "codigo"
+          },
+          {
+            "name": "nombre",
+            "type": "character varying",
+            "standardName": "nombre"
+          },
+          {
+            "name": "existenciaunidad",
+            "type": "numeric",
+            "standardName": "existenciaunidad"
+          },
+          {
+            "name": "existenciamayor",
+            "type": "numeric",
+            "standardName": "existenciamayor"
+          },
+          {
+            "name": "codunidad",
+            "type": "character varying",
+            "standardName": "codunidad"
+          },
+          {
+            "name": "nombreunidad",
+            "type": "character varying",
+            "standardName": "nombreunidad"
+          },
+          {
+            "name": "codunidadalterna",
+            "type": "character varying",
+            "standardName": "codunidadalterna"
+          },
+          {
+            "name": "nombreunidadalterna",
+            "type": "character varying",
+            "standardName": "nombreunidadalterna"
+          },
+          {
+            "name": "status",
+            "type": "character varying",
+            "standardName": "status"
+          },
+          {
+            "name": "factor",
+            "type": "numeric",
+            "standardName": "factor"
+          },
+          {
+            "name": "foto",
+            "type": "text",
+            "standardName": "foto"
+          },
+          {
+            "name": "coddepto",
+            "type": "character varying",
+            "standardName": "coddepto"
+          },
+          {
+            "name": "preciounidad",
+            "type": "numeric",
+            "standardName": "preciounidad"
+          },
+          {
+            "name": "preciomayor",
+            "type": "numeric",
+            "standardName": "preciomayor"
+          },
+          {
+            "name": "alicuotaiva",
+            "type": "numeric",
+            "standardName": "alicuotaiva"
+          }
+        ],
+        "tableContext": {
+          "purpose": "Control de inventario y productos. Gestiona stock, precios, códigos y toda la información de productos comercializables.",
+          "queryInstructions": "Para consultar inventario, usa siempre la clave primaria para búsquedas exactas. Verificar stock disponible antes de cualquier operación. Consultar por código de producto para búsquedas exactas. Usar filtros de categoría para búsquedas amplias. Filtrar siempre por estado activo/válido. Incluir cálculos de totales cuando sea relevante",
+          "insertInstructions": "Al insertar en inventario, validar siempre los campos requeridos. Generar código único de producto. Establecer stock inicial en cero si no se especifica. Validar categoría y unidad de medida. Validar integridad referencial de todas las FK",
+          "businessLogic": "Aplicar soft delete en lugar de eliminación física. No permitir stock negativo. Actualizar fechas de última modificación en cambios de precio. Validar códigos únicos de producto. Validar que los montos sean positivos. Usar precisión decimal apropiada para cálculos financieros. Controlar transiciones de estado válidas",
+          "aiTips": "Siempre confirmar la operación antes de ejecutar, Proporcionar feedback claro del resultado, Alertar sobre stock bajo automáticamente, Sugerir productos relacionados en búsquedas, Mostrar historial de precios en consultas, Formatear montos en la moneda local, Mostrar cálculos paso a paso",
+          "generatedAt": "2025-06-06T07:08:26.904Z",
+          "confidence": 0.7
+        }
+      },
+      "licencia": {
+        "tableName": "licencia",
+        "primaryKey": "codcliente",
+        "columns": [
+          {
+            "name": "codcliente",
+            "type": "character varying",
+            "standardName": "codcliente"
+          },
+          {
+            "name": "cliente",
+            "type": "character varying",
+            "standardName": "cliente"
+          },
+          {
+            "name": "clave",
+            "type": "character varying",
+            "standardName": "clave"
+          },
+          {
+            "name": "direccion",
+            "type": "character varying",
+            "standardName": "direccion"
+          },
+          {
+            "name": "telefono",
+            "type": "character varying",
+            "standardName": "telefono"
+          },
+          {
+            "name": "email",
+            "type": "character varying",
+            "standardName": "email"
+          }
+        ],
+        "tableContext": {
+          "purpose": "Tabla del sistema",
+          "queryInstructions": "Para consultar licencia, usa siempre la clave primaria para búsquedas exactas",
+          "insertInstructions": "Al insertar en licencia, validar siempre los campos requeridos",
+          "businessLogic": "Aplicar soft delete en lugar de eliminación física",
+          "aiTips": "Siempre confirmar la operación antes de ejecutar, Proporcionar feedback claro del resultado",
+          "generatedAt": "2025-06-06T07:08:26.904Z",
+          "confidence": 0.5
+        }
+      },
+      "log": {
+        "tableName": "log",
+        "primaryKey": "idlog",
+        "columns": [
+          {
+            "name": "idlog",
+            "type": "integer",
+            "standardName": "idlog"
+          },
+          {
+            "name": "fecha",
+            "type": "date",
+            "standardName": "fecha"
+          },
+          {
+            "name": "hora",
+            "type": "time without time zone",
+            "standardName": "hora"
+          },
+          {
+            "name": "accion",
+            "type": "character varying",
+            "standardName": "accion"
+          }
+        ],
+        "tableContext": {
+          "purpose": "Tabla del sistema",
+          "queryInstructions": "Para consultar log, usa siempre la clave primaria para búsquedas exactas",
+          "insertInstructions": "Al insertar en log, validar siempre los campos requeridos. Establecer timestamps de creación automáticamente. Validar integridad referencial de todas las FK",
+          "businessLogic": "Aplicar soft delete en lugar de eliminación física",
+          "aiTips": "Siempre confirmar la operación antes de ejecutar, Proporcionar feedback claro del resultado, Mostrar fechas en formato amigable, Incluir información temporal relevante",
+          "generatedAt": "2025-06-06T07:08:26.904Z",
+          "confidence": 0.6
+        }
+      },
+      "logtrigger": {
+        "tableName": "logtrigger",
+        "primaryKey": "id",
+        "columns": [
+          {
+            "name": "id",
+            "type": "integer",
+            "standardName": "id"
+          },
+          {
+            "name": "idencabedoc",
+            "type": "integer",
+            "standardName": "idencabedoc"
+          },
+          {
+            "name": "fecha",
+            "type": "timestamp with time zone",
+            "standardName": "fecha"
+          },
+          {
+            "name": "ejecucion_exitosa",
+            "type": "boolean",
+            "standardName": "ejecucion_exitosa"
+          }
+        ],
+        "tableContext": {
+          "purpose": "Tabla del sistema",
+          "queryInstructions": "Para consultar logtrigger, usa siempre la clave primaria para búsquedas exactas",
+          "insertInstructions": "Al insertar en logtrigger, validar siempre los campos requeridos. Establecer timestamps de creación automáticamente. Validar integridad referencial de todas las FK",
+          "businessLogic": "Aplicar soft delete en lugar de eliminación física",
+          "aiTips": "Siempre confirmar la operación antes de ejecutar, Proporcionar feedback claro del resultado, Mostrar fechas en formato amigable, Incluir información temporal relevante",
+          "generatedAt": "2025-06-06T07:08:26.906Z",
+          "confidence": 0.6
+        }
+      },
+      "monedas": {
+        "tableName": "monedas",
+        "primaryKey": "idmoneda",
+        "columns": [
+          {
+            "name": "idmoneda",
+            "type": "integer",
+            "standardName": "idmoneda"
+          },
+          {
+            "name": "moneda",
+            "type": "character varying",
+            "standardName": "moneda"
+          },
+          {
+            "name": "codmoneda",
+            "type": "character",
+            "standardName": "codmoneda"
+          },
+          {
+            "name": "factorcambio",
+            "type": "numeric",
+            "standardName": "factorcambio"
+          }
+        ],
+        "tableContext": {
+          "purpose": "Configuración financiera",
+          "queryInstructions": "Para consultar monedas, usa siempre la clave primaria para búsquedas exactas",
+          "insertInstructions": "Al insertar en monedas, validar siempre los campos requeridos. Validar integridad referencial de todas las FK",
+          "businessLogic": "Aplicar soft delete en lugar de eliminación física",
+          "aiTips": "Siempre confirmar la operación antes de ejecutar, Proporcionar feedback claro del resultado",
+          "generatedAt": "2025-06-06T07:08:26.907Z",
+          "confidence": 0.6
+        }
+      },
+      "movimientosDoc": {
+        "tableName": "movimientosdoc",
+        "primaryKey": "idmovimientosdoc",
+        "columns": [
+          {
+            "name": "idmovimientosdoc",
+            "type": "integer",
+            "standardName": "idmovimientosdoc"
+          },
+          {
+            "name": "idencabedoc",
+            "type": "integer",
+            "standardName": "idencabedoc"
+          },
+          {
+            "name": "codigo",
+            "type": "character varying",
+            "standardName": "codigo"
+          },
+          {
+            "name": "nombre",
+            "type": "character varying",
+            "standardName": "nombre"
+          },
+          {
+            "name": "descripcionreal",
+            "type": "character varying",
+            "standardName": "descripcionreal"
+          },
+          {
+            "name": "idmarca",
+            "type": "integer",
+            "standardName": "idmarca"
+          },
+          {
+            "name": "marca",
+            "type": "character varying",
+            "standardName": "marca"
+          },
+          {
+            "name": "serial",
+            "type": "character varying",
+            "standardName": "serial"
+          },
+          {
+            "name": "arreglo",
+            "type": "character varying",
+            "standardName": "arreglo"
+          },
+          {
+            "name": "esimportacion",
+            "type": "boolean",
+            "standardName": "esimportacion"
+          },
+          {
+            "name": "esexento",
+            "type": "boolean",
+            "standardName": "esexento"
+          },
+          {
+            "name": "peso",
+            "type": "numeric",
+            "standardName": "peso"
+          },
+          {
+            "name": "cantidad",
+            "type": "numeric",
+            "standardName": "cantidad"
+          },
+          {
+            "name": "precio",
+            "type": "numeric",
+            "standardName": "precio"
+          },
+          {
+            "name": "iva",
+            "type": "numeric",
+            "standardName": "iva"
+          },
+          {
+            "name": "preciototal",
+            "type": "numeric",
+            "standardName": "preciototal"
+          },
+          {
+            "name": "status",
+            "type": "character varying",
+            "standardName": "status"
+          },
+          {
+            "name": "desstatus",
+            "type": "character varying",
+            "standardName": "desstatus"
+          },
+          {
+            "name": "tiempoentrega",
+            "type": "character varying",
+            "standardName": "tiempoentrega"
+          }
+        ],
+        "tableContext": {
+          "purpose": "Detalles/líneas de los documentos comerciales. Cada registro representa un producto o servicio específico dentro de un documento maestro.",
+          "queryInstructions": "Para consultar movimientosdoc, usa siempre la clave primaria para búsquedas exactas. Filtrar siempre por estado activo/válido. Incluir cálculos de totales cuando sea relevante",
+          "insertInstructions": "Al insertar en movimientosdoc, validar siempre los campos requeridos. Validar existencia del documento padre. Verificar disponibilidad de stock si es venta. Calcular subtotales automáticamente. Validar integridad referencial de todas las FK",
+          "businessLogic": "Aplicar soft delete en lugar de eliminación física. Actualizar stock automáticamente en ventas. Recalcular totales del documento padre. Validar cantidades positivas. Validar que los montos sean positivos. Usar precisión decimal apropiada para cálculos financieros. Controlar transiciones de estado válidas",
+          "aiTips": "Siempre confirmar la operación antes de ejecutar, Proporcionar feedback claro del resultado, Formatear montos en la moneda local, Mostrar cálculos paso a paso",
+          "generatedAt": "2025-06-06T07:08:26.907Z",
+          "confidence": 1
+        }
+      },
+      "metodosPago": {
+        "tableName": "pagos",
+        "primaryKey": "idencabedoc",
+        "columns": [
+          {
+            "name": "idencabedoc",
+            "type": "bigint",
+            "standardName": "idencabedoc"
+          },
+          {
+            "name": "idtipo",
+            "type": "bigint",
+            "standardName": "idtipo"
+          },
+          {
+            "name": "monto",
+            "type": "numeric",
+            "standardName": "monto"
+          },
+          {
+            "name": "codigobanco",
+            "type": "integer",
+            "standardName": "codigobanco"
+          },
+          {
+            "name": "banco",
+            "type": "character varying",
+            "standardName": "banco"
+          },
+          {
+            "name": "clienteid",
+            "type": "character varying",
+            "standardName": "clienteid"
+          },
+          {
+            "name": "telefono",
+            "type": "character varying",
+            "standardName": "telefono"
+          },
+          {
+            "name": "fechatrans",
+            "type": "date",
+            "standardName": "fechatrans"
+          },
+          {
+            "name": "montorecibido",
+            "type": "numeric",
+            "standardName": "montorecibido"
+          },
+          {
+            "name": "balancedelta",
+            "type": "character varying",
+            "standardName": "balancedelta"
+          },
+          {
+            "name": "codoperacion",
+            "type": "character varying",
+            "standardName": "codoperacion"
+          },
+          {
+            "name": "nrocontrol",
+            "type": "character varying",
+            "standardName": "nrocontrol"
+          },
+          {
+            "name": "concepto",
+            "type": "character varying",
+            "standardName": "concepto"
+          },
+          {
+            "name": "cuentadebitada",
+            "type": "character varying",
+            "standardName": "cuentadebitada"
+          },
+          {
+            "name": "existemovimiento",
+            "type": "boolean",
+            "standardName": "existemovimiento"
+          },
+          {
+            "name": "referencia",
+            "type": "character varying",
+            "standardName": "referencia"
+          },
+          {
+            "name": "tipomovimiento",
+            "type": "character varying",
+            "standardName": "tipomovimiento"
+          },
+          {
+            "name": "status",
+            "type": "character varying",
+            "standardName": "status"
+          }
+        ],
+        "tableContext": {
+          "purpose": "Gestión de pagos y transacciones financieras. Registra cómo y cuándo se realizan los pagos de los documentos.",
+          "queryInstructions": "Para consultar pagos, usa siempre la clave primaria para búsquedas exactas. Filtrar siempre por estado activo/válido",
+          "insertInstructions": "Al insertar en pagos, validar siempre los campos requeridos. Establecer timestamps de creación automáticamente. Validar integridad referencial de todas las FK",
+          "businessLogic": "Aplicar soft delete en lugar de eliminación física. Controlar transiciones de estado válidas",
+          "aiTips": "Siempre confirmar la operación antes de ejecutar, Proporcionar feedback claro del resultado, Calcular vueltos automáticamente, Sugerir métodos de pago disponibles, Confirmar montos antes de procesar, Mostrar fechas en formato amigable, Incluir información temporal relevante",
+          "generatedAt": "2025-06-06T07:08:26.908Z",
+          "confidence": 0.7
+        }
+      },
+      "productosxfoto": {
+        "tableName": "productosxfoto",
+        "primaryKey": "codigo",
+        "columns": [
+          {
+            "name": "codigo",
+            "type": "integer",
+            "standardName": "codigo"
+          },
+          {
+            "name": "codproducto",
+            "type": "character varying",
+            "standardName": "codproducto"
+          },
+          {
+            "name": "foto",
+            "type": "bytea",
+            "standardName": "foto"
+          }
+        ],
+        "tableContext": {
+          "purpose": "Control de inventario y productos. Gestiona stock, precios, códigos y toda la información de productos comercializables.",
+          "queryInstructions": "Para consultar productosxfoto, usa siempre la clave primaria para búsquedas exactas. Verificar stock disponible antes de cualquier operación. Consultar por código de producto para búsquedas exactas. Usar filtros de categoría para búsquedas amplias",
+          "insertInstructions": "Al insertar en productosxfoto, validar siempre los campos requeridos. Generar código único de producto. Establecer stock inicial en cero si no se especifica. Validar categoría y unidad de medida",
+          "businessLogic": "Aplicar soft delete en lugar de eliminación física. No permitir stock negativo. Actualizar fechas de última modificación en cambios de precio. Validar códigos únicos de producto",
+          "aiTips": "Siempre confirmar la operación antes de ejecutar, Proporcionar feedback claro del resultado, Alertar sobre stock bajo automáticamente, Sugerir productos relacionados en búsquedas, Mostrar historial de precios en consultas",
+          "generatedAt": "2025-06-06T07:08:26.908Z",
+          "confidence": 0.8
+        }
+      },
+      "sinonimos": {
+        "tableName": "sinonimos",
+        "primaryKey": "id",
+        "columns": [
+          {
+            "name": "id",
+            "type": "integer",
+            "standardName": "id"
+          },
+          {
+            "name": "codigo",
+            "type": "character varying",
+            "standardName": "codigo"
+          },
+          {
+            "name": "nombre",
+            "type": "text",
+            "standardName": "nombre"
+          }
+        ],
+        "tableContext": {
+          "purpose": "Tabla del sistema",
+          "queryInstructions": "Para consultar sinonimos, usa siempre la clave primaria para búsquedas exactas",
+          "insertInstructions": "Al insertar en sinonimos, validar siempre los campos requeridos",
+          "businessLogic": "Aplicar soft delete en lugar de eliminación física",
+          "aiTips": "Siempre confirmar la operación antes de ejecutar, Proporcionar feedback claro del resultado",
+          "generatedAt": "2025-06-06T07:08:26.908Z",
+          "confidence": 0.6
+        }
+      },
+      "supervisores": {
+        "tableName": "supervisores",
+        "primaryKey": "id",
+        "columns": [
+          {
+            "name": "id",
+            "type": "bigint",
+            "standardName": "id"
+          },
+          {
+            "name": "nombre",
+            "type": "character varying",
+            "standardName": "nombre"
+          },
+          {
+            "name": "telefono",
+            "type": "character varying",
+            "standardName": "telefono"
+          },
+          {
+            "name": "cedula",
+            "type": "character varying",
+            "standardName": "cedula"
+          }
+        ],
+        "tableContext": {
+          "purpose": "Tabla del sistema",
+          "queryInstructions": "Para consultar supervisores, usa siempre la clave primaria para búsquedas exactas",
+          "insertInstructions": "Al insertar en supervisores, validar siempre los campos requeridos",
+          "businessLogic": "Aplicar soft delete en lugar de eliminación física",
+          "aiTips": "Siempre confirmar la operación antes de ejecutar, Proporcionar feedback claro del resultado",
+          "generatedAt": "2025-06-06T07:08:26.909Z",
+          "confidence": 0.6
+        }
+      },
+      "tipospagos": {
+        "tableName": "tipospagos",
+        "primaryKey": "idtipo",
+        "columns": [
+          {
+            "name": "idtipo",
+            "type": "bigint",
+            "standardName": "idtipo"
+          },
+          {
+            "name": "pago",
+            "type": "character varying",
+            "standardName": "pago"
+          }
+        ],
+        "tableContext": {
+          "purpose": "Gestión de pagos y transacciones financieras. Registra cómo y cuándo se realizan los pagos de los documentos.",
+          "queryInstructions": "Para consultar tipospagos, usa siempre la clave primaria para búsquedas exactas",
+          "insertInstructions": "Al insertar en tipospagos, validar siempre los campos requeridos. Validar integridad referencial de todas las FK",
+          "businessLogic": "Aplicar soft delete en lugar de eliminación física",
+          "aiTips": "Siempre confirmar la operación antes de ejecutar, Proporcionar feedback claro del resultado, Calcular vueltos automáticamente, Sugerir métodos de pago disponibles, Confirmar montos antes de procesar",
+          "generatedAt": "2025-06-06T07:08:26.909Z",
+          "confidence": 0.6
+        }
+      }
+    },
+    "queries": {
+      "buscarBancos": "SELECT * FROM bancos WHERE codigo = $1",
+      "listarBancos": "SELECT * FROM bancos ORDER BY codigo DESC LIMIT 50",
+      "contarBancos": "SELECT COUNT(*) as total FROM bancos",
+      "buscarBnctoken": "SELECT * FROM bnctoken WHERE workingkey = $1",
+      "listarBnctoken": "SELECT * FROM bnctoken ORDER BY workingkey DESC LIMIT 50",
+      "contarBnctoken": "SELECT COUNT(*) as total FROM bnctoken",
+      "buscarClientes": "SELECT * FROM clientes WHERE idcliente = $1",
+      "listarClientes": "SELECT * FROM clientes ORDER BY idcliente DESC LIMIT 50",
+      "contarClientes": "SELECT COUNT(*) as total FROM clientes",
+      "buscarColaboradores": "SELECT * FROM colaboradores WHERE idcolaborador = $1",
+      "listarColaboradores": "SELECT * FROM colaboradores ORDER BY idcolaborador DESC LIMIT 50",
+      "contarColaboradores": "SELECT COUNT(*) as total FROM colaboradores",
+      "buscarDelivery": "SELECT * FROM delivery WHERE id = $1",
+      "listarDelivery": "SELECT * FROM delivery ORDER BY id DESC LIMIT 50",
+      "contarDelivery": "SELECT COUNT(*) as total FROM delivery",
+      "buscarDepartamentos": "SELECT * FROM departamentos WHERE coddepto = $1",
+      "listarDepartamentos": "SELECT * FROM departamentos ORDER BY coddepto DESC LIMIT 50",
+      "contarDepartamentos": "SELECT COUNT(*) as total FROM departamentos",
+      "buscarDepositos": "SELECT * FROM depositos WHERE iddeposito = $1",
+      "listarDepositos": "SELECT * FROM depositos ORDER BY iddeposito DESC LIMIT 50",
+      "contarDepositos": "SELECT COUNT(*) as total FROM depositos",
+      "buscarEncabezadoDoc": "SELECT * FROM encabedoc WHERE idencabedoc = $1",
+      "listarEncabezadoDoc": "SELECT * FROM encabedoc ORDER BY idencabedoc DESC LIMIT 50",
+      "contarEncabezadoDoc": "SELECT COUNT(*) as total FROM encabedoc",
+      "buscarProductos": "SELECT * FROM inventario WHERE idinven = $1",
+      "listarProductos": "SELECT * FROM inventario ORDER BY idinven DESC LIMIT 50",
+      "contarProductos": "SELECT COUNT(*) as total FROM inventario",
+      "buscarLicencia": "SELECT * FROM licencia WHERE codcliente = $1",
+      "listarLicencia": "SELECT * FROM licencia ORDER BY codcliente DESC LIMIT 50",
+      "contarLicencia": "SELECT COUNT(*) as total FROM licencia",
+      "buscarLog": "SELECT * FROM log WHERE idlog = $1",
+      "listarLog": "SELECT * FROM log ORDER BY idlog DESC LIMIT 50",
+      "contarLog": "SELECT COUNT(*) as total FROM log",
+      "buscarLogtrigger": "SELECT * FROM logtrigger WHERE id = $1",
+      "listarLogtrigger": "SELECT * FROM logtrigger ORDER BY id DESC LIMIT 50",
+      "contarLogtrigger": "SELECT COUNT(*) as total FROM logtrigger",
+      "buscarMonedas": "SELECT * FROM monedas WHERE idmoneda = $1",
+      "listarMonedas": "SELECT * FROM monedas ORDER BY idmoneda DESC LIMIT 50",
+      "contarMonedas": "SELECT COUNT(*) as total FROM monedas",
+      "buscarMovimientosDoc": "SELECT * FROM movimientosdoc WHERE idmovimientosdoc = $1",
+      "listarMovimientosDoc": "SELECT * FROM movimientosdoc ORDER BY idmovimientosdoc DESC LIMIT 50",
+      "contarMovimientosDoc": "SELECT COUNT(*) as total FROM movimientosdoc",
+      "buscarMetodosPago": "SELECT * FROM pagos WHERE idencabedoc = $1",
+      "listarMetodosPago": "SELECT * FROM pagos ORDER BY idencabedoc DESC LIMIT 50",
+      "contarMetodosPago": "SELECT COUNT(*) as total FROM pagos",
+      "buscarProductosxfoto": "SELECT * FROM productosxfoto WHERE codigo = $1",
+      "listarProductosxfoto": "SELECT * FROM productosxfoto ORDER BY codigo DESC LIMIT 50",
+      "contarProductosxfoto": "SELECT COUNT(*) as total FROM productosxfoto",
+      "buscarSinonimos": "SELECT * FROM sinonimos WHERE id = $1",
+      "listarSinonimos": "SELECT * FROM sinonimos ORDER BY id DESC LIMIT 50",
+      "contarSinonimos": "SELECT COUNT(*) as total FROM sinonimos",
+      "buscarSupervisores": "SELECT * FROM supervisores WHERE id = $1",
+      "listarSupervisores": "SELECT * FROM supervisores ORDER BY id DESC LIMIT 50",
+      "contarSupervisores": "SELECT COUNT(*) as total FROM supervisores",
+      "buscarTipospagos": "SELECT * FROM tipospagos WHERE idtipo = $1",
+      "listarTipospagos": "SELECT * FROM tipospagos ORDER BY idtipo DESC LIMIT 50",
+      "contarTipospagos": "SELECT COUNT(*) as total FROM tipospagos"
+    },
+    "agentInstructions": {
+      "generalContext": "Sistema postgres con 19 tablas auto-configuradas",
+      "responseFormats": {
+        "successMessages": {
+          "create": "Registro creado",
+          "update": "Registro actualizado",
+          "delete": "Registro eliminado"
+        },
+        "errorMessages": {
+          "not_found": "Registro no encontrado",
+          "validation_error": "Datos inválidos"
+        },
+        "dataPresentation": {
+          "list": "Lista de registros",
+          "detail": "Detalle del registro"
+        }
+      },
+      "tableSpecificInstructions": {
+        "bancos": {
+          "purpose": "Configuración financiera",
+          "queryGuidance": "Para consultar bancos, usa siempre la clave primaria para búsquedas exactas. Filtrar siempre por estado activo/válido",
+          "insertGuidance": "Al insertar en bancos, validar siempre los campos requeridos",
+          "businessLogic": "Aplicar soft delete en lugar de eliminación física. Controlar transiciones de estado válidas",
+          "aiTips": [
+            "Siempre confirmar la operación antes de ejecutar",
+            "Proporcionar feedback claro del resultado"
+          ]
+        },
+        "bnctoken": {
+          "purpose": "Tabla del sistema",
+          "queryGuidance": "Para consultar bnctoken, usa siempre la clave primaria para búsquedas exactas",
+          "insertGuidance": "Al insertar en bnctoken, validar siempre los campos requeridos. Establecer timestamps de creación automáticamente",
+          "businessLogic": "Aplicar soft delete en lugar de eliminación física",
+          "aiTips": [
+            "Siempre confirmar la operación antes de ejecutar",
+            "Proporcionar feedback claro del resultado",
+            "Mostrar fechas en formato amigable",
+            "Incluir información temporal relevante"
+          ]
+        },
+        "clientes": {
+          "purpose": "Gestión completa de clientes del sistema. Almacena información personal, de contacto y comercial de los clientes. Es central para todas las operaciones de ventas y facturación.",
+          "queryGuidance": "Para consultar clientes, usa siempre la clave primaria para búsquedas exactas. Buscar clientes por nombre usando LIKE con % para coincidencias parciales. Verificar siempre el estado activo del cliente antes de procesar. Incluir fechas de creación para auditoría. Filtrar siempre por estado activo/válido",
+          "insertGuidance": "Al insertar en clientes, validar siempre los campos requeridos. Validar formato de email y unicidad si aplicable. Asignar código único de cliente automáticamente. Establecer fecha de registro actual. Establecer timestamps de creación automáticamente. Validar integridad referencial de todas las FK",
+          "businessLogic": "Aplicar soft delete en lugar de eliminación física. No permitir eliminar clientes con documentos asociados. Validar datos de contacto antes de guardar. Mantener historial de cambios en información crítica. Controlar transiciones de estado válidas",
+          "aiTips": [
+            "Siempre confirmar la operación antes de ejecutar",
+            "Proporcionar feedback claro del resultado",
+            "Sugerir información faltante al crear clientes",
+            "Mostrar resumen de actividad reciente del cliente",
+            "Ofrecer búsqueda inteligente por nombre parcial",
+            "Mostrar fechas en formato amigable",
+            "Incluir información temporal relevante"
+          ]
+        },
+        "colaboradores": {
+          "purpose": "Recursos humanos",
+          "queryGuidance": "Para consultar colaboradores, usa siempre la clave primaria para búsquedas exactas. Filtrar siempre por estado activo/válido",
+          "insertGuidance": "Al insertar en colaboradores, validar siempre los campos requeridos. Validar integridad referencial de todas las FK",
+          "businessLogic": "Aplicar soft delete en lugar de eliminación física. Controlar transiciones de estado válidas",
+          "aiTips": [
+            "Siempre confirmar la operación antes de ejecutar",
+            "Proporcionar feedback claro del resultado"
+          ]
+        },
+        "delivery": {
+          "purpose": "Sistema de delivery",
+          "queryGuidance": "Para consultar delivery, usa siempre la clave primaria para búsquedas exactas",
+          "insertGuidance": "Al insertar en delivery, validar siempre los campos requeridos. Establecer timestamps de creación automáticamente. Validar integridad referencial de todas las FK",
+          "businessLogic": "Aplicar soft delete en lugar de eliminación física",
+          "aiTips": [
+            "Siempre confirmar la operación antes de ejecutar",
+            "Proporcionar feedback claro del resultado",
+            "Mostrar fechas en formato amigable",
+            "Incluir información temporal relevante"
+          ]
+        },
+        "departamentos": {
+          "purpose": "Tabla del sistema",
+          "queryGuidance": "Para consultar departamentos, usa siempre la clave primaria para búsquedas exactas",
+          "insertGuidance": "Al insertar en departamentos, validar siempre los campos requeridos",
+          "businessLogic": "Aplicar soft delete en lugar de eliminación física",
+          "aiTips": [
+            "Siempre confirmar la operación antes de ejecutar",
+            "Proporcionar feedback claro del resultado"
+          ]
+        },
+        "depositos": {
+          "purpose": "Gestión de almacenes",
+          "queryGuidance": "Para consultar depositos, usa siempre la clave primaria para búsquedas exactas",
+          "insertGuidance": "Al insertar en depositos, validar siempre los campos requeridos. Validar integridad referencial de todas las FK",
+          "businessLogic": "Aplicar soft delete en lugar de eliminación física",
+          "aiTips": [
+            "Siempre confirmar la operación antes de ejecutar",
+            "Proporcionar feedback claro del resultado"
+          ]
+        },
+        "encabezadoDoc": {
+          "purpose": "Documentos maestros del sistema (facturas, cotizaciones, órdenes). Cada registro representa un documento comercial con su información general antes de los detalles.",
+          "queryGuidance": "Para consultar encabedoc, usa siempre la clave primaria para búsquedas exactas. Filtrar por rango de fechas para reportes. Incluir información del cliente en las consultas. Considerar el estado del documento (borrador, confirmado, anulado). Filtrar siempre por estado activo/válido. Incluir cálculos de totales cuando sea relevante",
+          "insertGuidance": "Al insertar en encabedoc, validar siempre los campos requeridos. Generar número consecutivo de documento. Validar existencia del cliente referenciado. Establecer fecha actual si no se proporciona. Calcular totales basado en los movimientos. Establecer timestamps de creación automáticamente. Validar integridad referencial de todas las FK",
+          "businessLogic": "Aplicar soft delete en lugar de eliminación física. No permitir modificar documentos confirmados. Validar totales contra suma de movimientos. Generar numeración consecutiva automática. Validar que los montos sean positivos. Usar precisión decimal apropiada para cálculos financieros. Controlar transiciones de estado válidas",
+          "aiTips": [
+            "Siempre confirmar la operación antes de ejecutar",
+            "Proporcionar feedback claro del resultado",
+            "Mostrar resumen financiero al crear documentos",
+            "Sugerir productos frecuentes del cliente",
+            "Validar límites de crédito automáticamente",
+            "Formatear montos en la moneda local",
+            "Mostrar cálculos paso a paso",
+            "Mostrar fechas en formato amigable",
+            "Incluir información temporal relevante"
+          ]
+        },
+        "productos": {
+          "purpose": "Control de inventario y productos. Gestiona stock, precios, códigos y toda la información de productos comercializables.",
+          "queryGuidance": "Para consultar inventario, usa siempre la clave primaria para búsquedas exactas. Verificar stock disponible antes de cualquier operación. Consultar por código de producto para búsquedas exactas. Usar filtros de categoría para búsquedas amplias. Filtrar siempre por estado activo/válido. Incluir cálculos de totales cuando sea relevante",
+          "insertGuidance": "Al insertar en inventario, validar siempre los campos requeridos. Generar código único de producto. Establecer stock inicial en cero si no se especifica. Validar categoría y unidad de medida. Validar integridad referencial de todas las FK",
+          "businessLogic": "Aplicar soft delete en lugar de eliminación física. No permitir stock negativo. Actualizar fechas de última modificación en cambios de precio. Validar códigos únicos de producto. Validar que los montos sean positivos. Usar precisión decimal apropiada para cálculos financieros. Controlar transiciones de estado válidas",
+          "aiTips": [
+            "Siempre confirmar la operación antes de ejecutar",
+            "Proporcionar feedback claro del resultado",
+            "Alertar sobre stock bajo automáticamente",
+            "Sugerir productos relacionados en búsquedas",
+            "Mostrar historial de precios en consultas",
+            "Formatear montos en la moneda local",
+            "Mostrar cálculos paso a paso"
+          ]
+        },
+        "licencia": {
+          "purpose": "Tabla del sistema",
+          "queryGuidance": "Para consultar licencia, usa siempre la clave primaria para búsquedas exactas",
+          "insertGuidance": "Al insertar en licencia, validar siempre los campos requeridos",
+          "businessLogic": "Aplicar soft delete en lugar de eliminación física",
+          "aiTips": [
+            "Siempre confirmar la operación antes de ejecutar",
+            "Proporcionar feedback claro del resultado"
+          ]
+        },
+        "log": {
+          "purpose": "Tabla del sistema",
+          "queryGuidance": "Para consultar log, usa siempre la clave primaria para búsquedas exactas",
+          "insertGuidance": "Al insertar en log, validar siempre los campos requeridos. Establecer timestamps de creación automáticamente. Validar integridad referencial de todas las FK",
+          "businessLogic": "Aplicar soft delete en lugar de eliminación física",
+          "aiTips": [
+            "Siempre confirmar la operación antes de ejecutar",
+            "Proporcionar feedback claro del resultado",
+            "Mostrar fechas en formato amigable",
+            "Incluir información temporal relevante"
+          ]
+        },
+        "logtrigger": {
+          "purpose": "Tabla del sistema",
+          "queryGuidance": "Para consultar logtrigger, usa siempre la clave primaria para búsquedas exactas",
+          "insertGuidance": "Al insertar en logtrigger, validar siempre los campos requeridos. Establecer timestamps de creación automáticamente. Validar integridad referencial de todas las FK",
+          "businessLogic": "Aplicar soft delete en lugar de eliminación física",
+          "aiTips": [
+            "Siempre confirmar la operación antes de ejecutar",
+            "Proporcionar feedback claro del resultado",
+            "Mostrar fechas en formato amigable",
+            "Incluir información temporal relevante"
+          ]
+        },
+        "monedas": {
+          "purpose": "Configuración financiera",
+          "queryGuidance": "Para consultar monedas, usa siempre la clave primaria para búsquedas exactas",
+          "insertGuidance": "Al insertar en monedas, validar siempre los campos requeridos. Validar integridad referencial de todas las FK",
+          "businessLogic": "Aplicar soft delete en lugar de eliminación física",
+          "aiTips": [
+            "Siempre confirmar la operación antes de ejecutar",
+            "Proporcionar feedback claro del resultado"
+          ]
+        },
+        "movimientosDoc": {
+          "purpose": "Detalles/líneas de los documentos comerciales. Cada registro representa un producto o servicio específico dentro de un documento maestro.",
+          "queryGuidance": "Para consultar movimientosdoc, usa siempre la clave primaria para búsquedas exactas. Filtrar siempre por estado activo/válido. Incluir cálculos de totales cuando sea relevante",
+          "insertGuidance": "Al insertar en movimientosdoc, validar siempre los campos requeridos. Validar existencia del documento padre. Verificar disponibilidad de stock si es venta. Calcular subtotales automáticamente. Validar integridad referencial de todas las FK",
+          "businessLogic": "Aplicar soft delete en lugar de eliminación física. Actualizar stock automáticamente en ventas. Recalcular totales del documento padre. Validar cantidades positivas. Validar que los montos sean positivos. Usar precisión decimal apropiada para cálculos financieros. Controlar transiciones de estado válidas",
+          "aiTips": [
+            "Siempre confirmar la operación antes de ejecutar",
+            "Proporcionar feedback claro del resultado",
+            "Formatear montos en la moneda local",
+            "Mostrar cálculos paso a paso"
+          ]
+        },
+        "metodosPago": {
+          "purpose": "Gestión de pagos y transacciones financieras. Registra cómo y cuándo se realizan los pagos de los documentos.",
+          "queryGuidance": "Para consultar pagos, usa siempre la clave primaria para búsquedas exactas. Filtrar siempre por estado activo/válido",
+          "insertGuidance": "Al insertar en pagos, validar siempre los campos requeridos. Establecer timestamps de creación automáticamente. Validar integridad referencial de todas las FK",
+          "businessLogic": "Aplicar soft delete en lugar de eliminación física. Controlar transiciones de estado válidas",
+          "aiTips": [
+            "Siempre confirmar la operación antes de ejecutar",
+            "Proporcionar feedback claro del resultado",
+            "Calcular vueltos automáticamente",
+            "Sugerir métodos de pago disponibles",
+            "Confirmar montos antes de procesar",
+            "Mostrar fechas en formato amigable",
+            "Incluir información temporal relevante"
+          ]
+        },
+        "productosxfoto": {
+          "purpose": "Control de inventario y productos. Gestiona stock, precios, códigos y toda la información de productos comercializables.",
+          "queryGuidance": "Para consultar productosxfoto, usa siempre la clave primaria para búsquedas exactas. Verificar stock disponible antes de cualquier operación. Consultar por código de producto para búsquedas exactas. Usar filtros de categoría para búsquedas amplias",
+          "insertGuidance": "Al insertar en productosxfoto, validar siempre los campos requeridos. Generar código único de producto. Establecer stock inicial en cero si no se especifica. Validar categoría y unidad de medida",
+          "businessLogic": "Aplicar soft delete en lugar de eliminación física. No permitir stock negativo. Actualizar fechas de última modificación en cambios de precio. Validar códigos únicos de producto",
+          "aiTips": [
+            "Siempre confirmar la operación antes de ejecutar",
+            "Proporcionar feedback claro del resultado",
+            "Alertar sobre stock bajo automáticamente",
+            "Sugerir productos relacionados en búsquedas",
+            "Mostrar historial de precios en consultas"
+          ]
+        },
+        "sinonimos": {
+          "purpose": "Tabla del sistema",
+          "queryGuidance": "Para consultar sinonimos, usa siempre la clave primaria para búsquedas exactas",
+          "insertGuidance": "Al insertar en sinonimos, validar siempre los campos requeridos",
+          "businessLogic": "Aplicar soft delete en lugar de eliminación física",
+          "aiTips": [
+            "Siempre confirmar la operación antes de ejecutar",
+            "Proporcionar feedback claro del resultado"
+          ]
+        },
+        "supervisores": {
+          "purpose": "Tabla del sistema",
+          "queryGuidance": "Para consultar supervisores, usa siempre la clave primaria para búsquedas exactas",
+          "insertGuidance": "Al insertar en supervisores, validar siempre los campos requeridos",
+          "businessLogic": "Aplicar soft delete en lugar de eliminación física",
+          "aiTips": [
+            "Siempre confirmar la operación antes de ejecutar",
+            "Proporcionar feedback claro del resultado"
+          ]
+        },
+        "tipospagos": {
+          "purpose": "Gestión de pagos y transacciones financieras. Registra cómo y cuándo se realizan los pagos de los documentos.",
+          "queryGuidance": "Para consultar tipospagos, usa siempre la clave primaria para búsquedas exactas",
+          "insertGuidance": "Al insertar en tipospagos, validar siempre los campos requeridos. Validar integridad referencial de todas las FK",
+          "businessLogic": "Aplicar soft delete en lugar de eliminación física",
+          "aiTips": [
+            "Siempre confirmar la operación antes de ejecutar",
+            "Proporcionar feedback claro del resultado",
+            "Calcular vueltos automáticamente",
+            "Sugerir métodos de pago disponibles",
+            "Confirmar montos antes de procesar"
+          ]
+        }
+      }
+    },
+    "businessRules": []
+  },
+  "summary": {
+    "tablesDetected": 19,
+    "tablesWithAI": 19,
+    "averageConfidence": 0.6736842105263158,
+    "highConfidenceTables": 4
+  }
+}

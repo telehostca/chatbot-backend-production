@@ -77,7 +77,7 @@ function App() {
   return (
     <NotificationProvider>
       <LoadingProvider>
-        <Router basename="/admin">
+        <Router>
           <div className="flex flex-col min-h-screen bg-gray-50">
             <Header 
               stats={stats}
@@ -92,17 +92,19 @@ function App() {
               <main className="flex-1 overflow-y-auto">
                 <div className="p-4 sm:p-6 lg:p-8">
                   <Routes>
-                    <Route path="/" element={<Navigate to="/dashboard" replace />} />
-                    <Route path="/dashboard" element={<Dashboard />} />
-                    <Route path="/organizations" element={<Organizations />} />
-                    <Route path="/chatbots" element={<Chatbots />} />
-                    <Route path="/templates" element={<Templates />} />
-                    <Route path="/database" element={<Database />} />
-                    <Route path="/orders" element={<Orders />} />
-                    <Route path="/rag" element={<RAG />} />
-                    <Route path="/stats" element={<Stats />} />
-                    <Route path="/sessions" element={<Sessions />} />
-                    <Route path="/scheduled-notifications" element={<ScheduledNotifications />} />
+                    <Route path="/" element={<Navigate to="/admin/dashboard" replace />} />
+                    <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
+                    <Route path="/admin/" element={<Navigate to="/admin/dashboard" replace />} />
+                    <Route path="/admin/dashboard" element={<Dashboard />} />
+                    <Route path="/admin/organizations" element={<Organizations />} />
+                    <Route path="/admin/chatbots" element={<Chatbots />} />
+                    <Route path="/admin/templates" element={<Templates />} />
+                    <Route path="/admin/database" element={<Database />} />
+                    <Route path="/admin/orders" element={<Orders />} />
+                    <Route path="/admin/rag" element={<RAG />} />
+                    <Route path="/admin/stats" element={<Stats />} />
+                    <Route path="/admin/sessions" element={<Sessions />} />
+                    <Route path="/admin/scheduled-notifications" element={<ScheduledNotifications />} />
                   </Routes>
                 </div>
               </main>

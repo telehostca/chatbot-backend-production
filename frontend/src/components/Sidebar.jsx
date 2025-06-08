@@ -2,16 +2,16 @@ import React from 'react'
 import { NavLink } from 'react-router-dom'
 
 const menuItems = [
-  { id: 'dashboard', icon: 'fas fa-chart-line', label: 'Dashboard', emoji: '📊', path: '/dashboard' },
-  { id: 'organizations', icon: 'fas fa-building', label: 'Organizaciones', emoji: '🏢', path: '/organizations' },
-  { id: 'chatbots', icon: 'fas fa-robot', label: 'Chatbots', emoji: '🤖', path: '/chatbots' },
-  { id: 'stats', icon: 'fas fa-chart-bar', label: 'Estadísticas', emoji: '📈', path: '/stats' },
-  { id: 'sessions', icon: 'fas fa-comments', label: 'Sesiones', emoji: '💬', path: '/sessions' },
-  { id: 'scheduled-notifications', icon: 'fas fa-clock', label: 'Notificaciones Programadas', emoji: '⏰', path: '/scheduled-notifications' },
-  { id: 'templates', icon: 'fas fa-file-alt', label: 'Plantillas', emoji: '📝', path: '/templates' },
-  { id: 'database', icon: 'fas fa-database', label: 'BD Externa', emoji: '🗄️', path: '/database' },
-  { id: 'orders', icon: 'fas fa-shopping-cart', label: 'Órdenes', emoji: '🛒', path: '/orders' },
-  { id: 'rag', icon: 'fas fa-brain', label: 'RAG', emoji: '🧠', path: '/rag' },
+  { id: 'dashboard', icon: 'fas fa-chart-line', label: 'Dashboard', emoji: '📊', path: '/admin/dashboard' },
+  { id: 'organizations', icon: 'fas fa-building', label: 'Organizaciones', emoji: '🏢', path: '/admin/organizations' },
+  { id: 'chatbots', icon: 'fas fa-robot', label: 'Chatbots', emoji: '🤖', path: '/admin/chatbots' },
+  { id: 'stats', icon: 'fas fa-chart-bar', label: 'Estadísticas', emoji: '📈', path: '/admin/stats' },
+  { id: 'sessions', icon: 'fas fa-comments', label: 'Sesiones', emoji: '💬', path: '/admin/sessions' },
+  { id: 'scheduled-notifications', icon: 'fas fa-clock', label: 'Notificaciones Programadas', emoji: '⏰', path: '/admin/scheduled-notifications' },
+  { id: 'templates', icon: 'fas fa-file-alt', label: 'Plantillas', emoji: '📝', path: '/admin/templates' },
+  { id: 'database', icon: 'fas fa-database', label: 'BD Externa', emoji: '🗄️', path: '/admin/database' },
+  { id: 'orders', icon: 'fas fa-shopping-cart', label: 'Órdenes', emoji: '🛒', path: '/admin/orders' },
+  { id: 'rag', icon: 'fas fa-brain', label: 'RAG', emoji: '🧠', path: '/admin/rag' },
 ]
 
 const Sidebar = ({ isOpen, onClose }) => {

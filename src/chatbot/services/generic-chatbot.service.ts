@@ -1,6 +1,10 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import axios from 'axios';
 import { DatabaseMapperService } from './database-mapper.service';
+import { PersistentSession } from '../../chat/entities/persistent-session.entity';
+import { ChatService } from '../../chat/chat.service';
 
 @Injectable()
 export class GenericChatbotService {
@@ -8,6 +12,10 @@ export class GenericChatbotService {
 
   constructor(
     private readonly databaseMapperService: DatabaseMapperService,
+    @InjectRepository(PersistentSession, 'users')
+    private persistentSessionRepository: Repository<PersistentSession>,
+    @Inject(forwardRef(() => ChatService))
+    private chatService: ChatService,
   ) {}
 
   /**
@@ -21,6 +29,10 @@ export class GenericChatbotService {
     this.logger.log(`🤖 [VERSIÓN ACTUALIZADA] Chatbot genérico procesando mensaje: ${message} de ${from}`);
 
     try {
+      // 🆕 NUEVO: Crear o recuperar sesión persistente PRIMERO
+      const session = await this.getOrCreateSession(from, chatbotId);
+      this.logger.log(`💾 Sesión obtenida/creada: ${session.id} (messageCount: ${session.messageCount})`);
+      
       const config = this.extractChatbotConfiguration(chatbotConfig);
       
       if (!config) {
@@ -63,12 +75,30 @@ export class GenericChatbotService {
       
       if (shouldUseAIResult) {
         this.logger.log(`🧠 [DECISIÓN] Pregunta compleja detectada, usando IA...`);
-        return await this.generateAIResponse(message, from, chatbotConfig, config, chatbotId);
+        const aiResponse = await this.generateAIResponse(message, from, chatbotConfig, config, chatbotId);
+        
+        // 🆕 NUEVO: Actualizar sesión con la respuesta de IA
+        session.messageCount = (session.messageCount || 0) + 1;
+        session.lastUserMessage = message;
+        session.lastBotResponse = aiResponse;
+        session.lastActivity = new Date();
+        session.context = 'ai_response';
+        await this.persistentSessionRepository.save(session);
+        
+        return aiResponse;
       }
       
       // Generar respuesta desde configuración (como antes)
       this.logger.log(`📋 [DECISIÓN] Usando template para intent: ${intent}`);
       const response = this.generateConfigurableResponse(intent, message, config);
+      
+      // 🆕 NUEVO: Actualizar sesión con la respuesta
+      session.messageCount = (session.messageCount || 0) + 1;
+      session.lastUserMessage = message;
+      session.lastBotResponse = response;
+      session.lastActivity = new Date();
+      session.context = intent;
+      await this.persistentSessionRepository.save(session);
       
       this.logger.log(`✅ Respuesta generada desde configuración del chatbot tipo: ${chatbotType}`);
       return response;
@@ -728,6 +758,102 @@ ${databaseContext}
 🔄 Por favor, intenta nuevamente en unos momentos.
 
 Si el problema persiste, contacta a soporte técnico.`;
+  }
+
+  /**
+   * 🆕 NUEVO: Obtener o crear sesión persistente
+   */
+  private async getOrCreateSession(phoneNumber: string, chatbotId: string): Promise<PersistentSession> {
+    try {
+      // Normalizar número de teléfono
+      const normalizedPhone = phoneNumber.replace('@s.whatsapp.net', '').replace('+', '');
+      
+      // Buscar sesión existente
+      let session = await this.persistentSessionRepository.findOne({
+        where: { 
+          phoneNumber: normalizedPhone, 
+          activeChatbotId: chatbotId,
+          status: 'active' 
+        }
+      });
+      
+      if (!session) {
+        // Crear nueva sesión
+        session = this.persistentSessionRepository.create({
+          phoneNumber: normalizedPhone,
+          activeChatbotId: chatbotId,
+          isAuthenticated: false,
+          isNewClient: false,
+          context: 'new_session',
+          status: 'active',
+          messageCount: 0,
+          searchCount: 0,
+          lastActivity: new Date(),
+          metadata: {
+            chatbotType: 'generic',
+            serviceName: 'GenericChatbotService'
+          }
+        });
+        
+        this.logger.log(`🆕 Nueva sesión genérica creada para ${normalizedPhone}`);
+      } else {
+        // Actualizar última actividad
+        session.lastActivity = new Date();
+      }
+      
+      return session;
+    } catch (error) {
+      this.logger.error(`❌ Error creando/obteniendo sesión: ${error.message}`);
+      throw error;
+    }
+  }
+
+  /**
+   * 🆕 NUEVO: Obtener o crear sesión persistente
+   */
+  private async getOrCreateSession(phoneNumber: string, chatbotId: string): Promise<PersistentSession> {
+    try {
+      // Normalizar número de teléfono
+      const normalizedPhone = phoneNumber.replace('@s.whatsapp.net', '').replace('+', '');
+      
+      // Buscar sesión existente
+      let session = await this.persistentSessionRepository.findOne({
+        where: { 
+          phoneNumber: normalizedPhone, 
+          activeChatbotId: chatbotId,
+          status: 'active' 
+        }
+      });
+      
+      if (!session) {
+        // Crear nueva sesión
+        session = this.persistentSessionRepository.create({
+          phoneNumber: normalizedPhone,
+          activeChatbotId: chatbotId,
+          isAuthenticated: false,
+          isNewClient: false,
+          context: 'new_session',
+          status: 'active',
+          messageCount: 0,
+          searchCount: 0,
+          lastActivity: new Date(),
+          metadata: {
+            chatbotType: 'generic',
+            serviceName: 'GenericChatbotService'
+          }
+        });
+        
+        this.logger.log(`🆕 Nueva sesión genérica creada para ${normalizedPhone}`);
+      } else {
+        // Actualizar última actividad
+        session.lastActivity = new Date();
+      }
+      
+      return session;
+    } catch (error) {
+      this.logger.error(`❌ Error creando/obteniendo sesión: ${error.message}`);
+      throw error;
+    }
   }
 } 
  

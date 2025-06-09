@@ -1495,18 +1495,31 @@ RESPONDE al mensaje del cliente usando el sistema SaaS de intenciones personaliz
 
       console.log(`🤖 Chatbot encontrado: ${chatbot.name} (ID: ${chatbot.id})`);
 
-      // ✨ NUEVA LÓGICA: Determinar procesador según tipo
-      const processor = await this.determineProcessor(chatbot);
-      console.log(`🔧 Procesador seleccionado: ${processor}`);
-
-      // Procesar mensaje según el tipo
-      const response = await this.processMessageByType(processor, from, text, chatbot);
-
-      // Enviar respuesta
-      if (response) {
-        const cleanPhone = from.replace('@s.whatsapp.net', '');
-        await this.sendMessage(cleanPhone, response, chatbot.id);
-        console.log(`✅ Respuesta enviada: ${response}`);
+      // 🔧 NUEVA LÓGICA: Usar ChatbotFactoryCleanService que SÍ crea sesiones persistentes
+      console.log(`🏭 Usando ChatbotFactoryCleanService para crear sesiones persistentes`);
+      const cleanPhone = from.replace('@s.whatsapp.net', '');
+      
+      try {
+        const chatbotService = await this.chatbotFactoryCleanService.createChatbotService(chatbot.id, chatbot);
+        const response = await chatbotService.handleMessage(text, cleanPhone, chatbot, chatbot.id);
+        
+        // Enviar respuesta
+        if (response) {
+          await this.sendMessage(cleanPhone, response, chatbot.id);
+          console.log(`✅ Respuesta enviada: ${response.substring(0, 100)}...`);
+        }
+      } catch (serviceError) {
+        console.error(`❌ Error en ChatbotFactoryCleanService: ${serviceError.message}`);
+        
+        // Fallback: usar el método anterior
+        console.log(`🔄 Fallback: usando método anterior`);
+        const processor = await this.determineProcessor(chatbot);
+        const response = await this.processMessageByType(processor, from, text, chatbot);
+        
+        if (response) {
+          await this.sendMessage(cleanPhone, response, chatbot.id);
+          console.log(`✅ Respuesta fallback enviada: ${response.substring(0, 100)}...`);
+        }
       }
 
     } catch (error) {

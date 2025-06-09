@@ -293,4 +293,101 @@ export class TestSaasController {
       };
     }
   }
+
+  @Post('test-message-save')
+  async testMessageSave() {
+    try {
+      this.logger.log('🧪 Testing message saving process...');
+      
+      // Simular datos de mensaje de WhatsApp
+      const testPhoneNumber = '5491234567890';
+      const testMessage = 'Hola, esto es una prueba de guardado';
+      const testChatbotId = 'test-chatbot';
+      
+      // Crear session de prueba directamente en la base de datos
+      const sessionResult = await this.dataSource.query(`
+        INSERT INTO persistent_sessions (
+          "phoneNumber", 
+          "activeChatbotId", 
+          "clientPushname",
+          "isAuthenticated", 
+          "isNewClient", 
+          "context", 
+          "status", 
+          "messageCount", 
+          "searchCount", 
+          "lastActivity"
+        ) 
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) 
+        ON CONFLICT ("phoneNumber", "activeChatbotId") 
+        DO UPDATE SET "lastActivity" = EXCLUDED."lastActivity"
+        RETURNING id;
+      `, [
+        testPhoneNumber,
+        testChatbotId,
+        'Test User',
+        false,
+        true,
+        'test',
+        'active',
+        0,
+        0,
+        new Date()
+      ]);
+      
+      const sessionId = sessionResult[0]?.id;
+      this.logger.log(`✅ Session created/updated: ${sessionId}`);
+      
+      // Insertar mensajes de prueba directamente
+      const userMessageResult = await this.dataSource.query(`
+        INSERT INTO chat_messages (content, sender, timestamp, session_id) 
+        VALUES ($1, $2, $3, $4) 
+        RETURNING id;
+      `, [
+        testMessage,
+        'user',
+        new Date(),
+        sessionId
+      ]);
+      
+      const botMessageResult = await this.dataSource.query(`
+        INSERT INTO chat_messages (content, sender, timestamp, session_id) 
+        VALUES ($1, $2, $3, $4) 
+        RETURNING id;
+      `, [
+        '¡Hola! Gracias por tu mensaje. Soy un chatbot de prueba.',
+        'assistant',
+        new Date(),
+        sessionId
+      ]);
+      
+      // Verificar que se guardaron
+      const totalMessages = await this.dataSource.query('SELECT COUNT(*) as count FROM chat_messages');
+      
+      this.logger.log(`✅ Messages saved - User: ${userMessageResult[0].id}, Bot: ${botMessageResult[0].id}`);
+      
+      return {
+        success: true,
+        message: 'Message saving test completed successfully',
+        data: {
+          sessionId,
+          userMessageId: userMessageResult[0].id,
+          botMessageId: botMessageResult[0].id,
+          totalMessagesInDB: parseInt(totalMessages[0].count),
+          testPhone: testPhoneNumber,
+          testMessage
+        }
+      };
+      
+    } catch (error) {
+      this.logger.error(`❌ Error in message save test: ${error.message}`);
+      this.logger.error(`Stack: ${error.stack}`);
+      
+      return {
+        success: false,
+        error: error.message,
+        stack: error.stack
+      };
+    }
+  }
 } 

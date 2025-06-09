@@ -16,7 +16,9 @@ export class GenericChatbotService {
     private persistentSessionRepository: Repository<PersistentSession>,
     @Inject(forwardRef(() => ChatService))
     private chatService: ChatService,
-  ) {}
+  ) {
+    // Constructor inicializado correctamente
+  }
 
   /**
    * Servicio genérico SaaS multi-tenant

@@ -1234,33 +1234,45 @@ const Chatbots = () => {
             )}
           </div>
           
-          {/* Intent Manager Component - mostrarlo solo si las intenciones están activadas */}
-          {!form.disableIntentMatching && (
-            <IntentManager 
-              chatbotType={form.chatbotType}
-              intents={form.intents || []}
-              onChange={(intents) => setForm(f => ({ ...f, intents }))}
-            />
-          )}
-          
-          {/* Mensaje cuando las intenciones están desactivadas */}
-          {form.disableIntentMatching && (
-            <div className="bg-white p-6 rounded-lg border-2 border-dashed border-purple-200 text-center">
-              <div className="text-4xl mb-3">🔍</div>
-              <h5 className="text-lg font-semibold text-purple-800 mb-2">Intenciones Desactivadas</h5>
-              <p className="text-gray-600">Las intenciones predefinidas están desactivadas. El chatbot utilizará exclusivamente la IA para responder a todas las consultas.</p>
-              <button 
-                type="button"
-                onClick={() => setForm(f => ({ 
-                  ...f, 
-                  disableIntentMatching: false
-                }))}
-                className="mt-4 px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors"
-              >
-                Activar Intenciones
-              </button>
-            </div>
-          )}
+          {/* Contenedor con altura fija para evitar cambios de tamaño */}
+          <div className="min-h-[400px] transition-all duration-300 ease-in-out">
+            {/* Intent Manager Component - mostrarlo solo si las intenciones están activadas */}
+            {!form.disableIntentMatching && (
+              <div className="animate-fadeIn">
+                <IntentManager 
+                  chatbotType={form.chatbotType}
+                  intents={form.intents || []}
+                  onChange={(intents) => setForm(f => ({ ...f, intents }))}
+                />
+              </div>
+            )}
+            
+            {/* Mensaje cuando las intenciones están desactivadas */}
+            {form.disableIntentMatching && (
+              <div className="bg-white p-6 rounded-lg border-2 border-dashed border-purple-200 text-center animate-fadeIn flex flex-col justify-center min-h-[350px]">
+                <div className="text-6xl mb-4">🧠</div>
+                <h5 className="text-xl font-semibold text-purple-800 mb-3">IA Exclusiva Activada</h5>
+                <p className="text-gray-600 max-w-md mx-auto mb-6">
+                  Las intenciones predefinidas están desactivadas. El chatbot utilizará exclusivamente la <strong>Inteligencia Artificial</strong> para responder a todas las consultas de manera natural e inteligente.
+                </p>
+                <div className="bg-purple-50 p-4 rounded-lg max-w-md mx-auto mb-6">
+                  <p className="text-sm text-purple-700">
+                    <strong>Ventaja:</strong> Respuestas más naturales, contextuales y adaptables a cualquier consulta sin necesidad de configurar intenciones específicas.
+                  </p>
+                </div>
+                <button 
+                  type="button"
+                  onClick={() => setForm(f => ({ 
+                    ...f, 
+                    disableIntentMatching: false
+                  }))}
+                  className="mx-auto px-6 py-3 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors shadow-md"
+                >
+                  🎯 Activar Intenciones Manuales
+                </button>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* ================= 🎭 CONFIGURACIÓN DE PROMPTS Y CONTEXTO ================= */}
@@ -1779,6 +1791,16 @@ const Chatbots = () => {
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-gray-500">BD Externa:</span>
                     <span className={`font-medium ${chatbot.externalDbConfig?.enabled ? 'text-green-600' : 'text-gray-400'}`}>{chatbot.externalDbConfig?.enabled ? 'Habilitada' : 'Deshabilitada'}</span>
+                  </div>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-gray-500">Intenciones:</span>
+                    <span className={`font-medium px-2 py-1 rounded text-xs ${!chatbot.chatbotConfig?.disableIntentMatching ? 'bg-blue-100 text-blue-800' : 'bg-purple-100 text-purple-800'}`}>
+                      {!chatbot.chatbotConfig?.disableIntentMatching ? '🎯 Activadas' : '🧠 IA Exclusiva'}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-gray-500">Conversaciones:</span>
+                    <span className="font-medium text-gray-600">{chatbot.conversationCount || 0}</span>
                   </div>
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-gray-500">Conversaciones:</span>

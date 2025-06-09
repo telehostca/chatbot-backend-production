@@ -51,7 +51,7 @@ import { EnhancedAIAgentService } from './ai/services/enhanced-ai-agent.service'
 import { RAGModule } from './rag/rag.module';
 import { KnowledgeBase } from './rag/entities/knowledge-base.entity';
 import { DocumentChunk } from './rag/entities/document-chunk.entity';
-import { TestSaasController } from './test-saas.controller';
+// import { TestSaasController } from './test-saas.controller';
 
 @Module({
   imports: [
@@ -90,7 +90,7 @@ import { TestSaasController } from './test-saas.controller';
     RAGModule,
     ChatbotModule,
   ],
-  controllers: [TestSaasController],
+  controllers: [], // [TestSaasController],
   providers: [EnhancedAIAgentService],
 })
 export class AppPostgreSQLModule {} 

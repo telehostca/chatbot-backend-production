@@ -1118,10 +1118,6 @@ const Chatbots = () => {
                     setForm(f => ({ 
                       ...f, 
                       disableIntentMatching: !intentionsEnabled,
-                      chatbotConfig: {
-                        ...f.chatbotConfig,
-                        disableIntentMatching: !intentionsEnabled
-                      },
                       // Actualizar configuraciones relacionadas
                       aiFirst: !intentionsEnabled, // Si desactivamos intenciones, priorizamos IA
                       intentProcessingMode: !intentionsEnabled ? 'ai_only' : 'hybrid',
@@ -1163,11 +1159,7 @@ const Chatbots = () => {
                     value={form.intentProcessingMode || 'hybrid'}
                     onChange={(e) => setForm(f => ({ 
                       ...f, 
-                      intentProcessingMode: e.target.value,
-                      chatbotConfig: {
-                        ...f.chatbotConfig,
-                        intentProcessingMode: e.target.value
-                      }
+                      intentProcessingMode: e.target.value
                     }))}
                     disabled={form.disableIntentMatching}
                     className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 disabled:bg-gray-100 disabled:text-gray-500"
@@ -1186,11 +1178,7 @@ const Chatbots = () => {
                       checked={form.aiFirst || false}
                       onChange={(e) => setForm(f => ({ 
                         ...f, 
-                        aiFirst: e.target.checked,
-                        chatbotConfig: {
-                          ...f.chatbotConfig,
-                          aiFirst: e.target.checked
-                        }
+                        aiFirst: e.target.checked
                       }))}
                       disabled={form.disableIntentMatching}
                       className="mr-2 disabled:opacity-50"
@@ -1207,11 +1195,7 @@ const Chatbots = () => {
                       checked={form.forceAIProcessing || false}
                       onChange={(e) => setForm(f => ({ 
                         ...f, 
-                        forceAIProcessing: e.target.checked,
-                        chatbotConfig: {
-                          ...f.chatbotConfig,
-                          forceAIProcessing: e.target.checked
-                        }
+                        forceAIProcessing: e.target.checked
                       }))}
                       disabled={form.disableIntentMatching}
                       className="mr-2 disabled:opacity-50"
@@ -1240,13 +1224,10 @@ const Chatbots = () => {
               <h5 className="text-lg font-semibold text-purple-800 mb-2">Intenciones Desactivadas</h5>
               <p className="text-gray-600">Las intenciones predefinidas están desactivadas. El chatbot utilizará exclusivamente la IA para responder a todas las consultas.</p>
               <button 
+                type="button"
                 onClick={() => setForm(f => ({ 
                   ...f, 
-                  disableIntentMatching: false,
-                  chatbotConfig: {
-                    ...f.chatbotConfig,
-                    disableIntentMatching: false
-                  }
+                  disableIntentMatching: false
                 }))}
                 className="mt-4 px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors"
               >

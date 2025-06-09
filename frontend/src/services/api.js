@@ -260,7 +260,7 @@ class ApiService {
   }
 
   async sendMessageToSession(sessionId, message) {
-    return this.request(`/admin/sessions/${sessionId}/send`, {
+    return this.request(`/chat/sessions/${sessionId}/send-message`, {
       method: 'POST',
       body: { message }
     })

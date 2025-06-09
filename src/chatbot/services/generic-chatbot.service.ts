@@ -781,6 +781,11 @@ Si el problema persiste, contacta a soporte técnico.`;
    */
   private async getOrCreateSession(phoneNumber: string, chatbotId: string, pushname?: string): Promise<PersistentSession> {
     try {
+      this.logger.log(`🔍 INICIANDO getOrCreateSession:`);
+      this.logger.log(`   📞 phoneNumber: ${phoneNumber}`);
+      this.logger.log(`   🤖 chatbotId: ${chatbotId}`);
+      this.logger.log(`   👤 pushname: ${pushname || 'No proporcionado'}`);
+      
       // Verificar que el repositorio esté disponible
       if (!this.persistentSessionRepository) {
         throw new Error('PersistentSessionRepository no está disponible');
@@ -788,6 +793,7 @@ Si el problema persiste, contacta a soporte técnico.`;
       
       // Normalizar número de teléfono
       const normalizedPhone = phoneNumber.replace('@s.whatsapp.net', '').replace('+', '');
+      this.logger.log(`   📞 Teléfono normalizado: ${normalizedPhone}`);
       
       // Buscar sesión existente
       let session = await this.persistentSessionRepository.findOne({
@@ -800,6 +806,7 @@ Si el problema persiste, contacta a soporte técnico.`;
       
       if (!session) {
         // Crear nueva sesión
+        this.logger.log(`🆕 CREANDO NUEVA SESIÓN para ${normalizedPhone}`);
         session = this.persistentSessionRepository.create({
           phoneNumber: normalizedPhone,
           activeChatbotId: chatbotId,
@@ -818,21 +825,46 @@ Si el problema persiste, contacta a soporte técnico.`;
         });
         
         this.logger.log(`🆕 Nueva sesión genérica creada para ${normalizedPhone} (${pushname || 'Sin nombre'})`);
+        this.logger.log(`   💾 Datos de la nueva sesión:`, JSON.stringify({
+          phoneNumber: session.phoneNumber,
+          activeChatbotId: session.activeChatbotId,
+          clientPushname: session.clientPushname,
+          status: session.status
+        }, null, 2));
       } else {
+        this.logger.log(`♻️ SESIÓN EXISTENTE encontrada para ${normalizedPhone}`);
+        this.logger.log(`   👤 Pushname actual: ${session.clientPushname || 'No establecido'}`);
+        this.logger.log(`   👤 Pushname nuevo: ${pushname || 'No proporcionado'}`);
+        
         // Actualizar información de la sesión existente
         session.lastActivity = new Date();
         session.isNewClient = false; // Ya no es nuevo
         
         // ACTUALIZAR PUSHNAME SI ES DIFERENTE O NO EXISTÍA
         if (pushname && (!session.clientPushname || session.clientPushname !== pushname)) {
+          this.logger.log(`👤 ACTUALIZANDO PUSHNAME: "${session.clientPushname}" → "${pushname}"`);
           session.clientPushname = pushname;
-          this.logger.log(`👤 Pushname actualizado: ${pushname}`);
+        } else if (pushname && session.clientPushname === pushname) {
+          this.logger.log(`👤 PUSHNAME ya está actualizado: ${pushname}`);
+        } else if (!pushname) {
+          this.logger.log(`⚠️ No se proporcionó pushname para actualizar`);
         }
       }
       
-      return session;
+      // Guardar la sesión
+      const savedSession = await this.persistentSessionRepository.save(session);
+      this.logger.log(`💾 SESIÓN GUARDADA EXITOSAMENTE:`);
+      this.logger.log(`   📊 ID: ${savedSession.id}`);
+      this.logger.log(`   👤 clientPushname: ${savedSession.clientPushname || 'No establecido'}`);
+      this.logger.log(`   📞 phoneNumber: ${savedSession.phoneNumber}`);
+      this.logger.log(`   ⏰ lastActivity: ${savedSession.lastActivity}`);
+      
+      return savedSession;
     } catch (error) {
       this.logger.error(`❌ Error creando/obteniendo sesión: ${error.message}`);
+      this.logger.error(`   🔍 phoneNumber: ${phoneNumber}`);
+      this.logger.error(`   🔍 chatbotId: ${chatbotId}`);
+      this.logger.error(`   🔍 pushname: ${pushname || 'No proporcionado'}`);
       throw error;
     }
   }

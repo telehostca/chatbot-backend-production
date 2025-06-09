@@ -602,23 +602,46 @@ export class WhatsappController {
    */
   private extractMessageContent(msg: any): any | null {
     try {
-      // EXTRAER PUSHNAME DEL WEBHOOK
+      // EXTRAER PUSHNAME DEL WEBHOOK - MEJORADO CON MÁS LOGS
       let pushname = null;
+      
+      this.logger.log(`🔍 ANALIZANDO MENSAJE PARA PUSHNAME:`, JSON.stringify(msg, null, 2));
       
       // Buscar pushname en diferentes ubicaciones del payload
       if (msg.pushName) {
         pushname = msg.pushName;
+        this.logger.log(`✅ PUSHNAME encontrado en msg.pushName: ${pushname}`);
       } else if (msg.pushname) {
         pushname = msg.pushname;
+        this.logger.log(`✅ PUSHNAME encontrado en msg.pushname: ${pushname}`);
       } else if (msg.verifiedBizName) {
         pushname = msg.verifiedBizName;
+        this.logger.log(`✅ PUSHNAME encontrado en msg.verifiedBizName: ${pushname}`);
       } else if (msg.participant && msg.participant.pushName) {
         pushname = msg.participant.pushName;
+        this.logger.log(`✅ PUSHNAME encontrado en msg.participant.pushName: ${pushname}`);
       } else if (msg.key?.participant) {
         pushname = msg.key.participant;
+        this.logger.log(`✅ PUSHNAME encontrado en msg.key.participant: ${pushname}`);
+      } else if (msg.key && msg.key.fromMe === false && msg.key.remoteJid) {
+        // Intentar extraer del remoteJid si es un número
+        const remoteJid = msg.key.remoteJid;
+        if (remoteJid && remoteJid.includes('@s.whatsapp.net')) {
+          // No es un pushname real, es solo el número
+          this.logger.log(`⚠️ Solo encontrado remoteJid: ${remoteJid}, no hay pushname`);
+        }
+      } else {
+        this.logger.warn(`❌ NO SE ENCONTRÓ PUSHNAME en ninguna ubicación conocida`);
+        this.logger.warn(`   📋 Propiedades disponibles:`, Object.keys(msg));
+        if (msg.key) {
+          this.logger.warn(`   📋 Propiedades en msg.key:`, Object.keys(msg.key));
+        }
+        if (msg.participant) {
+          this.logger.warn(`   📋 Propiedades en msg.participant:`, Object.keys(msg.participant));
+        }
       }
       
-      this.logger.log(`👤 PUSHNAME EXTRAÍDO: ${pushname || 'No disponible'}`);
+      this.logger.log(`👤 PUSHNAME FINAL EXTRAÍDO: ${pushname || 'No disponible'}`);
       
       const baseMessage = {
         from: msg.key?.remoteJid || msg.from || 'unknown',
@@ -626,6 +649,8 @@ export class WhatsappController {
         id: msg.key?.id || msg.id || Date.now().toString(),
         pushname: pushname // AGREGAR PUSHNAME AL MENSAJE
       };
+      
+      this.logger.log(`📨 MENSAJE BASE CREADO:`, JSON.stringify(baseMessage, null, 2));
       
       // Mensaje de texto
       if (msg.message?.conversation || msg.message?.extendedTextMessage?.text) {

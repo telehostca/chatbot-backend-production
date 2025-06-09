@@ -2,14 +2,16 @@ import React, { useState, useEffect } from 'react'
 import { api } from '../services/api'
 
 const Stats = () => {
-  const [stats, setStats] = useState({
+  const defaultStats = {
     chatbots: { total: 0, active: 0, inactive: 0 },
     conversations: { total: 0, today: 0, thisWeek: 0, thisMonth: 0 },
     messages: { total: 0, today: 0, thisWeek: 0, thisMonth: 0 },
     notifications: { sent: 0, pending: 0, failed: 0 },
     rag: { documents: 0, chunks: 0, queries: 0 },
     database: { connections: 0, active: 0 }
-  })
+  }
+  
+  const [stats, setStats] = useState(defaultStats)
   const [chatbotStats, setChatbotStats] = useState([])
   const [weeklyActivity, setWeeklyActivity] = useState([])
   const [recentEvents, setRecentEvents] = useState([])
@@ -29,46 +31,15 @@ const Stats = () => {
       
       // Obtener estadísticas reales del backend
       const response = await api.get(`/admin/stats?period=${selectedPeriod}`)
-      setStats(response.data)
+      // El backend devuelve datos directamente, no en response.data
+      // Fusionar con valores por defecto para evitar propiedades undefined
+      setStats({ ...defaultStats, ...response })
       
     } catch (error) {
       console.error('Error cargando estadísticas:', error)
       
-      // Fallback a datos mock solo en caso de error
-      const mockStats = {
-        chatbots: { 
-          total: 0, 
-          active: 0, 
-          inactive: 0 
-        },
-        conversations: { 
-          total: 0, 
-          today: 0, 
-          thisWeek: 0, 
-          thisMonth: 0 
-        },
-        messages: { 
-          total: 0, 
-          today: 0, 
-          thisWeek: 0, 
-          thisMonth: 0 
-        },
-        notifications: { 
-          sent: 0, 
-          pending: 0, 
-          failed: 0 
-        },
-        rag: { 
-          documents: 0, 
-          chunks: 0, 
-          queries: 0 
-        },
-        database: { 
-          connections: 0, 
-          active: 0 
-        }
-      }
-      setStats(mockStats)
+      // Fallback a datos por defecto en caso de error
+      setStats(defaultStats)
     } finally {
       setLoading(false)
     }
@@ -77,7 +48,7 @@ const Stats = () => {
   const loadChatbotStats = async () => {
     try {
       const response = await api.get('/admin/stats/chatbots')
-      setChatbotStats(response.data)
+      setChatbotStats(response || [])
     } catch (error) {
       console.error('Error cargando estadísticas de chatbots:', error)
       setChatbotStats([])
@@ -87,7 +58,7 @@ const Stats = () => {
   const loadWeeklyActivity = async () => {
     try {
       const response = await api.get('/admin/stats/activity')
-      setWeeklyActivity(response.data)
+      setWeeklyActivity(response || [])
     } catch (error) {
       console.error('Error cargando actividad semanal:', error)
       // Fallback a datos mock para actividad semanal
@@ -102,7 +73,7 @@ const Stats = () => {
   const loadRecentEvents = async () => {
     try {
       const response = await api.get('/admin/stats/events?limit=5')
-      setRecentEvents(response.data)
+      setRecentEvents(response || [])
     } catch (error) {
       console.error('Error cargando eventos recientes:', error)
       setRecentEvents([])
@@ -229,36 +200,36 @@ const Stats = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard
           title="Chatbots Activos"
-          value={stats.chatbots.active}
-          subtitle={`${stats.chatbots.total} total`}
+          value={stats?.chatbots?.active || 0}
+          subtitle={`${stats?.chatbots?.total || 0} total`}
           icon="🤖"
           color="blue"
           change={+5}
         />
         <StatCard
           title="Conversaciones"
-          value={selectedPeriod === 'today' ? stats.conversations.today : 
-                selectedPeriod === 'week' ? stats.conversations.thisWeek : 
-                stats.conversations.thisMonth}
-          subtitle={`${stats.conversations.total} total`}
+          value={selectedPeriod === 'today' ? (stats?.conversations?.today || 0) : 
+                selectedPeriod === 'week' ? (stats?.conversations?.thisWeek || 0) : 
+                (stats?.conversations?.thisMonth || 0)}
+          subtitle={`${stats?.conversations?.total || 0} total`}
           icon="💬"
           color="green"
           change={+12}
         />
         <StatCard
           title="Mensajes"
-          value={selectedPeriod === 'today' ? stats.messages.today : 
-                selectedPeriod === 'week' ? stats.messages.thisWeek : 
-                stats.messages.thisMonth}
-          subtitle={`${stats.messages.total} total`}
+          value={selectedPeriod === 'today' ? (stats?.messages?.today || 0) : 
+                selectedPeriod === 'week' ? (stats?.messages?.thisWeek || 0) : 
+                (stats?.messages?.thisMonth || 0)}
+          subtitle={`${stats?.messages?.total || 0} total`}
           icon="📨"
           color="purple"
           change={+8}
         />
         <StatCard
           title="Documentos RAG"
-          value={stats.rag.documents}
-          subtitle={`${stats.rag.chunks} fragmentos`}
+          value={stats?.rag?.documents || 0}
+          subtitle={`${stats?.rag?.chunks || 0} fragmentos`}
           icon="📚"
           color="orange"
           change={+3}
@@ -269,15 +240,15 @@ const Stats = () => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <StatCard
           title="Notificaciones Enviadas"
-          value={stats.notifications.sent}
-          subtitle={`${stats.notifications.pending} pendientes`}
+          value={stats?.notifications?.sent || 0}
+          subtitle={`${stats?.notifications?.pending || 0} pendientes`}
           icon="📤"
           color="indigo"
           change={+15}
         />
         <StatCard
           title="Consultas RAG"
-          value={stats.rag.queries}
+          value={stats?.rag?.queries || 0}
           subtitle="Este mes"
           icon="🔍"
           color="pink"
@@ -285,8 +256,8 @@ const Stats = () => {
         />
         <StatCard
           title="Conexiones BD Externa"
-          value={stats.database.active}
-          subtitle={`${stats.database.connections} configuradas`}
+          value={stats?.database?.active || 0}
+          subtitle={`${stats?.database?.connections || 0} configuradas`}
           icon="🗄️"
           color="teal"
           change={0}

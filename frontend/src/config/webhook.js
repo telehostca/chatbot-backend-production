@@ -137,7 +137,7 @@ function slugifyForUrl(str) {
 
 // Configuración por defecto
 export const WEBHOOK_CONFIG = {
-  DEFAULT_NGROK_URL: 'https://e90d-38-95-13-140.ngrok-free.app',
+  DEFAULT_NGROK_URL: 'https://fb6b-86-106-87-91.ngrok-free.app',
   LOCALHOST_FALLBACK: 'http://localhost:3000',
   WEBHOOK_PATH: '/api/whatsapp/webhook',
   UPDATE_WEBHOOK_ON_CREATE: true

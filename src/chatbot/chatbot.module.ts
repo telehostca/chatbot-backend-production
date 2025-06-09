@@ -8,12 +8,13 @@ import { DatabaseMapperService } from './services/database-mapper.service';
 import { SchemaDetectionService } from './services/schema-detection.service';
 import { ChatbotInstance } from '../admin/entities/chatbot-instance.entity';
 import { PersistentSession } from '../chat/entities/persistent-session.entity';
+import { ChatMessage } from '../chat/entities/message.entity';
 import { ExternalDbService } from '../external-db/external-db.service';
 import { ChatModule } from '../chat/chat.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([ChatbotInstance, PersistentSession], 'users'),
+    TypeOrmModule.forFeature([ChatbotInstance, PersistentSession, ChatMessage], 'users'),
     forwardRef(() => ChatModule)
   ],
   controllers: [

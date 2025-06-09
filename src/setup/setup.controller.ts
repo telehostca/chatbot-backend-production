@@ -1,103 +1,21 @@
-import { Controller, Post, Body, Param, Get, Query, Logger } from '@nestjs/common';
-import { ChatService } from './chat.service';
+import { Controller, Post, Get, Logger } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 
-@Controller('chat')
-export class ChatController {
-  private readonly logger = new Logger(ChatController.name);
+@Controller('api/setup')
+export class SetupController {
+  private readonly logger = new Logger(SetupController.name);
 
   constructor(
-    private readonly chatService: ChatService,
     @InjectDataSource('users') private dataSource: DataSource
   ) {}
 
-  @Post(':chatbotId/message')
-  async sendMessage(
-    @Param('chatbotId') chatbotId: string,
-    @Body() messageDto: { message: string; from: string }
-  ) {
-    try {
-      // Usar ChatService para todos los chatbots
-      const response = await this.chatService.processMessage(
-          messageDto.message,
-          messageDto.from,
-          chatbotId
-        );
-      
-        return { response };
-    } catch (error) {
-      return { 
-        error: 'Error procesando mensaje',
-        details: error.message 
-      };
-    }
-  }
-
-  @Get('sessions')
-  async getSessions(
-    @Query('page') page: number = 1,
-    @Query('limit') limit: number = 10,
-    @Query('chatbotId') chatbotId?: string,
-    @Query('search') search?: string,
-    @Query('status') status?: string
-  ) {
-    return this.chatService.getSessions({
-      page: parseInt(page.toString()) || 1,
-      limit: parseInt(limit.toString()) || 10,
-      chatbotId,
-      search,
-      status
-    });
-  }
-
-  @Get('sessions/:sessionId/messages')
-  async getSessionMessages(@Param('sessionId') sessionId: string) {
-    try {
-      const messages = await this.chatService.getSessionMessages(sessionId);
-      return { data: messages };
-    } catch (error) {
-      this.logger.error(`Error obteniendo mensajes: ${error.message}`);
-      return { data: [], error: error.message };
-    }
-  }
-
-  @Post('sessions/:sessionId/send-message')
-  async sendMessageToSession(
-    @Param('sessionId') sessionId: string,
-    @Body() body: { message: string }
-  ) {
-    return this.chatService.sendMessageToSession(sessionId, body.message);
-  }
-
-  @Post('sessions/:sessionId/pause-bot')
-  async pauseBot(@Param('sessionId') sessionId: string) {
-    return this.chatService.pauseBotForSession(sessionId);
-  }
-
-  @Post('sessions/:sessionId/resume-bot')
-  async resumeBot(@Param('sessionId') sessionId: string) {
-    return this.chatService.resumeBotForSession(sessionId);
-  }
-
-  @Post('sessions/:sessionId/send-manual-message')
-  async sendManualMessage(
-    @Param('sessionId') sessionId: string,
-    @Body() body: { message: string; operatorName: string }
-  ) {
-    return this.chatService.sendManualMessage(sessionId, body.message, body.operatorName);
-  }
-
-  @Get('sessions/:sessionId/bot-status')
-  async getBotStatus(@Param('sessionId') sessionId: string) {
-    return this.chatService.getBotStatusForSession(sessionId);
-  }
-
-  @Post('setup/create-chat-messages-table')
+  @Post('create-chat-messages-table')
   async createChatMessagesTable() {
     try {
       this.logger.log('🔄 Creando tabla chat_messages...');
       
+      // Verificar si la tabla ya existe
       const tableExists = await this.dataSource.query(`
         SELECT EXISTS (
           SELECT FROM information_schema.tables 
@@ -115,6 +33,7 @@ export class ChatController {
         };
       }
       
+      // Crear la tabla
       await this.dataSource.query(`
         CREATE TABLE chat_messages (
           id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -127,6 +46,7 @@ export class ChatController {
         );
       `);
       
+      // Crear índices
       await this.dataSource.query(`
         CREATE INDEX idx_chat_messages_session_id ON chat_messages(session_id);
       `);
@@ -153,9 +73,10 @@ export class ChatController {
     }
   }
 
-  @Get('setup/database-status')
+  @Get('database-status')
   async getDatabaseStatus() {
     try {
+      // Verificar qué tablas existen
       const tables = await this.dataSource.query(`
         SELECT table_name 
         FROM information_schema.tables 
@@ -166,6 +87,7 @@ export class ChatController {
       
       const tableNames = tables.map(t => t.table_name);
       
+      // Contar registros en persistent_sessions
       let sessionCount = 0;
       try {
         const sessionResult = await this.dataSource.query('SELECT COUNT(*) as count FROM persistent_sessions');
@@ -174,6 +96,7 @@ export class ChatController {
         // Ignorar error si no existe la tabla
       }
       
+      // Contar registros en chat_messages (si existe)
       let messageCount = 0;
       if (tableNames.includes('chat_messages')) {
         try {

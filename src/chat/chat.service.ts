@@ -227,13 +227,62 @@ export class ChatService {
 
   // Métodos para ChatMessage
   async saveMessage(session: PersistentSession, content: string, sender: string): Promise<ChatMessage> {
-    const message = this.messageRepository.create({
-      session,
-      content,
-      sender,
-      timestamp: new Date()
-    });
-    return await this.messageRepository.save(message);
+    try {
+      const message = this.messageRepository.create({
+        session,
+        content,
+        sender,
+        timestamp: new Date()
+      });
+      return await this.messageRepository.save(message);
+    } catch (error) {
+      // Si hay error de tabla, intentar crearla automáticamente
+      if (error.message && error.message.includes('relation "chat_messages" does not exist')) {
+        this.logger.warn('⚠️ Tabla chat_messages no existe, creándola automáticamente...');
+        await this.createChatMessagesTableIfNotExists();
+        
+        // Reintentar guardar el mensaje
+        const message = this.messageRepository.create({
+          session,
+          content,
+          sender,
+          timestamp: new Date()
+        });
+        return await this.messageRepository.save(message);
+      }
+      throw error;
+    }
+  }
+
+  // 🔧 NUEVO: Crear tabla chat_messages automáticamente
+  private async createChatMessagesTableIfNotExists(): Promise<void> {
+    try {
+      // Usar la conexión de TypeORM para ejecutar SQL
+      await this.sessionRepository.query(`
+        CREATE TABLE IF NOT EXISTS chat_messages (
+          id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+          content TEXT NOT NULL,
+          sender VARCHAR(255) NOT NULL,
+          timestamp TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+          chat_session_id UUID,
+          session_id UUID,
+          "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+      `);
+      
+      await this.sessionRepository.query(`
+        CREATE INDEX IF NOT EXISTS idx_chat_messages_session_id ON chat_messages(session_id);
+      `);
+      
+      await this.sessionRepository.query(`
+        CREATE INDEX IF NOT EXISTS idx_chat_messages_timestamp ON chat_messages(timestamp);
+      `);
+      
+      this.logger.log('✅ Tabla chat_messages creada automáticamente');
+    } catch (error) {
+      this.logger.error(`❌ Error creando tabla chat_messages: ${error.message}`);
+      throw error;
+    }
   }
 
   // Métodos para SearchHistory

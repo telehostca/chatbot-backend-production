@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import axios from 'axios';
 import { DatabaseMapperService } from './database-mapper.service';
 import { PersistentSession } from '../../chat/entities/persistent-session.entity';
+import { ChatMessage } from '../../chat/entities/message.entity';
 import { ChatService } from '../../chat/chat.service';
 
 @Injectable()
@@ -16,6 +17,9 @@ export class GenericChatbotService {
     @InjectRepository(PersistentSession, 'users')
     private persistentSessionRepository: Repository<PersistentSession>,
     @Optional()
+    @InjectRepository(ChatMessage, 'users')
+    private chatMessageRepository: Repository<ChatMessage>,
+    @Optional()
     @Inject(forwardRef(() => ChatService))
     private chatService: ChatService,
   ) {
@@ -23,6 +27,7 @@ export class GenericChatbotService {
     this.logger.log(`🔧 GenericChatbotService inicializado`);
     this.logger.log(`📊 Repository disponible: ${!!this.persistentSessionRepository}`);
     this.logger.log(`💬 ChatService disponible: ${!!this.chatService}`);
+    this.logger.log(`📝 ChatMessage Repository disponible: ${!!this.chatMessageRepository}`);
   }
 
   /**
@@ -34,6 +39,8 @@ export class GenericChatbotService {
 
   async handleMessage(message: string, from: string, chatbotConfig: any, chatbotId?: string, additionalData?: { pushname?: string; messageType?: string }): Promise<string> {
     this.logger.log(`🤖 [VERSIÓN ACTUALIZADA] Chatbot genérico procesando mensaje: ${message} de ${from}`);
+    this.logger.log(`🔍 ChatMessage Repository estado: ${!!this.chatMessageRepository}`);
+    this.logger.log(`🔍 PersistentSession Repository estado: ${!!this.persistentSessionRepository}`);
 
     try {
       // 🆕 NUEVO: Crear o recuperar sesión persistente PRIMERO (solo si el repositorio está disponible)
@@ -83,6 +90,13 @@ export class GenericChatbotService {
             session.context = 'ai_response';
             await this.persistentSessionRepository.save(session);
             this.logger.log(`💾 Sesión actualizada con respuesta de IA`);
+            
+            // 🆕 GUARDAR MENSAJES INDIVIDUALES
+            this.logger.log(`🔍 Intentando guardar mensajes de IA...`);
+            await this.saveMessageToHistory(session, message, 'user');
+            await this.saveMessageToHistory(session, aiResponse, 'assistant');
+            this.logger.log(`✅ Mensajes de IA guardados exitosamente`);
+            
           } catch (updateError) {
             this.logger.error(`❌ Error actualizando sesión: ${updateError.message}`);
           }
@@ -100,7 +114,7 @@ export class GenericChatbotService {
       ];
       
       const randomResponse = basicResponses[Math.floor(Math.random() * basicResponses.length)];
-      this.logger.log(`✅ Respuesta básica generada (intenciones activadas)`);
+      this.logger.log(`✅ Respuesta básica generada (intenciones activadas): ${randomResponse}`);
       
       // 🆕 NUEVO: Actualizar sesión si existe
       if (session && this.persistentSessionRepository) {
@@ -112,6 +126,13 @@ export class GenericChatbotService {
           session.context = 'basic_response';
           await this.persistentSessionRepository.save(session);
           this.logger.log(`💾 Sesión actualizada exitosamente`);
+          
+          // 🆕 GUARDAR MENSAJES INDIVIDUALES
+          this.logger.log(`🔍 Intentando guardar mensajes básicos...`);
+          await this.saveMessageToHistory(session, message, 'user');
+          await this.saveMessageToHistory(session, randomResponse, 'assistant');
+          this.logger.log(`✅ Mensajes básicos guardados exitosamente`);
+          
         } catch (updateError) {
           this.logger.error(`❌ Error actualizando sesión: ${updateError.message}`);
         }
@@ -866,6 +887,32 @@ Si el problema persiste, contacta a soporte técnico.`;
       this.logger.error(`   🔍 chatbotId: ${chatbotId}`);
       this.logger.error(`   🔍 pushname: ${pushname || 'No proporcionado'}`);
       throw error;
+    }
+  }
+
+  // 🆕 NUEVO: Método para guardar mensajes individuales en chat_messages
+  private async saveMessageToHistory(session: PersistentSession, content: string, sender: 'user' | 'assistant'): Promise<void> {
+    try {
+      if (!this.chatMessageRepository) {
+        this.logger.warn('⚠️ ChatMessage repository no disponible, saltando guardado de mensaje');
+        return;
+      }
+      
+      this.logger.log(`🔍 Guardando mensaje: ${content.substring(0, 50)}... (sender: ${sender})`);
+      
+      const message = this.chatMessageRepository.create({
+        content,
+        sender,
+        timestamp: new Date(),
+        session
+      });
+      
+      const savedMessage = await this.chatMessageRepository.save(message);
+      this.logger.log(`✅ Mensaje guardado exitosamente con ID: ${savedMessage.id}`);
+      
+    } catch (error) {
+      this.logger.error(`❌ Error guardando mensaje en historial: ${error.message}`);
+      this.logger.error(`❌ Stack trace: ${error.stack}`);
     }
   }
 

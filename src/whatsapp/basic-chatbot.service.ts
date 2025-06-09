@@ -116,6 +116,10 @@ export class BasicChatbotService {
 
   private async saveMessageToHistory(session: any, content: string, sender: 'user' | 'assistant'): Promise<void> {
     try {
+      this.logger.log(`🔍 Intentando guardar mensaje: ${content.substring(0, 50)}... (sender: ${sender})`);
+      this.logger.log(`🔍 Session ID: ${session.id}`);
+      this.logger.log(`🔍 Repository disponible: ${!!this.chatMessageRepository}`);
+      
       const message = this.chatMessageRepository.create({
         content,
         sender,
@@ -123,10 +127,18 @@ export class BasicChatbotService {
         session
       });
       
-      await this.chatMessageRepository.save(message);
-      this.logger.log(`💾 Mensaje guardado: ${content.substring(0, 50)}...`);
+      this.logger.log(`🔍 Mensaje creado: ${JSON.stringify({
+        content: content.substring(0, 50),
+        sender,
+        sessionId: session.id
+      })}`);
+      
+      const savedMessage = await this.chatMessageRepository.save(message);
+      this.logger.log(`✅ Mensaje guardado exitosamente con ID: ${savedMessage.id}`);
+      
     } catch (error) {
       this.logger.error(`❌ Error guardando mensaje en historial: ${error.message}`);
+      this.logger.error(`❌ Stack trace: ${error.stack}`);
     }
   }
 

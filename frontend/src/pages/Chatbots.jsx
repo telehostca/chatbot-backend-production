@@ -547,9 +547,18 @@ const Chatbots = () => {
   const handleCreateChatbot = async (formData) => {
     setError('');
     if (!formData.name || !formData.organizationId) return setError('Nombre y organización son obligatorios');
-    // Validar API key solo para proveedores que no sean DeepSeek
+    // Validaciones específicas
     if (formData.aiProvider !== 'deepseek' && !formData.aiApiKey) {
       return setError('API Key es obligatoria para el proveedor seleccionado');
+    }
+    if (!formData.aiProvider) {
+      return setError('Proveedor de IA es obligatorio');
+    }
+    if (!formData.aiModel) {
+      return setError('Modelo de IA es obligatorio');
+    }
+    if (!formData.instanceName) {
+      return setError('Nombre de instancia de WhatsApp es obligatorio');
     }
     setSubmitting(true);
     try {
@@ -675,9 +684,18 @@ const Chatbots = () => {
   const handleEditChatbot = async (formData) => {
     setError('');
     if (!formData.name || !formData.organizationId) return setError('Nombre y organización son obligatorios');
-    // Validar API key solo para proveedores que no sean DeepSeek
+    // Validaciones específicas
     if (formData.aiProvider !== 'deepseek' && !formData.aiApiKey) {
       return setError('API Key es obligatoria para el proveedor seleccionado');
+    }
+    if (!formData.aiProvider) {
+      return setError('Proveedor de IA es obligatorio');
+    }
+    if (!formData.aiModel) {
+      return setError('Modelo de IA es obligatorio');
+    }
+    if (!formData.instanceName) {
+      return setError('Nombre de instancia de WhatsApp es obligatorio');
     }
     setSubmitting(true);
     try {
@@ -798,10 +816,13 @@ const Chatbots = () => {
       if (name === 'aiProvider') {
         setForm(f => {
           const validModels = (AI_MODELS[value] || []).map(m => m.value);
+          const defaultModel = AI_MODELS[value] ? AI_MODELS[value][0]?.value : '';
           return {
             ...f,
             aiProvider: value,
-            aiModel: validModels.includes(f.aiModel) ? f.aiModel : ''
+            aiModel: validModels.includes(f.aiModel) ? f.aiModel : defaultModel,
+            // Limpiar API key si cambia a DeepSeek
+            aiApiKey: value === 'deepseek' ? '' : f.aiApiKey
           };
         });
       } else {
@@ -811,8 +832,13 @@ const Chatbots = () => {
 
     // Funciones auxiliares para los botones Auto/Test del webhook
     function generateWebhookUrlLocal(name, chatbotId) {
+      // Si no hay ID, generar URL temporal con nombre sanitizado
+      if (!chatbotId && name) {
+        const sanitizedName = name.toLowerCase().replace(/[^a-z0-9]/g, '-').substring(0, 20);
+        return generateWebhookUrl(`temp-${sanitizedName}-${Date.now().toString().slice(-6)}`);
+      }
       // Usar la función centralizada de configuración
-      return generateWebhookUrl(chatbotId, name);
+      return generateWebhookUrl(chatbotId || 'nuevo-chatbot');
     }
     function testWebhookEndpoint(url) {
       if (!url) return alert('URL vacía');
@@ -1570,8 +1596,8 @@ const Chatbots = () => {
       organizationId: chatbot.organizationId || chatbot.organization?.id || '',
       name: chatbot.name || '',
       description: chatbot.description || '',
-      aiProvider: chatbot.aiProvider || chatbot.aiConfig?.provider || '',
-      aiModel: chatbot.aiModel || chatbot.aiConfig?.model || '',
+      aiProvider: chatbot.aiProvider || chatbot.aiConfig?.provider || 'deepseek',
+      aiModel: chatbot.aiModel || chatbot.aiConfig?.model || 'deepseek-chat',
       aiApiKey: chatbot.aiApiKey || chatbot.aiConfig?.apiKey || '',
       temperature: chatbot.temperature || chatbot.aiConfig?.temperature || 0.7,
       whisperApiKey: chatbot.aiConfig?.whisperApiKey || '',
@@ -1585,6 +1611,7 @@ const Chatbots = () => {
       webhookUrl: chatbot.webhookUrl || chatbot.whatsappConfig?.webhookUrl || '',
       phoneNumber: chatbot.phoneNumber || chatbot.whatsappConfig?.phoneNumber || '',
       externalDbEnabled: chatbot.externalDbEnabled || chatbot.externalDbConfig?.enabled || false,
+      selectedExternalDb: chatbot.externalDbConfig?.configId || '',
       dbType: chatbot.dbType || chatbot.externalDbConfig?.type || 'mysql',
       dbHost: chatbot.dbHost || chatbot.externalDbConfig?.host || '',
       dbPort: chatbot.dbPort || chatbot.externalDbConfig?.port || 3306,

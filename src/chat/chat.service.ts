@@ -424,10 +424,10 @@ export class ChatService {
 
         // Búsqueda por nombre de cliente o número de teléfono
         if (search) {
-          queryBuilder.andWhere(
-            '(session.phoneNumber LIKE :search OR session.clientName LIKE :search OR session.clientId LIKE :search)',
-            { search: `%${search}%` }
-          );
+                  queryBuilder.andWhere(
+          '(session.phone_number LIKE :search OR session.client_name LIKE :search OR session.client_id LIKE :search)',
+          { search: `%${search}%` }
+        );
         }
 
         const [sessions, total] = await queryBuilder

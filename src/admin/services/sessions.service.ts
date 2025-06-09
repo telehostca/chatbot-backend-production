@@ -51,7 +51,7 @@ export class SessionsService {
 
       if (search) {
         queryBuilder.andWhere(
-          '(session.phoneNumber LIKE :search OR session.clientName LIKE :search OR session.clientId LIKE :search OR session.clientPushname LIKE :search)',
+          '(session.phone_number LIKE :search OR session.client_name LIKE :search OR session.client_id LIKE :search OR session.client_pushname LIKE :search)',
           { search: `%${search}%` }
         );
       }

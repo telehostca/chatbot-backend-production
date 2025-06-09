@@ -39,9 +39,46 @@ export class GenericChatbotService {
         // Continuar sin sesión por ahora
       }
       
-      // 🔥 RESPUESTA BÁSICA FUNCIONAL (por ahora)
-      this.logger.log(`🔍 Configuración recibida:`, chatbotConfig);
+      // ✅ RESTAURAR FUNCIONALIDAD COMPLETA
+      const config = this.extractChatbotConfiguration(chatbotConfig);
       
+      if (!config) {
+        this.logger.error('❌ No se encontró configuración válida del chatbot');
+        return this.getGenericErrorResponse();
+      }
+
+      // ✅ VERIFICAR SI LAS INTENCIONES ESTÁN DESACTIVADAS (PARA USAR IA)
+      const intentionsDisabled = config.disableIntentMatching === true || 
+                                 config.intentProcessingMode === 'ai_only' ||
+                                 config.forceAIProcessing === true;
+      
+      this.logger.log(`🎯 Estado de intenciones: ${intentionsDisabled ? 'DESACTIVADAS → USAR IA' : 'ACTIVADAS → USAR TEMPLATES'}`);
+      this.logger.log(`   📋 disableIntentMatching: ${config.disableIntentMatching}`);
+      this.logger.log(`   📋 aiProvider: ${config.ai?.provider || config.aiProvider}`);
+
+      // Si las intenciones están desactivadas, usar EXCLUSIVAMENTE IA
+      if (intentionsDisabled) {
+        this.logger.log(`🧠 [INTENCIONES DESACTIVADAS] → FORZAR USO DE IA`);
+        const aiResponse = await this.generateAIResponse(message, from, chatbotConfig, config, chatbotId);
+        
+        // Actualizar sesión con respuesta de IA
+        if (session) {
+          try {
+            session.messageCount = (session.messageCount || 0) + 1;
+            session.lastUserMessage = message;
+            session.lastBotResponse = aiResponse;
+            session.lastActivity = new Date();
+            session.context = 'ai_response';
+            await this.persistentSessionRepository.save(session);
+          } catch (updateError) {
+            this.logger.error(`❌ Error actualizando sesión: ${updateError.message}`);
+          }
+        }
+        
+        return aiResponse;
+      }
+
+      // 🔄 FALLBACK: Si las intenciones están activadas, usar respuestas básicas por ahora
       const basicResponses = [
         "¡Hola! Gracias por contactarnos. ¿En qué puedo ayudarte?",
         "Hola, estoy aquí para asistirte. ¿Cuál es tu consulta?",
@@ -50,7 +87,7 @@ export class GenericChatbotService {
       ];
       
       const randomResponse = basicResponses[Math.floor(Math.random() * basicResponses.length)];
-      this.logger.log(`✅ Respuesta básica generada exitosamente`);
+      this.logger.log(`✅ Respuesta básica generada (intenciones activadas)`);
       
       // 🆕 NUEVO: Actualizar sesión si existe
       if (session) {

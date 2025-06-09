@@ -228,27 +228,82 @@ export class ChatService {
   // Métodos para ChatMessage
   async saveMessage(session: PersistentSession, content: string, sender: string): Promise<ChatMessage> {
     try {
+      this.logger.log(`🔍 ChatService.saveMessage() INICIADO:`);
+      this.logger.log(`   📱 Session ID: ${session?.id}`);
+      this.logger.log(`   👤 Sender: ${sender}`);
+      this.logger.log(`   💬 Content: ${content.substring(0, 100)}...`);
+      this.logger.log(`   📞 Session Phone: ${session?.phoneNumber}`);
+      
+      // VERIFICAR QUE EL REPOSITORIO ESTÉ DISPONIBLE
+      if (!this.messageRepository) {
+        this.logger.error(`❌ messageRepository NO está disponible en ChatService`);
+        throw new Error('Repository no disponible');
+      }
+      
+      this.logger.log(`✅ messageRepository disponible en ChatService`);
+      
       const message = this.messageRepository.create({
         session,
         content,
         sender,
         timestamp: new Date()
       });
-      return await this.messageRepository.save(message);
+      
+      this.logger.log(`📝 ChatMessage creado en memoria:`);
+      this.logger.log(`   💬 Content: ${message.content.substring(0, 50)}...`);
+      this.logger.log(`   👤 Sender: ${message.sender}`);
+      this.logger.log(`   🕐 Timestamp: ${message.timestamp}`);
+      this.logger.log(`   📱 Session ID ref: ${session?.id}`);
+      
+      const savedMessage = await this.messageRepository.save(message);
+      
+      this.logger.log(`✅ MENSAJE GUARDADO EXITOSAMENTE EN ChatService:`);
+      this.logger.log(`   🆔 Saved Message ID: ${savedMessage.id}`);
+      this.logger.log(`   💬 Saved Content: ${savedMessage.content.substring(0, 50)}...`);
+      this.logger.log(`   👤 Saved Sender: ${savedMessage.sender}`);
+      this.logger.log(`   🕐 Saved Timestamp: ${savedMessage.timestamp}`);
+      
+      // VERIFICACIÓN ADICIONAL: Buscar el mensaje recién guardado
+      try {
+        const verification = await this.messageRepository.findOne({ 
+          where: { id: savedMessage.id },
+          relations: ['session']
+        });
+        
+        if (verification) {
+          this.logger.log(`🔍 VERIFICACIÓN ChatService: Mensaje encontrado con ID ${verification.id}`);
+          this.logger.log(`🔍 VERIFICACIÓN ChatService: Session asociada: ${verification.session?.id}`);
+        } else {
+          this.logger.error(`❌ VERIFICACIÓN ChatService FALLÓ: Mensaje NO encontrado después de guardar`);
+        }
+      } catch (verifyError) {
+        this.logger.error(`❌ Error en verificación ChatService: ${verifyError.message}`);
+      }
+      
+      return savedMessage;
     } catch (error) {
+      this.logger.error(`❌ ERROR EN ChatService.saveMessage():`);
+      this.logger.error(`   💥 Error: ${error.message}`);
+      this.logger.error(`   📚 Stack: ${error.stack}`);
+      this.logger.error(`   📱 Session ID: ${session?.id}`);
+      this.logger.error(`   👤 Sender: ${sender}`);
+      
       // Si hay error de tabla, intentar crearla automáticamente
       if (error.message && error.message.includes('relation "chat_messages" does not exist')) {
         this.logger.warn('⚠️ Tabla chat_messages no existe, creándola automáticamente...');
         await this.createChatMessagesTableIfNotExists();
         
         // Reintentar guardar el mensaje
+        this.logger.log('🔄 REINTENTANDO guardar mensaje después de crear tabla...');
         const message = this.messageRepository.create({
           session,
           content,
           sender,
           timestamp: new Date()
         });
-        return await this.messageRepository.save(message);
+        const retryResult = await this.messageRepository.save(message);
+        this.logger.log(`✅ REINTENTO EXITOSO: Mensaje guardado con ID ${retryResult.id}`);
+        return retryResult;
       }
       throw error;
     }

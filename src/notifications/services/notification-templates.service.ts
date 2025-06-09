@@ -310,15 +310,11 @@ export class NotificationTemplatesService {
       // Limitar por configuración
       const limitedRecipients = recipients.slice(0, config.batchSize);
 
-      // Enviar notificaciones
-      const results = await this.notificationsService.sendBulkNotification(
-        limitedRecipients,
-        this.replaceVariables(template.content, template.variables || {}),
-        {
-          batchSize: config.batchSize,
-          delayBetweenMessages: Math.max(1000, 3600000 / config.maxNotificationsPerHour), // Respetar límite por hora
-          chatbotId: template.chatbotId // ✅ Pasar el chatbotId de la plantilla
-        }
+      // Enviar notificaciones personalizadas
+      const results = await this.sendPersonalizedNotifications(
+        limitedRecipients, 
+        template, 
+        config
       );
 
       // Actualizar estadísticas
@@ -337,6 +333,144 @@ export class NotificationTemplatesService {
 
     } catch (error) {
       this.logger.error(`Error ejecutando plantilla ${template.title}: ${error.message}`);
+    }
+  }
+
+  /**
+   * Envía notificaciones personalizadas a múltiples destinatarios
+   * con variables dinámicas específicas para cada usuario
+   */
+  private async sendPersonalizedNotifications(
+    recipients: string[], 
+    template: NotificationTemplate, 
+    config: CronConfig
+  ): Promise<{ sent: number; failed: number }> {
+    let sent = 0;
+    let failed = 0;
+
+    for (const phoneNumber of recipients) {
+      try {
+        // Obtener variables dinámicas para este usuario específico
+        const userVariables = await this.getUserDynamicVariables(phoneNumber, template.chatbotId);
+        
+        // Combinar variables de la plantilla con variables dinámicas del usuario
+        const allVariables = {
+          ...template.variables || {},
+          ...userVariables,
+          // Variables globales siempre disponibles
+          fecha: new Date().toLocaleDateString('es-ES'),
+          hora: new Date().toLocaleTimeString('es-ES'),
+          dia: new Date().toLocaleDateString('es-ES', { weekday: 'long' }),
+          mes: new Date().toLocaleDateString('es-ES', { month: 'long' }),
+          año: new Date().getFullYear().toString()
+        };
+
+        // Personalizar mensaje para este usuario
+        const personalizedMessage = this.replaceVariables(template.content, allVariables);
+
+        // Enviar notificación individual
+        await this.notificationsService.scheduleNotification(
+          phoneNumber,
+          personalizedMessage,
+          new Date(),
+          template.chatbotId
+        );
+
+        sent++;
+
+        // Respetar límites de velocidad
+        const delayBetweenMessages = Math.max(1000, 3600000 / config.maxNotificationsPerHour);
+        if (delayBetweenMessages > 1000) {
+          await new Promise(resolve => setTimeout(resolve, delayBetweenMessages));
+        }
+
+      } catch (error) {
+        this.logger.error(`Error enviando notificación a ${phoneNumber}: ${error.message}`);
+        failed++;
+      }
+    }
+
+    return { sent, failed };
+  }
+
+  /**
+   * Obtiene variables dinámicas específicas para un usuario
+   */
+  public async getUserDynamicVariables(phoneNumber: string, chatbotId?: string): Promise<Record<string, any>> {
+    try {
+      // Buscar sesión del usuario
+      const query = this.sessionRepository
+        .createQueryBuilder('session')
+        .where('session.phoneNumber = :phoneNumber', { phoneNumber });
+
+      if (chatbotId) {
+        query.andWhere('session.activeChatbotId = :chatbotId', { chatbotId });
+      }
+
+      const session = await query.getOne();
+
+      if (!session) {
+        // Variables por defecto si no se encuentra la sesión
+        return {
+          nombre: 'Cliente',
+          empresa: 'Nuestra Empresa'
+        };
+      }
+
+      // Obtener información del chatbot si existe
+      let chatbot = null;
+      if (session.activeChatbotId) {
+        chatbot = await this.chatbotRepository
+          .createQueryBuilder('chatbot')
+          .leftJoinAndSelect('chatbot.organization', 'organization')
+          .where('chatbot.id = :id', { id: session.activeChatbotId })
+          .getOne();
+      }
+
+      // Obtener nombre del usuario (priorizar pushname, luego clientName, luego generar desde número)
+      let nombre = 'Cliente';
+      if (session.clientPushname && session.clientPushname.trim()) {
+        // Priorizar el pushname (nombre de WhatsApp)
+        nombre = session.clientPushname.trim();
+      } else if (session.clientName && session.clientName.trim()) {
+        // Usar clientName como segunda opción
+        nombre = session.clientName.trim();
+      } else {
+        // Fallback: generar nombre desde el número de teléfono
+        const cleanPhone = phoneNumber.replace(/\D/g, '');
+        if (cleanPhone.length >= 10) {
+          nombre = `Cliente ${cleanPhone.slice(-4)}`;
+        }
+      }
+
+      // Obtener nombre de la empresa
+      let empresa = 'Nuestra Empresa';
+      if (chatbot?.organization?.name) {
+        empresa = chatbot.organization.name;
+      } else if (chatbot?.name) {
+        empresa = chatbot.name;
+      }
+
+      return {
+        nombre,
+        empresa,
+        telefono: phoneNumber,
+        chatbot: chatbot?.name || 'Chatbot',
+        cliente_id: session.clientId || 'Sin ID',
+        identificacion: session.identificationNumber || 'Sin identificación',
+        es_cliente_nuevo: session.isNewClient ? 'Sí' : 'No',
+        total_mensajes: session.messageCount.toString(),
+        ultima_actividad: session.lastActivity ? 
+          new Date(session.lastActivity).toLocaleDateString('es-ES') : 
+          'Nunca'
+      };
+
+    } catch (error) {
+      this.logger.error(`Error obteniendo variables para ${phoneNumber}: ${error.message}`);
+      return {
+        nombre: 'Cliente',
+        empresa: 'Nuestra Empresa'
+      };
     }
   }
 
@@ -475,12 +609,21 @@ export class NotificationTemplatesService {
     return [];
   }
 
-  private replaceVariables(content: string, variables: Record<string, any>): string {
+  public replaceVariables(content: string, variables: Record<string, any>): string {
     let result = content;
     
     Object.entries(variables).forEach(([key, value]) => {
-      const placeholder = `{${key}}`;
-      result = result.replace(new RegExp(placeholder.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'), String(value));
+      // Reemplazar tanto {variable} como {{variable}}
+      const singleBracePattern = `{${key}}`;
+      const doubleBracePattern = `{{${key}}}`;
+      
+      // Escapar caracteres especiales para regex
+      const escapedSingle = singleBracePattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const escapedDouble = doubleBracePattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      
+      // Reemplazar ambos formatos
+      result = result.replace(new RegExp(escapedSingle, 'g'), String(value));
+      result = result.replace(new RegExp(escapedDouble, 'g'), String(value));
     });
     
     return result;

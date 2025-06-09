@@ -245,9 +245,130 @@ export class NotificationTemplatesController {
     }
   }
 
+  @Post('fix-all-variables')
+  @ApiOperation({ summary: 'Corregir variables en todas las plantillas existentes' })
+  @ApiResponse({ status: 200, description: 'Variables corregidas exitosamente' })
+  async fixAllVariables() {
+    try {
+      const templates = await this.notificationTemplatesService.getAllTemplates();
+      let fixed = 0;
+      const results = [];
+
+      for (const template of templates) {
+        let needsUpdate = false;
+        let newContent = template.content;
+        let newVariables = null;
+
+        // Convertir {{variable}} a {variable}
+        newContent = newContent.replace(/\{\{(\w+)\}\}/g, '{$1}');
+
+        // Limpiar variables que tienen valores tipo "string" 
+        if (template.variables && typeof template.variables === 'object') {
+          const hasStringValues = Object.values(template.variables).some(val => val === 'string' || val === 'number');
+          if (hasStringValues) {
+            newVariables = null; // Limpiar variables incorrectas
+            needsUpdate = true;
+          }
+        }
+
+        // Si el contenido cambió
+        if (newContent !== template.content) {
+          needsUpdate = true;
+        }
+
+        if (needsUpdate) {
+          await this.notificationTemplatesService.updateTemplate(template.id, {
+            content: newContent,
+            variables: newVariables
+          });
+          
+          fixed++;
+          results.push({
+            id: template.id,
+            title: template.title,
+            changes: {
+              contentChanged: newContent !== template.content,
+              variablesCleared: newVariables === null && template.variables !== null
+            }
+          });
+          
+          this.logger.log(`🔧 Plantilla corregida: ${template.title}`);
+        }
+      }
+
+      return {
+        success: true,
+        data: {
+          totalTemplates: templates.length,
+          templatesFixed: fixed,
+          details: results
+        },
+        message: `Se corrigieron ${fixed} plantillas de ${templates.length} totales`
+      };
+    } catch (error) {
+      this.logger.error(`Error corrigiendo plantillas: ${error.message}`);
+      throw new HttpException(
+        { success: false, error: 'Error corrigiendo plantillas' },
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
+    }
+  }
+
+  @Post(':id/test-variables')
+  @ApiOperation({ summary: 'Probar reemplazo de variables sin enviar notificación' })
+  @ApiResponse({ status: 200, description: 'Variables probadas exitosamente' })
+  async testVariables(@Param('id') id: string, @Body() body: { phoneNumber: string; chatbotId?: string }) {
+    try {
+      const template = await this.notificationTemplatesService.getTemplateById(id);
+      
+      // Obtener variables dinámicas para el usuario
+      const userVariables = await this.notificationTemplatesService.getUserDynamicVariables(
+        body.phoneNumber, 
+        body.chatbotId || template.chatbotId
+      );
+      
+      // Combinar todas las variables
+      const allVariables = {
+        ...template.variables || {},
+        ...userVariables,
+        fecha: new Date().toLocaleDateString('es-ES'),
+        hora: new Date().toLocaleTimeString('es-ES'),
+        dia: new Date().toLocaleDateString('es-ES', { weekday: 'long' }),
+        mes: new Date().toLocaleDateString('es-ES', { month: 'long' }),
+        año: new Date().getFullYear().toString()
+      };
+
+      // Aplicar variables al contenido
+      const processedContent = this.notificationTemplatesService.replaceVariables(
+        template.content, 
+        allVariables
+      );
+
+      this.logger.log(`🧪 Variables probadas para ${body.phoneNumber}`);
+      
+      return {
+        success: true,
+        data: {
+          originalContent: template.content,
+          processedContent,
+          variables: allVariables,
+          variablesApplied: Object.keys(allVariables).length
+        },
+        message: 'Variables procesadas exitosamente'
+      };
+    } catch (error) {
+      this.logger.error(`Error probando variables: ${error.message}`);
+      throw new HttpException(
+        { success: false, error: 'Error probando variables' },
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
+    }
+  }
+
   @Post(':id/test')
   @ApiOperation({ summary: 'Enviar notificación de prueba' })
-  @ApiResponse({ status: 200, description: 'Notificación de prueba enviada' })
+  @ApiResponse({ status: 200, description: 'Notificación de prueba enviada exitosamente' })
+  @ApiResponse({ status: 404, description: 'Plantilla no encontrada' })
   async testNotification(@Param('id') id: string, @Body() body: { phoneNumber: string }) {
     try {
       if (!body.phoneNumber) {
@@ -387,6 +508,126 @@ export class NotificationTemplatesController {
       this.logger.error(`Error obteniendo estadísticas: ${error.message}`);
       throw new HttpException(
         { success: false, error: 'Error obteniendo estadísticas' },
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
+    }
+  }
+
+  @Get('available-variables')
+  @ApiOperation({ summary: 'Obtener todas las variables disponibles para plantillas' })
+  @ApiResponse({ status: 200, description: 'Variables disponibles obtenidas exitosamente' })
+  async getAvailableVariables() {
+    try {
+      const variables = {
+        // Variables de usuario (dinámicas por usuario)
+        userVariables: {
+          nombre: {
+            description: "Nombre del usuario (prioriza pushname de WhatsApp, luego clientName, luego genera desde número)",
+            example: "Juan Pérez",
+            source: "session.clientPushname || session.clientName || 'Cliente XXXX'"
+          },
+          empresa: {
+            description: "Nombre de la empresa/organización del chatbot",
+            example: "Mi Empresa S.A.",
+            source: "chatbot.organization.name || chatbot.name"
+          },
+          telefono: {
+            description: "Número de teléfono del usuario",
+            example: "584241234567",
+            source: "session.phoneNumber"
+          },
+          chatbot: {
+            description: "Nombre del chatbot activo",
+            example: "Chatbot Principal",
+            source: "chatbot.name"
+          },
+          cliente_id: {
+            description: "ID del cliente en base de datos externa (si está autenticado)",
+            example: "C12345",
+            source: "session.clientId"
+          },
+          identificacion: {
+            description: "Número de identificación del cliente (cédula/RIF)",
+            example: "V-12345678",
+            source: "session.identificationNumber"
+          },
+          es_cliente_nuevo: {
+            description: "Indica si es un cliente nuevo",
+            example: "Sí / No",
+            source: "session.isNewClient"
+          },
+          total_mensajes: {
+            description: "Total de mensajes en la sesión del usuario",
+            example: "15",
+            source: "session.messageCount"
+          },
+          ultima_actividad: {
+            description: "Fecha de última actividad del usuario",
+            example: "8/6/2025",
+            source: "session.lastActivity"
+          }
+        },
+        
+        // Variables temporales (se generan al momento del envío)
+        timeVariables: {
+          fecha: {
+            description: "Fecha actual en formato español",
+            example: "9/6/2025",
+            source: "new Date().toLocaleDateString('es-ES')"
+          },
+          hora: {
+            description: "Hora actual en formato español",
+            example: "14:30:45",
+            source: "new Date().toLocaleTimeString('es-ES')"
+          },
+          dia: {
+            description: "Día de la semana en español",
+            example: "lunes",
+            source: "new Date().toLocaleDateString('es-ES', { weekday: 'long' })"
+          },
+          mes: {
+            description: "Mes actual en español",
+            example: "junio",
+            source: "new Date().toLocaleDateString('es-ES', { month: 'long' })"
+          },
+          año: {
+            description: "Año actual",
+            example: "2025",
+            source: "new Date().getFullYear().toString()"
+          }
+        }
+      };
+
+      const usage = {
+        format: "Usar variables con llaves simples: {nombre}, {empresa}, {fecha}, etc.",
+        examples: [
+          "¡Hola {nombre}! Te damos la bienvenida a {empresa}.",
+          "Tu última actividad fue el {ultima_actividad}.",
+          "Hoy es {dia} {fecha} y son las {hora}.",
+          "Como cliente de {empresa}, tienes beneficios especiales.",
+          "Has enviado {total_mensajes} mensajes en total."
+        ],
+        notes: [
+          "Las variables de usuario se obtienen automáticamente de la sesión del usuario",
+          "Las variables temporales se generan al momento del envío",
+          "Si no se encuentra un valor, se usa un fallback apropiado",
+          "El sistema soporta tanto {variable} como {{variable}} (se convierte automáticamente)"
+        ]
+      };
+
+      return {
+        success: true,
+        data: {
+          variables,
+          usage,
+          totalVariables: Object.keys(variables.userVariables).length + Object.keys(variables.timeVariables).length
+        },
+        message: 'Variables disponibles obtenidas exitosamente'
+      };
+    } catch (error) {
+      this.logger.error(`Error obteniendo variables disponibles: ${error.message}`);
+      throw new HttpException(
+        { success: false, error: 'Error obteniendo variables disponibles' },
         HttpStatus.INTERNAL_SERVER_ERROR
       );
     }

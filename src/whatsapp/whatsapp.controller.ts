@@ -1029,4 +1029,102 @@ export class WhatsappController {
       };
     }
   }
+
+  @Post('test-real-webhook-flow/:chatbotId')
+  @Public()
+  async testRealWebhookFlow(@Param('chatbotId') chatbotId: string, @Body() body: any) {
+    try {
+      this.logger.log(`🔍 TEST: Simulando flujo EXACTO del webhook real`);
+      
+      // PASO 1: Exactamente como en handleWebhookByChatbot
+      const chatbot = await this.chatbotInstanceRepository.findOne({
+        where: { id: chatbotId },
+        relations: ['organization']
+      });
+      
+      if (!chatbot) {
+        return { success: false, error: 'Chatbot no encontrado', step: 'chatbot_lookup' };
+      }
+      
+      // PASO 2: Extraer mensaje exactamente igual
+      const message = this.extractMessageFromPayload(body);
+      if (!message) {
+        return { success: false, error: 'No se pudo extraer mensaje', step: 'message_extraction' };
+      }
+      
+      this.logger.log(`🔍 TEST: Mensaje extraído: ${message.body}`);
+      
+      // PASO 3: Llamar a whatsappService.handleMessage (EXACTO como el webhook real)
+      this.logger.log(`🔍 TEST: Llamando a WhatsappService.handleMessage - EXACTO como webhook real`);
+      
+      try {
+        await this.whatsappService.handleMessage({
+          instanceId: chatbot.whatsappConfig?.instanceName || 'unknown',
+          from: message.from,
+          text: message.body,
+          messageType: message.type || 'text',
+          pushname: message.pushname
+        });
+        
+        this.logger.log(`🔍 TEST: WhatsappService.handleMessage completado`);
+        
+        // PASO 4: Verificar si se guardó el mensaje
+        const cleanPhone = message.from.replace('@s.whatsapp.net', '');
+        let session = await this.chatService.findSessionByPhoneOnly(cleanPhone);
+        
+                 if (session) {
+           const messages: any = await this.chatService.getSessionMessages(session.id);
+           const messageData = Array.isArray(messages) ? messages : (messages?.data || []);
+          
+          return {
+            success: true,
+            test_type: 'FLUJO_WEBHOOK_REAL',
+            steps_completed: [
+              'chatbot_lookup',
+              'message_extraction', 
+              'whatsapp_service_call',
+              'message_verification'
+            ],
+            results: {
+              session_id: session.id,
+              phone_number: session.phoneNumber,
+              message_count_in_session: session.messageCount,
+              messages_in_db: messageData.length,
+              last_messages: messageData.slice(-3), // Últimos 3 mensajes
+              extracted_message: message,
+              chatbot: {
+                id: chatbot.id,
+                name: chatbot.name,
+                instance: chatbot.whatsappConfig?.instanceName
+              }
+            }
+          };
+        } else {
+          return {
+            success: false,
+            error: 'No se encontró sesión después del procesamiento',
+            step: 'session_verification'
+          };
+        }
+        
+      } catch (handleError) {
+        this.logger.error(`🔍 TEST: Error en WhatsappService.handleMessage: ${handleError.message}`);
+        return {
+          success: false,
+          error: `Error en handleMessage: ${handleError.message}`,
+          step: 'whatsapp_service_call',
+          stack: handleError.stack
+        };
+      }
+      
+    } catch (error) {
+      this.logger.error(`🔍 TEST: Error general: ${error.message}`);
+      return {
+        success: false,
+        error: error.message,
+        step: 'general_error',
+        stack: error.stack
+      };
+    }
+  }
 } 

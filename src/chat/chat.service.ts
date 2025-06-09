@@ -606,30 +606,40 @@ export class ChatService {
    * Obtiene los mensajes de una sesión específica
    * 
    * @param {string} sessionId - ID de la sesión
-   * @returns {Promise<ChatMessage[]>} Mensajes de la sesión
+   * @returns {Promise<ChatMessage[]>} Array de mensajes ordenados por timestamp
    */
   async getSessionMessages(sessionId: string) {
     try {
+      this.logger.log(`📨 Obteniendo mensajes para sesión: ${sessionId}`);
+
       const session = await this.sessionRepository.findOne({
-        where: { id: sessionId },
-        relations: ['messages']
+        where: { id: sessionId }
       });
 
       if (!session) {
         throw new Error('Sesión no encontrada');
       }
 
-      // Si no hay mensajes o hay problemas con la tabla, devolver array vacío
-      if (!session.messages || session.messages.length === 0) {
-        this.logger.warn(`No se encontraron mensajes para la sesión ${sessionId}`);
-        return [];
-      }
+      // Buscar mensajes directamente con query builder para evitar problemas de relación
+      const messages = await this.messageRepository
+        .createQueryBuilder('message')
+        .where('message.session_id = :sessionId', { sessionId })
+        .orderBy('message.timestamp', 'ASC')
+        .getMany();
 
-      return session.messages.sort((a, b) => 
-        new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
-      );
+      const formattedMessages = messages.map(message => ({
+        id: message.id,
+        content: message.content,
+        sender: message.sender,
+        timestamp: message.timestamp || message.createdAt,
+        createdAt: message.createdAt || message.timestamp
+      }));
+
+      this.logger.log(`✅ Obtenidos ${formattedMessages.length} mensajes para sesión ${sessionId}`);
+      return formattedMessages;
+
     } catch (error) {
-      this.logger.error(`Error obteniendo mensajes de sesión: ${error.message}`);
+      this.logger.error(`❌ Error obteniendo mensajes de sesión: ${error.message}`);
       // En lugar de hacer throw, devolvemos array vacío para no romper la UI
       return [];
     }

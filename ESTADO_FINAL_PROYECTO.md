@@ -126,7 +126,7 @@ WHATSAPP_API_URL=https://api.zemog.info
 WHATSAPP_DEFAULT_INSTANCE=tu_instancia
 
 # IA (Opcionales - se configuran por chatbot)
-DEEPSEEK_API_KEY=sk-deepseek-key-opcional
+DEEPSEEK_API_KEY=sk-77fc1e94ddb44cd9adb0fd091effe4fb
 OPENAI_API_KEY=sk-openai-key-opcional
 ANTHROPIC_API_KEY=sk-ant-key-opcional
 ```

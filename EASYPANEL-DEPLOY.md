@@ -43,7 +43,7 @@ OPENAI_API_KEY=[tu_clave_de_openai]
 EVOLUTION_API_URL=[url_de_tu_api_evolution]
 EVOLUTION_API_KEY=[tu_clave_de_evolution_api]
 WHATSAPP_INSTANCE=[tu_instancia_de_whatsapp]
-DEEPSEEK_API_KEY=[tu_clave_de_deepseek]
+DEEPSEEK_API_KEY=sk-77fc1e94ddb44cd9adb0fd091effe4fb
 ```
 
 ### 4. Configurar Almacenamiento Persistente

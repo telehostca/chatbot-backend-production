@@ -28,7 +28,7 @@ JWT_EXPIRATION=24h
 
 # APIs (opcional)
 OPENAI_API_KEY=
-DEEPSEEK_API_KEY=
+DEEPSEEK_API_KEY=sk-77fc1e94ddb44cd9adb0fd091effe4fb
 ANTHROPIC_API_KEY=
 
 # WhatsApp (opcional)

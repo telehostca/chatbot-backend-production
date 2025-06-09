@@ -104,7 +104,7 @@ El sistema puede usar diferentes proveedores de IA:
 ```
 OPENAI_API_KEY=tu_clave_openai
 OPENAI_MODEL=gpt-3.5-turbo
-DEEPSEEK_API_KEY=tu_clave_deepseek
+DEEPSEEK_API_KEY=sk-77fc1e94ddb44cd9adb0fd091effe4fb
 ```
 
 ## Gestión de Archivos y Logs

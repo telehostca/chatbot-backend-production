@@ -197,16 +197,20 @@ class ApiService {
     if (params.search) queryParams.append('search', params.search)
     if (params.status) queryParams.append('status', params.status)
     
-    const url = `/chat/sessions${queryParams.toString() ? `?${queryParams.toString()}` : ''}`
+    const url = `/admin/sessions${queryParams.toString() ? `?${queryParams.toString()}` : ''}`
     return this.request(url)
   }
 
   async getSessionMessages(sessionId) {
-    return this.request(`/chat/sessions/${sessionId}/messages`)
+    return this.request(`/admin/sessions/${sessionId}/messages`)
+  }
+  
+  async getSessionStats() {
+    return this.request('/admin/sessions/stats')
   }
 
   async sendMessageToSession(sessionId, message) {
-    return this.request(`/chat/sessions/${sessionId}/send`, {
+    return this.request(`/admin/sessions/${sessionId}/send`, {
       method: 'POST',
       body: { message }
     })
@@ -361,6 +365,51 @@ class ApiService {
   // Health check
   async health() {
     return this.request('/health')
+  }
+
+  // Métodos para contactos de notificaciones
+  async getContactStats() {
+    return this.request('/api/notifications/contacts/stats')
+  }
+
+  async getAudienceFilters() {
+    return this.request('/api/notifications/contacts/audience-filters')
+  }
+
+  async searchContacts(filters) {
+    return this.request('/api/notifications/contacts/search', {
+      method: 'POST',
+      body: filters,
+    })
+  }
+
+  async getContactsByAudience(audience, chatbotIds = []) {
+    const params = new URLSearchParams({ audience })
+    if (chatbotIds && chatbotIds.length > 0) {
+      params.append('chatbotIds', chatbotIds.join(','))
+    }
+    return this.request(`/api/notifications/contacts/by-audience?${params}`)
+  }
+
+  async validatePhoneNumbers(phoneNumbers) {
+    return this.request('/api/notifications/contacts/validate-phones', {
+      method: 'POST',
+      body: { phoneNumbers },
+    })
+  }
+
+  async getContactsByPhones(phoneNumbers) {
+    return this.request('/api/notifications/contacts/by-phones', {
+      method: 'POST',
+      body: { phoneNumbers },
+    })
+  }
+
+  async previewNotificationContacts(payload) {
+    return this.request('/api/notifications/contacts/preview', {
+      method: 'POST',
+      body: payload,
+    })
   }
 }
 

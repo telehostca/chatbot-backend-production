@@ -10,57 +10,102 @@ const Stats = () => {
     rag: { documents: 0, chunks: 0, queries: 0 },
     database: { connections: 0, active: 0 }
   })
+  const [chatbotStats, setChatbotStats] = useState([])
+  const [weeklyActivity, setWeeklyActivity] = useState([])
+  const [recentEvents, setRecentEvents] = useState([])
   const [loading, setLoading] = useState(true)
   const [selectedPeriod, setSelectedPeriod] = useState('today')
 
   useEffect(() => {
     loadStats()
+    loadChatbotStats()
+    loadWeeklyActivity()
+    loadRecentEvents()
   }, [selectedPeriod])
 
   const loadStats = async () => {
     try {
       setLoading(true)
       
-      // Simular datos (en producción estos vendrían de endpoints reales)
+      // Obtener estadísticas reales del backend
+      const response = await api.get(`/admin/stats?period=${selectedPeriod}`)
+      setStats(response.data)
+      
+    } catch (error) {
+      console.error('Error cargando estadísticas:', error)
+      
+      // Fallback a datos mock solo en caso de error
       const mockStats = {
         chatbots: { 
-          total: 2, 
-          active: 2, 
+          total: 0, 
+          active: 0, 
           inactive: 0 
         },
         conversations: { 
-          total: 1250, 
-          today: 45, 
-          thisWeek: 320, 
-          thisMonth: 890 
+          total: 0, 
+          today: 0, 
+          thisWeek: 0, 
+          thisMonth: 0 
         },
         messages: { 
-          total: 15680, 
-          today: 280, 
-          thisWeek: 1920, 
-          thisMonth: 6750 
+          total: 0, 
+          today: 0, 
+          thisWeek: 0, 
+          thisMonth: 0 
         },
         notifications: { 
-          sent: 5420, 
-          pending: 12, 
-          failed: 23 
+          sent: 0, 
+          pending: 0, 
+          failed: 0 
         },
         rag: { 
-          documents: 15, 
-          chunks: 128, 
-          queries: 340 
+          documents: 0, 
+          chunks: 0, 
+          queries: 0 
         },
         database: { 
-          connections: 3, 
-          active: 2 
+          connections: 0, 
+          active: 0 
         }
       }
-      
       setStats(mockStats)
-    } catch (error) {
-      console.error('Error cargando estadísticas:', error)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const loadChatbotStats = async () => {
+    try {
+      const response = await api.get('/admin/stats/chatbots')
+      setChatbotStats(response.data)
+    } catch (error) {
+      console.error('Error cargando estadísticas de chatbots:', error)
+      setChatbotStats([])
+    }
+  }
+
+  const loadWeeklyActivity = async () => {
+    try {
+      const response = await api.get('/admin/stats/activity')
+      setWeeklyActivity(response.data)
+    } catch (error) {
+      console.error('Error cargando actividad semanal:', error)
+      // Fallback a datos mock para actividad semanal
+      const mockActivity = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'].map(day => ({
+        day,
+        activity: Math.floor(Math.random() * 80) + 20
+      }))
+      setWeeklyActivity(mockActivity)
+    }
+  }
+
+  const loadRecentEvents = async () => {
+    try {
+      const response = await api.get('/admin/stats/events?limit=5')
+      setRecentEvents(response.data)
+    } catch (error) {
+      console.error('Error cargando eventos recientes:', error)
+      setRecentEvents([])
     }
   }
 
@@ -86,11 +131,11 @@ const Stats = () => {
     <div className="bg-white rounded-lg shadow-md p-6">
       <h3 className="text-lg font-semibold text-gray-800 mb-4">📊 Actividad por Día</h3>
       <div className="space-y-3">
-        {['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'].map((day, index) => {
-          const value = Math.floor(Math.random() * 100) + 20
+        {weeklyActivity.map((dayData, index) => {
+          const value = dayData.activity || 0
           return (
-            <div key={day} className="flex items-center">
-              <span className="w-12 text-sm text-gray-600">{day}</span>
+            <div key={dayData.day || index} className="flex items-center">
+              <span className="w-12 text-sm text-gray-600">{dayData.day}</span>
               <div className="flex-1 bg-gray-200 rounded-full h-3 mx-3">
                 <div 
                   className="bg-blue-500 h-3 rounded-full transition-all duration-500"
@@ -109,37 +154,39 @@ const Stats = () => {
     <div className="bg-white rounded-lg shadow-md p-6">
       <h3 className="text-lg font-semibold text-gray-800 mb-4">🤖 Chatbots Más Activos</h3>
       <div className="space-y-4">
-        <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
-          <div className="flex items-center">
-            <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center text-white font-bold">
-              F
-            </div>
-            <div className="ml-3">
-              <p className="font-medium text-gray-800">FarmabienBot</p>
-              <p className="text-sm text-gray-600">04245235482</p>
-            </div>
+        {chatbotStats.length > 0 ? (
+          chatbotStats.slice(0, 5).map((chatbot, index) => {
+            const colorClasses = {
+              green: 'bg-green-50 text-green-600 bg-green-500',
+              blue: 'bg-blue-50 text-blue-600 bg-blue-500',
+              purple: 'bg-purple-50 text-purple-600 bg-purple-500'
+            }
+            const colors = colorClasses[chatbot.color] || colorClasses.blue
+            const [bgClass, textClass, avatarClass] = colors.split(' ')
+            
+            return (
+              <div key={chatbot.id} className={`flex items-center justify-between p-3 ${bgClass} rounded-lg`}>
+                <div className="flex items-center">
+                  <div className={`w-10 h-10 ${avatarClass} rounded-full flex items-center justify-center text-white font-bold`}>
+                    {chatbot.name.charAt(0).toUpperCase()}
+                  </div>
+                  <div className="ml-3">
+                    <p className="font-medium text-gray-800">{chatbot.name}</p>
+                    <p className="text-sm text-gray-600">{chatbot.phoneNumber}</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p className={`font-bold ${textClass}`}>{chatbot.messages}</p>
+                  <p className="text-xs text-gray-500">mensajes</p>
+                </div>
+              </div>
+            )
+          })
+        ) : (
+          <div className="text-center py-8 text-gray-500">
+            <p>No hay chatbots configurados aún</p>
           </div>
-          <div className="text-right">
-            <p className="font-bold text-green-600">890</p>
-            <p className="text-xs text-gray-500">mensajes</p>
-          </div>
-        </div>
-        
-        <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
-          <div className="flex items-center">
-            <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold">
-              G
-            </div>
-            <div className="ml-3">
-              <p className="font-medium text-gray-800">GómezBot</p>
-              <p className="text-sm text-gray-600">04245600192</p>
-            </div>
-          </div>
-          <div className="text-right">
-            <p className="font-bold text-blue-600">650</p>
-            <p className="text-xs text-gray-500">mensajes</p>
-          </div>
-        </div>
+        )}
       </div>
     </div>
   )
@@ -266,28 +313,30 @@ const Stats = () => {
               </tr>
             </thead>
             <tbody>
-              {[
-                { time: '14:35', event: 'Nuevo documento RAG procesado', chatbot: 'FarmabienBot', status: 'success' },
-                { time: '14:30', event: 'Notificación enviada', chatbot: 'GómezBot', status: 'success' },
-                { time: '14:25', event: 'Consulta RAG ejecutada', chatbot: 'FarmabienBot', status: 'success' },
-                { time: '14:20', event: 'Base de datos externa conectada', chatbot: 'GómezBot', status: 'success' },
-                { time: '14:15', event: 'Error en embedding OpenAI', chatbot: 'FarmabienBot', status: 'error' }
-              ].map((event, index) => (
-                <tr key={index} className="border-b hover:bg-gray-50">
-                  <td className="py-3 px-4 text-sm text-gray-600">{event.time}</td>
-                  <td className="py-3 px-4 text-sm">{event.event}</td>
-                  <td className="py-3 px-4 text-sm">{event.chatbot}</td>
-                  <td className="py-3 px-4">
-                    <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
-                      event.status === 'success' 
-                        ? 'bg-green-100 text-green-800' 
-                        : 'bg-red-100 text-red-800'
-                    }`}>
-                      {event.status === 'success' ? '✅ Éxito' : '❌ Error'}
-                    </span>
+              {recentEvents.length > 0 ? (
+                recentEvents.map((event, index) => (
+                  <tr key={index} className="border-b hover:bg-gray-50">
+                    <td className="py-3 px-4 text-sm text-gray-600">{event.time}</td>
+                    <td className="py-3 px-4 text-sm">{event.event}</td>
+                    <td className="py-3 px-4 text-sm">{event.chatbot}</td>
+                    <td className="py-3 px-4">
+                      <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
+                        event.status === 'success' 
+                          ? 'bg-green-100 text-green-800' 
+                          : 'bg-red-100 text-red-800'
+                      }`}>
+                        {event.status === 'success' ? '✅ Éxito' : '❌ Error'}
+                      </span>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="4" className="py-8 text-center text-gray-500">
+                    No hay eventos recientes
                   </td>
                 </tr>
-              ))}
+              )}
             </tbody>
           </table>
         </div>

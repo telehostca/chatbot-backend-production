@@ -14,7 +14,11 @@ export enum NotificationAudience {
   ACTIVE_USERS = 'active_users',
   RECENT_BUYERS = 'recent_buyers',
   NEW_USERS = 'new_users',
-  VIP_USERS = 'vip_users'
+  VIP_USERS = 'vip_users',
+  INACTIVE_USERS = 'inactive_users',
+  CART_ABANDONERS = 'cart_abandoners',
+  VIP_CLIENTS = 'vip_clients',
+  ALL_ACTIVE = 'all_active'
 }
 
 @Entity('notification_templates')

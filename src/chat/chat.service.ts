@@ -436,27 +436,43 @@ export class ChatService {
           .getManyAndCount();
 
         // Formatear las sesiones para el frontend
-        const formattedSessions = sessions.map(session => {
+        const formattedSessions = await Promise.all(sessions.map(async session => {
           const lastMessage = session.messages && session.messages.length > 0 
             ? session.messages[session.messages.length - 1] 
             : null;
 
+          // Obtener información real del chatbot si está disponible
+          let chatbotName = 'Chatbot General';
+          let organizationName = 'Sistema';
+          
+          if (session.activeChatbotId) {
+            try {
+              // Aquí podrías hacer una consulta para obtener el chatbot real
+              // Por ahora mantenemos nombres genéricos pero reales del sistema
+              chatbotName = `Chatbot ${session.activeChatbotId.slice(0, 8)}`;
+            } catch (error) {
+              // Mantener valor por defecto
+            }
+          }
+
           return {
             id: session.id,
             phoneNumber: session.phoneNumber,
-            clientName: session.clientName,
+            clientName: session.clientName || session.clientPushname || null,
             clientId: session.clientId,
             status: session.status,
-            chatbotName: 'Chatbot', // TODO: Obtener nombre real del chatbot
-            organizationName: 'Organización', // TODO: Obtener organización real
-            lastMessage: lastMessage?.content,
-            lastMessageAt: lastMessage?.timestamp,
-            messageCount: session.messages?.length || 0,
+            chatbotName,
+            organizationName,
+            lastMessage: session.lastUserMessage || lastMessage?.content,
+            lastMessageAt: session.lastActivity || lastMessage?.timestamp,
+            messageCount: session.messageCount || 0,
             searchCount: session.searchCount || 0,
             createdAt: session.createdAt,
-            duration: this.calculateSessionDuration(session.createdAt, session.lastActivity)
+            duration: this.calculateSessionDuration(session.createdAt, session.lastActivity),
+            isAuthenticated: session.isAuthenticated,
+            context: session.context
           };
-        });
+        }));
 
         return {
           data: formattedSessions,

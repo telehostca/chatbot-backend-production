@@ -17,9 +17,17 @@ const ScheduledNotifications = () => {
     cronEnabled: false,
     cronExpression: '0 9 * * *', // 9:00 AM diario por defecto
     audience: 'all', // all, active_users, recent_buyers, new_users
-    
+    targetType: 'audience', // audience, custom, phone_list
+    customFilters: {},
+    phoneNumbers: [],
     isActive: true
   });
+
+  // Estados para selección de contactos
+  const [showContactSelector, setShowContactSelector] = useState(false);
+  const [contactPreview, setContactPreview] = useState(null);
+  const [contactStats, setContactStats] = useState(null);
+  const [audienceFilters, setAudienceFilters] = useState({});
 
   // Estados para estadísticas
   const [stats, setStats] = useState({
@@ -39,12 +47,32 @@ const ScheduledNotifications = () => {
       await Promise.all([
         loadNotifications(),
         loadChatbots(),
-        loadCronConfig()
+        loadCronConfig(),
+        loadContactData()
       ]);
     } catch (error) {
       console.error('Error loading data:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadContactData = async () => {
+    try {
+      const [statsResponse, filtersResponse] = await Promise.all([
+        api.getContactStats(),
+        api.getAudienceFilters()
+      ]);
+      
+      if (statsResponse.success) {
+        setContactStats(statsResponse.data);
+      }
+      
+      if (filtersResponse.success) {
+        setAudienceFilters(filtersResponse.data);
+      }
+    } catch (error) {
+      console.error('Error loading contact data:', error);
     }
   };
 
@@ -150,9 +178,47 @@ const ScheduledNotifications = () => {
       cronEnabled: false,
       cronExpression: '0 9 * * *',
       audience: 'all',
-      
+      targetType: 'audience',
+      customFilters: {},
+      phoneNumbers: [],
       isActive: true
     });
+    setContactPreview(null);
+  };
+
+  const previewContacts = async () => {
+    try {
+      setLoading(true);
+      let payload = {};
+
+      switch (newNotification.targetType) {
+        case 'audience':
+          payload = {
+            audience: newNotification.audience,
+            chatbotIds: newNotification.chatbotId ? [newNotification.chatbotId] : undefined
+          };
+          break;
+        case 'custom':
+          payload = { customFilters: newNotification.customFilters };
+          break;
+        case 'phone_list':
+          payload = { phoneNumbers: newNotification.phoneNumbers };
+          break;
+      }
+
+      const response = await api.previewNotificationContacts(payload);
+      if (response.success) {
+        setContactPreview(response.data);
+        setShowContactSelector(true);
+      } else {
+        alert('❌ Error obteniendo preview de contactos: ' + response.error);
+      }
+    } catch (error) {
+      console.error('Error previewing contacts:', error);
+      alert('❌ Error obteniendo preview de contactos');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const calculateNextExecution = (cronExpression) => {
@@ -469,6 +535,116 @@ const ScheduledNotifications = () => {
                     </option>
                   ))}
                 </select>
+              </div>
+
+              {/* Selección de audiencia */}
+              <div className="border-t pt-4">
+                <label className="block text-sm font-medium text-gray-700 mb-3">👥 Destinatarios</label>
+                
+                {/* Tipo de selección */}
+                <div className="grid grid-cols-3 gap-2 mb-4">
+                  <button
+                    type="button"
+                    onClick={() => setNewNotification({...newNotification, targetType: 'audience'})}
+                    className={`p-2 text-sm rounded ${newNotification.targetType === 'audience' 
+                      ? 'bg-blue-100 text-blue-800 border-blue-300' 
+                      : 'bg-gray-100 text-gray-600 border-gray-300'} border`}
+                  >
+                    🎯 Audiencia
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setNewNotification({...newNotification, targetType: 'phone_list'})}
+                    className={`p-2 text-sm rounded ${newNotification.targetType === 'phone_list' 
+                      ? 'bg-blue-100 text-blue-800 border-blue-300' 
+                      : 'bg-gray-100 text-gray-600 border-gray-300'} border`}
+                  >
+                    📞 Lista
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setNewNotification({...newNotification, targetType: 'custom'})}
+                    className={`p-2 text-sm rounded ${newNotification.targetType === 'custom' 
+                      ? 'bg-blue-100 text-blue-800 border-blue-300' 
+                      : 'bg-gray-100 text-gray-600 border-gray-300'} border`}
+                  >
+                    ⚙️ Filtros
+                  </button>
+                </div>
+
+                {/* Audiencia predefinida */}
+                {newNotification.targetType === 'audience' && (
+                  <div>
+                    <select
+                      value={newNotification.audience}
+                      onChange={(e) => setNewNotification({...newNotification, audience: e.target.value})}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                      <option value="all">👥 Todos los contactos</option>
+                      <option value="active_users">🟢 Usuarios activos (último mes)</option>
+                      <option value="recent_buyers">🛒 Compradores recientes</option>
+                      <option value="new_users">🆕 Usuarios nuevos (última semana)</option>
+                      <option value="inactive_users">😴 Usuarios inactivos</option>
+                      <option value="cart_abandoners">🛒💨 Carritos abandonados</option>
+                      <option value="vip_clients">⭐ Clientes VIP</option>
+                      <option value="all_active">✅ Solo sesiones activas</option>
+                    </select>
+                  </div>
+                )}
+
+                {/* Lista de teléfonos */}
+                {newNotification.targetType === 'phone_list' && (
+                  <div>
+                    <textarea
+                      placeholder="Ingresa números de teléfono separados por comas o saltos de línea&#10;Ejemplo:&#10;+584241234567&#10;584161234567&#10;+573001234567"
+                      value={newNotification.phoneNumbers.join('\n')}
+                      onChange={(e) => {
+                        const phones = e.target.value.split(/[,\n]/).map(p => p.trim()).filter(Boolean);
+                        setNewNotification({...newNotification, phoneNumbers: phones});
+                      }}
+                      rows="4"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                    {newNotification.phoneNumbers.length > 0 && (
+                      <p className="text-sm text-gray-600 mt-1">
+                        📱 {newNotification.phoneNumbers.length} números ingresados
+                      </p>
+                    )}
+                  </div>
+                )}
+
+                {/* Filtros personalizados */}
+                {newNotification.targetType === 'custom' && (
+                  <div className="text-center text-gray-500 py-4">
+                    <p>⚙️ Filtros personalizados</p>
+                    <p className="text-sm">Funcionalidad avanzada próximamente</p>
+                  </div>
+                )}
+
+                {/* Botón de preview */}
+                <div className="mt-4">
+                  <button
+                    type="button"
+                    onClick={previewContacts}
+                    className="w-full bg-gray-100 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-200 transition-colors"
+                  >
+                    👁️ Previsualizar contactos
+                  </button>
+                  
+                  {contactPreview && (
+                    <div className="mt-3 p-3 bg-blue-50 rounded">
+                      <div className="grid grid-cols-2 gap-4 text-sm">
+                        <div><strong>Total:</strong> {contactPreview.stats.total}</div>
+                        <div><strong>Autenticados:</strong> {contactPreview.stats.authenticated}</div>
+                        <div><strong>Nuevos:</strong> {contactPreview.stats.newClients}</div>
+                        <div><strong>Activos:</strong> {contactPreview.stats.recentActivity}</div>
+                      </div>
+                      {contactPreview.hasMore && (
+                        <p className="text-xs text-blue-600 mt-2">+ más contactos...</p>
+                      )}
+                    </div>
+                  )}
+                </div>
               </div>
 
               {/* Programación */}

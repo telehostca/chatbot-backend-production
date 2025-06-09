@@ -415,78 +415,10 @@ export class AdminController {
   }
 
   // ============================================================================
-  // SESIONES ACTIVAS
+  // SESIONES ACTIVAS - MIGRADO A /api/admin/sessions
   // ============================================================================
-
-  @Get('sessions')
-  @ApiOperation({ summary: 'Obtener sesiones activas' })
-  async getActiveSessions() {
-    return [
-      {
-        id: 1,
-        phone: '+58414123456',
-        name: 'Juan Pérez',
-        status: 'active',
-        lastMessage: 'Quiero ver el menú de productos disponibles',
-        lastMessageTime: new Date(Date.now() - 2 * 60 * 1000),
-        duration: '15 min',
-        cartItems: 3,
-        cartValue: 45.99
-      },
-      {
-        id: 2,
-        phone: '+58424987654',
-        name: 'María González',
-        status: 'ordering',
-        lastMessage: 'Quiero agregar 2 kilos de arroz al carrito',
-        lastMessageTime: new Date(Date.now() - 5 * 60 * 1000),
-        duration: '8 min',
-        cartItems: 1,
-        cartValue: 12.50
-      }
-    ];
-  }
-
-  @Get('sessions/:id')
-  @ApiOperation({ summary: 'Obtener detalles de sesión' })
-  async getSessionDetails(@Param('id') sessionId: string) {
-    // Simular detalles de sesión
-    return {
-      id: sessionId,
-      phone: '+58414123456',
-      name: 'Juan Pérez',
-      status: 'active',
-      startTime: new Date(Date.now() - 15 * 60 * 1000),
-      lastActivity: new Date(Date.now() - 2 * 60 * 1000),
-      messageCount: 12,
-      cart: {
-        items: 3,
-        total: 45.99,
-        products: [
-          { name: 'Arroz Diana 1kg', quantity: 2, price: 2.50 },
-          { name: 'Aceite Mazeite 1L', quantity: 1, price: 3.25 }
-        ]
-      }
-    };
-  }
-
-  @Put('sessions/:id')
-  @ApiOperation({ summary: 'Actualizar sesión' })
-  async updateSession(@Param('id') sessionId: string, @Body() updateData: any) {
-    this.logger.log(`Actualizando sesión ${sessionId}:`, updateData);
-    return { message: 'Sesión actualizada exitosamente', sessionId, updateData };
-  }
-
-  @Delete('sessions/:id')
-  @ApiOperation({ summary: 'Finalizar sesión' })
-  async endSession(@Param('id') sessionId: string) {
-    try {
-      this.logger.log(`Finalizando sesión ${sessionId}`);
-      return { message: 'Sesión finalizada exitosamente' };
-    } catch (error) {
-      throw new HttpException('Error ending session', HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-  }
+  // Los endpoints de sesiones han sido migrados al SessionsController
+  // Usar: /api/admin/sessions para obtener sesiones reales
 
   @Post('sessions/:id/message')
   @ApiOperation({ summary: 'Enviar mensaje a sesión' })

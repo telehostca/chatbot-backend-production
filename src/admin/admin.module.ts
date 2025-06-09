@@ -3,12 +3,16 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AdminController } from './controllers/admin.controller';
 import { MultiTenantController } from './controllers/multi-tenant.controller';
 import { NotificationTemplatesController } from './controllers/notification-templates.controller';
+import { StatsController } from './controllers/stats.controller';
+import { SessionsController } from './controllers/sessions.controller';
 import { AdminService } from './services/admin.service';
 import { MultiTenantService } from './services/multi-tenant.service';
 import { ChatbotService } from './services/chatbot.service';
 import { ConversationService } from './services/conversation.service';
 import { PromotionService } from './services/promotion.service';
 import { ReportService } from './services/report.service';
+import { StatsService } from './services/stats.service';
+import { SessionsService } from './services/sessions.service';
 import { CartsModule } from '../carts/carts.module';
 import { PromotionsModule } from '../promotions/promotions.module';
 import { NotificationsModule } from '../notifications/notifications.module';
@@ -27,6 +31,8 @@ import { ChatbotInstance } from './entities/chatbot-instance.entity';
 import { User } from '../users/entities/user.entity';
 import { Order } from '../orders/entities/order.entity';
 import { Promotion } from '../promotions/entities/promotion.entity';
+import { KnowledgeBase } from '../rag/entities/knowledge-base.entity';
+import { NotificationTemplate } from '../notifications/entities/notification-template.entity';
 
 @Module({})
 export class AdminModule {
@@ -45,7 +51,9 @@ export class AdminModule {
         ChatbotInstance,
         User,
         Order,
-        Promotion
+        Promotion,
+        KnowledgeBase,
+        NotificationTemplate
       ], 'users'),
       CartsModule,
       PromotionsModule,
@@ -64,7 +72,9 @@ export class AdminModule {
       controllers: [
         AdminController,
         MultiTenantController,
-        NotificationTemplatesController
+        NotificationTemplatesController,
+        StatsController,
+        SessionsController
       ],
       providers: [
         AdminService,
@@ -73,6 +83,8 @@ export class AdminModule {
         ConversationService,
         PromotionService,
         ReportService,
+        StatsService,
+        SessionsService,
       ],
       exports: [
         AdminService,
@@ -80,7 +92,9 @@ export class AdminModule {
         ChatbotService,
         ConversationService,
         PromotionService,
-        ReportService
+        ReportService,
+        StatsService,
+        SessionsService
       ],
     };
   }

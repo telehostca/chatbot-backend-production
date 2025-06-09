@@ -5,6 +5,8 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { NotificationsService } from './notifications.service';
 import { NotificationsController, NotificationTemplatesController } from './notifications.controller';
 import { NotificationTemplatesService } from './services/notification-templates.service';
+import { ContactsService } from './services/contacts.service';
+import { ContactsController } from './controllers/contacts.controller';
 import { WhatsappModule } from '../whatsapp/whatsapp.module';
 import { NotificationEntity } from './entities/notification.entity';
 import { NotificationTemplate } from './entities/notification-template.entity';
@@ -29,15 +31,18 @@ import { PersistentSession } from '../chat/entities/persistent-session.entity';
   ],
   controllers: [
     NotificationsController,
-    NotificationTemplatesController
+    NotificationTemplatesController,
+    ContactsController
   ],
   providers: [
     NotificationsService,
-    NotificationTemplatesService
+    NotificationTemplatesService,
+    ContactsService
   ],
   exports: [
     NotificationsService,
-    NotificationTemplatesService
+    NotificationTemplatesService,
+    ContactsService
   ]
 })
 export class NotificationsModule {} 

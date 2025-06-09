@@ -1,20 +1,15 @@
-import { Controller, Get, Post, Body, Logger } from '@nestjs/common';
-import { InjectDataSource } from '@nestjs/typeorm';
+import { Controller, Get, Post, Logger, Inject } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { DataSource } from 'typeorm';
-import { ModuleRef } from '@nestjs/core';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-// import { ChatMessage } from '../chat/entities/message.entity';
 
+@ApiTags('test-saas')
 @Controller('saas')
 export class TestSaasController {
   private readonly logger = new Logger(TestSaasController.name);
 
   constructor(
-    @InjectDataSource('users') private dataSource: DataSource,
-    private readonly moduleRef: ModuleRef,
-    // @InjectRepository(ChatMessage, 'users')
-    // private readonly chatMessageRepository: Repository<ChatMessage>
+    @Inject('DATA_SOURCE')
+    private dataSource: DataSource,
   ) {}
 
   @Get('test')

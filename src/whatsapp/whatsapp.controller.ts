@@ -542,25 +542,46 @@ export class WhatsappController {
     try {
       this.logger.log(`🔍 ANALIZANDO PAYLOAD:`, JSON.stringify(body, null, 2));
 
-      // Formato Evolution API directo con event
-      if (body.event && (body.event === 'messages.upsert' || body.event === 'message')) {
-        this.logger.log(`📨 Formato Evolution API con event detectado: ${body.event}`);
+      // 🎯 FORMATO EVOLUTION API PRINCIPAL CON EVENT Y DATA
+      if (body.event === 'MESSAGES_UPSERT' && body.data) {
+        this.logger.log(`📨 Formato Evolution API MESSAGES_UPSERT detectado`);
         
-        // Manejar data como array (formato típico de Evolution API)
-        if (body.data && Array.isArray(body.data) && body.data.length > 0) {
+        // Evolution API envía data como array
+        if (Array.isArray(body.data) && body.data.length > 0) {
           const msg = body.data[0]; // Tomar el primer mensaje del array
-          this.logger.log(`🎯 PROCESANDO MSG:`, JSON.stringify(msg, null, 2));
+          this.logger.log(`🎯 PROCESANDO MSG desde data array:`, JSON.stringify(msg, null, 2));
           return this.extractMessageContent(msg);
         }
         // Fallback: data como objeto único
         else if (body.data && body.data.key && body.data.message) {
           const msg = body.data;
-          this.logger.log(`🎯 PROCESANDO MSG:`, JSON.stringify(msg, null, 2));
+          this.logger.log(`🎯 PROCESANDO MSG desde data objeto:`, JSON.stringify(msg, null, 2));
           return this.extractMessageContent(msg);
         }
       }
 
-      // Formato directo simple (como nuestras pruebas)
+      // 🎯 FORMATO EVOLUTION API ALTERNATIVO (sin event)
+      if (body.data && (Array.isArray(body.data) || body.data.key)) {
+        this.logger.log(`📨 Formato Evolution API sin event detectado`);
+        
+        if (Array.isArray(body.data) && body.data.length > 0) {
+          const msg = body.data[0];
+          this.logger.log(`🎯 PROCESANDO MSG desde data array directo:`, JSON.stringify(msg, null, 2));
+          return this.extractMessageContent(msg);
+        } else if (body.data.key && body.data.message) {
+          const msg = body.data;
+          this.logger.log(`🎯 PROCESANDO MSG desde data objeto directo:`, JSON.stringify(msg, null, 2));
+          return this.extractMessageContent(msg);
+        }
+      }
+
+      // 🎯 FORMATO DIRECTO CON KEY Y MESSAGE EN ROOT
+      if (body.key && body.message) {
+        this.logger.log(`📨 Formato key-message en raíz detectado`);
+        return this.extractMessageContent(body);
+      }
+
+      // 🎯 FORMATO DIRECTO SIMPLE (como nuestras pruebas)
       if (body.from && (body.body || body.type)) {
         this.logger.debug(`📨 Formato directo simple detectado`);
         return {
@@ -572,7 +593,7 @@ export class WhatsappController {
         };
       }
 
-      // Formato con message anidado
+      // 🎯 FORMATO CON MESSAGE ANIDADO
       if (body.message) {
         this.logger.debug(`📨 Formato con message anidado detectado`);
         return this.extractMessageContent({
@@ -582,17 +603,13 @@ export class WhatsappController {
         });
       }
 
-      // Formato con key y message en el nivel raíz
-      if (body.key && body.message) {
-        this.logger.debug(`📨 Formato key-message en raíz detectado`);
-        return this.extractMessageContent(body);
-      }
-
       // Si llegamos aquí, el formato no es reconocido
-      this.logger.warn(`❓ Formato de payload no reconocido. Propiedades disponibles:`, Object.keys(body));
+      this.logger.warn(`❓ Formato de payload no reconocido`);
+      this.logger.warn(`📋 Propiedades disponibles:`, Object.keys(body));
+      this.logger.warn(`📋 Estructura del payload:`, JSON.stringify(body, null, 2));
       return null;
     } catch (error) {
-      this.logger.error(`Error extrayendo mensaje del payload: ${error.message}`);
+      this.logger.error(`❌ Error extrayendo mensaje del payload: ${error.message}`);
       return null;
     }
   }
@@ -602,7 +619,7 @@ export class WhatsappController {
    */
   private extractMessageContent(msg: any): any | null {
     try {
-      // EXTRAER PUSHNAME DEL WEBHOOK - MEJORADO CON MÁS LOGS
+      // EXTRAER PUSHNAME DEL WEBHOOK CON MÚLTIPLES FUENTES
       let pushname = null;
       
       this.logger.log(`🔍 ANALIZANDO MENSAJE PARA PUSHNAME:`, JSON.stringify(msg, null, 2));
@@ -614,6 +631,9 @@ export class WhatsappController {
       } else if (msg.pushname) {
         pushname = msg.pushname;
         this.logger.log(`✅ PUSHNAME encontrado en msg.pushname: ${pushname}`);
+      } else if (msg.pushName) {
+        pushname = msg.pushName;
+        this.logger.log(`✅ PUSHNAME encontrado en msg.pushName: ${pushname}`);
       } else if (msg.verifiedBizName) {
         pushname = msg.verifiedBizName;
         this.logger.log(`✅ PUSHNAME encontrado en msg.verifiedBizName: ${pushname}`);
@@ -643,26 +663,132 @@ export class WhatsappController {
       
       this.logger.log(`👤 PUSHNAME FINAL EXTRAÍDO: ${pushname || 'No disponible'}`);
       
+      // CREAR MENSAJE BASE CON INFORMACIÓN ESTÁNDAR
       const baseMessage = {
         from: msg.key?.remoteJid || msg.from || 'unknown',
         timestamp: msg.messageTimestamp || msg.timestamp || Date.now(),
         id: msg.key?.id || msg.id || Date.now().toString(),
-        pushname: pushname // AGREGAR PUSHNAME AL MENSAJE
+        pushname: pushname, // AGREGAR PUSHNAME AL MENSAJE
+        fromMe: msg.key?.fromMe || false // AGREGAR INFO SI ES MENSAJE PROPIO
       };
       
       this.logger.log(`📨 MENSAJE BASE CREADO:`, JSON.stringify(baseMessage, null, 2));
       
-      // Mensaje de texto
-      if (msg.message?.conversation || msg.message?.extendedTextMessage?.text) {
-        this.logger.log(`💬 MENSAJE DE TEXTO DETECTADO`);
+      // EXTRAER CONTENIDO DEL MENSAJE SEGÚN TIPO
+      
+      // 🎯 MENSAJE DE TEXTO SIMPLE
+      if (msg.message?.conversation) {
+        this.logger.log(`💬 MENSAJE DE TEXTO SIMPLE DETECTADO: ${msg.message.conversation}`);
         return {
           ...baseMessage,
           type: 'text',
-          body: msg.message.conversation || msg.message.extendedTextMessage?.text || ''
+          body: msg.message.conversation
         };
       }
 
-      // Si no reconocemos el tipo, pero hay mensaje
+      // 🎯 MENSAJE DE TEXTO EXTENDIDO
+      if (msg.message?.extendedTextMessage?.text) {
+        this.logger.log(`💬 MENSAJE DE TEXTO EXTENDIDO DETECTADO: ${msg.message.extendedTextMessage.text}`);
+        return {
+          ...baseMessage,
+          type: 'text',
+          body: msg.message.extendedTextMessage.text
+        };
+      }
+
+      // 🎯 MENSAJE DE IMAGEN
+      if (msg.message?.imageMessage) {
+        this.logger.log(`🖼️ MENSAJE DE IMAGEN DETECTADO`);
+        return {
+          ...baseMessage,
+          type: 'image',
+          body: msg.message.imageMessage.caption || '[Imagen]',
+          metadata: {
+            mediaKey: msg.message.imageMessage.mediaKey,
+            mimetype: msg.message.imageMessage.mimetype,
+            url: msg.message.imageMessage.url
+          }
+        };
+      }
+
+      // 🎯 MENSAJE DE AUDIO
+      if (msg.message?.audioMessage) {
+        this.logger.log(`🎵 MENSAJE DE AUDIO DETECTADO`);
+        return {
+          ...baseMessage,
+          type: 'audio',
+          body: '[Audio]',
+          metadata: {
+            mediaKey: msg.message.audioMessage.mediaKey,
+            mimetype: msg.message.audioMessage.mimetype,
+            ptt: msg.message.audioMessage.ptt || false,
+            seconds: msg.message.audioMessage.seconds
+          }
+        };
+      }
+
+      // 🎯 MENSAJE DE DOCUMENTO
+      if (msg.message?.documentMessage) {
+        this.logger.log(`📄 MENSAJE DE DOCUMENTO DETECTADO`);
+        return {
+          ...baseMessage,
+          type: 'document',
+          body: msg.message.documentMessage.title || msg.message.documentMessage.fileName || '[Documento]',
+          metadata: {
+            mediaKey: msg.message.documentMessage.mediaKey,
+            mimetype: msg.message.documentMessage.mimetype,
+            fileName: msg.message.documentMessage.fileName,
+            fileLength: msg.message.documentMessage.fileLength
+          }
+        };
+      }
+
+      // 🎯 MENSAJE DE VIDEO
+      if (msg.message?.videoMessage) {
+        this.logger.log(`🎥 MENSAJE DE VIDEO DETECTADO`);
+        return {
+          ...baseMessage,
+          type: 'video',
+          body: msg.message.videoMessage.caption || '[Video]',
+          metadata: {
+            mediaKey: msg.message.videoMessage.mediaKey,
+            mimetype: msg.message.videoMessage.mimetype,
+            seconds: msg.message.videoMessage.seconds
+          }
+        };
+      }
+
+      // 🎯 MENSAJE DE CONTACTO
+      if (msg.message?.contactMessage) {
+        this.logger.log(`👤 MENSAJE DE CONTACTO DETECTADO`);
+        return {
+          ...baseMessage,
+          type: 'contact',
+          body: `[Contacto: ${msg.message.contactMessage.displayName || 'Sin nombre'}]`,
+          metadata: {
+            displayName: msg.message.contactMessage.displayName,
+            vcard: msg.message.contactMessage.vcard
+          }
+        };
+      }
+
+      // 🎯 MENSAJE DE UBICACIÓN
+      if (msg.message?.locationMessage) {
+        this.logger.log(`📍 MENSAJE DE UBICACIÓN DETECTADO`);
+        return {
+          ...baseMessage,
+          type: 'location',
+          body: '[Ubicación compartida]',
+          metadata: {
+            latitude: msg.message.locationMessage.degreesLatitude,
+            longitude: msg.message.locationMessage.degreesLongitude,
+            name: msg.message.locationMessage.name,
+            address: msg.message.locationMessage.address
+          }
+        };
+      }
+
+      // Si hay mensaje pero no reconocemos el tipo
       if (msg.message) {
         this.logger.warn(`❓ Tipo de mensaje no reconocido:`, Object.keys(msg.message));
         return {
@@ -672,9 +798,11 @@ export class WhatsappController {
         };
       }
 
+      // Si no hay estructura de mensaje reconocida
+      this.logger.warn(`❓ No se encontró estructura de mensaje válida en:`, JSON.stringify(msg, null, 2));
       return null;
     } catch (error) {
-      this.logger.error(`Error extrayendo contenido del mensaje: ${error.message}`);
+      this.logger.error(`❌ Error extrayendo contenido del mensaje: ${error.message}`);
       return null;
     }
   }

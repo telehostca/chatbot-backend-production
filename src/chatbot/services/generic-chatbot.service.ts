@@ -32,7 +32,23 @@ export class GenericChatbotService {
       const chatbotType = config.type || 'basic';
       this.logger.log(`📋 Tipo de chatbot detectado: ${chatbotType}`);
 
-      // Analizar intent usando configuración personalizada
+      // ✅ VERIFICAR SI LAS INTENCIONES ESTÁN DESACTIVADAS
+      const intentionsDisabled = config.disableIntentMatching === true || 
+                                 config.intentProcessingMode === 'ai_only' ||
+                                 config.forceAIProcessing === true;
+      
+      this.logger.log(`🎯 Estado de intenciones: ${intentionsDisabled ? 'DESACTIVADAS' : 'ACTIVADAS'}`);
+      this.logger.log(`   📋 disableIntentMatching: ${config.disableIntentMatching}`);
+      this.logger.log(`   📋 intentProcessingMode: ${config.intentProcessingMode}`);
+      this.logger.log(`   📋 forceAIProcessing: ${config.forceAIProcessing}`);
+
+      // Si las intenciones están desactivadas, usar EXCLUSIVAMENTE IA
+      if (intentionsDisabled) {
+        this.logger.log(`🧠 [INTENCIONES DESACTIVADAS] → FORZAR USO DE IA`);
+        return await this.generateAIResponse(message, from, chatbotConfig, config, chatbotId);
+      }
+
+      // Analizar intent solo si las intenciones están activadas
       const intent = this.analyzeIntent(message.toLowerCase(), config);
       this.logger.log(`🎯 Intent detectado: ${intent}`);
       
@@ -141,9 +157,16 @@ export class GenericChatbotService {
       // Extraer configuración de IA
       const aiConfig = this.extractAIConfiguration(chatbotConfig);
       
-      if (!aiConfig || !aiConfig.provider || !aiConfig.apiKey) {
-        this.logger.warn(`⚠️ No hay configuración de IA disponible, usando respuesta genérica`);
+      // ✅ PRIORIZAR DEEPSEEK CON VARIABLE DE ENTORNO SI NO HAY API KEY
+      if (!aiConfig || !aiConfig.provider || (!aiConfig.apiKey && aiConfig.provider !== 'deepseek')) {
+        this.logger.warn(`⚠️ No hay configuración de IA válida para proveedor: ${aiConfig?.provider || 'sin proveedor'}`);
         return this.getGenericResponseByType(config.type || 'basic', 'default');
+      }
+
+      // Si es DeepSeek y no hay API key, usar la variable de entorno
+      if (aiConfig.provider === 'deepseek' && !aiConfig.apiKey) {
+        aiConfig.apiKey = process.env.DEEPSEEK_API_KEY;
+        this.logger.log(`🔑 Usando API key de DeepSeek desde variable de entorno`);
       }
 
       this.logger.log(`🧠 Usando IA: ${aiConfig.provider} (${aiConfig.model})`);
@@ -231,14 +254,44 @@ export class GenericChatbotService {
    */
   private extractAIConfiguration(chatbotConfig: any): any {
     try {
+      // Prioridad 1: aiConfig directo
       if (chatbotConfig?.aiConfig) {
         const aiConfig = typeof chatbotConfig.aiConfig === 'string'
           ? JSON.parse(chatbotConfig.aiConfig)
           : chatbotConfig.aiConfig;
         
-        this.logger.log(`🔧 Configuración de IA encontrada: ${aiConfig.provider}`);
-        return aiConfig;
+        if (aiConfig?.provider) {
+          this.logger.log(`🔧 Configuración de IA encontrada en aiConfig: ${aiConfig.provider}`);
+          return aiConfig;
+        }
       }
+
+      // Prioridad 2: desde chatbotConfig anidado
+      if (chatbotConfig?.chatbotConfig) {
+        const nestedConfig = typeof chatbotConfig.chatbotConfig === 'string'
+          ? JSON.parse(chatbotConfig.chatbotConfig)
+          : chatbotConfig.chatbotConfig;
+        
+        if (nestedConfig?.aiConfig?.provider) {
+          this.logger.log(`🔧 Configuración de IA encontrada en chatbotConfig.aiConfig: ${nestedConfig.aiConfig.provider}`);
+          return nestedConfig.aiConfig;
+        }
+      }
+
+      // Prioridad 3: en el nivel raíz del chatbotConfig
+      if (chatbotConfig?.aiProvider) {
+        const rootConfig = {
+          provider: chatbotConfig.aiProvider,
+          model: chatbotConfig.aiModel || 'deepseek-chat',
+          apiKey: chatbotConfig.aiApiKey || '',
+          temperature: chatbotConfig.temperature || 0.7
+        };
+        
+        this.logger.log(`🔧 Configuración de IA encontrada en nivel raíz: ${rootConfig.provider}`);
+        return rootConfig;
+      }
+
+      this.logger.warn(`⚠️ No se encontró configuración de IA`);
       return null;
     } catch (error) {
       this.logger.error(`❌ Error extrayendo configuración de IA: ${error.message}`);

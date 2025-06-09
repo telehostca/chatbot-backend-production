@@ -29,10 +29,19 @@ export class GenericChatbotService {
     this.logger.log(`🤖 [VERSIÓN ACTUALIZADA] Chatbot genérico procesando mensaje: ${message} de ${from}`);
 
     try {
-      // 🔥 SIMPLIFICADO TEMPORALMENTE - Respuesta básica primero para debug
+      // 🆕 NUEVO: Crear o recuperar sesión persistente PRIMERO
+      let session = null;
+      try {
+        session = await this.getOrCreateSession(from, chatbotId);
+        this.logger.log(`💾 Sesión obtenida/creada: ${session.id} (messageCount: ${session.messageCount})`);
+      } catch (sessionError) {
+        this.logger.error(`❌ Error creando/obteniendo sesión: ${sessionError.message}`);
+        // Continuar sin sesión por ahora
+      }
+      
+      // 🔥 RESPUESTA BÁSICA FUNCIONAL (por ahora)
       this.logger.log(`🔍 Configuración recibida:`, chatbotConfig);
       
-      // Respuesta básica funcional
       const basicResponses = [
         "¡Hola! Gracias por contactarnos. ¿En qué puedo ayudarte?",
         "Hola, estoy aquí para asistirte. ¿Cuál es tu consulta?",
@@ -42,6 +51,21 @@ export class GenericChatbotService {
       
       const randomResponse = basicResponses[Math.floor(Math.random() * basicResponses.length)];
       this.logger.log(`✅ Respuesta básica generada exitosamente`);
+      
+      // 🆕 NUEVO: Actualizar sesión si existe
+      if (session) {
+        try {
+          session.messageCount = (session.messageCount || 0) + 1;
+          session.lastUserMessage = message;
+          session.lastBotResponse = randomResponse;
+          session.lastActivity = new Date();
+          session.context = 'basic_response';
+          await this.persistentSessionRepository.save(session);
+          this.logger.log(`💾 Sesión actualizada exitosamente`);
+        } catch (updateError) {
+          this.logger.error(`❌ Error actualizando sesión: ${updateError.message}`);
+        }
+      }
       
       return randomResponse;
 

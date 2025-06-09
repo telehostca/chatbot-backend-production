@@ -1153,7 +1153,7 @@ export class WhatsappController {
         return {
           success: false,
           error: 'ValeryChatbotService no está disponible en WhatsappService',
-          available_services: Object.keys(this.whatsappService)
+          available_services: Object.getOwnPropertyNames(this.whatsappService).concat(Object.getOwnPropertyNames(Object.getPrototypeOf(this.whatsappService)))
         };
       }
       

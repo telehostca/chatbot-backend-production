@@ -560,7 +560,7 @@ const Chatbots = () => {
         aiConfig: {
           provider: formData.aiProvider || 'deepseek',
           model: formData.aiModel || 'deepseek-chat',
-          apiKey: formData.aiApiKey || '',
+          apiKey: formData.aiProvider === 'deepseek' ? '' : (formData.aiApiKey || ''), // DeepSeek usa variable de entorno
           maxTokens: 4000,
           temperature: formData.temperature || 0.7,
           whisperApiKey: formData.whisperApiKey || '',
@@ -684,7 +684,7 @@ const Chatbots = () => {
         aiConfig: {
           provider: formData.aiProvider || 'deepseek',
           model: formData.aiModel || 'deepseek-chat',
-          apiKey: formData.aiApiKey || '',
+          apiKey: formData.aiProvider === 'deepseek' ? '' : (formData.aiApiKey || ''), // DeepSeek usa variable de entorno
           maxTokens: 4000,
           temperature: formData.temperature || 0.7,
           whisperApiKey: formData.whisperApiKey || '',
@@ -1049,32 +1049,48 @@ const Chatbots = () => {
             </div>
           )}
           
-          {/* Campo para API Key */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              🔑 API Key {form.aiProvider === 'deepseek' ? 'de DeepSeek' : 
-                        form.aiProvider === 'openai' ? 'de OpenAI' : 
-                        form.aiProvider === 'anthropic' ? 'de Anthropic' : 
-                        form.aiProvider === 'google' ? 'de Google' : ''} *
-            </label>
-            <input 
-              name="aiApiKey" 
-              type="password" 
-              value={form.aiApiKey || ''} 
-              onChange={handleChange} 
-              required 
-              placeholder={form.aiProvider === 'deepseek' ? 'sk-...' : 
-                          form.aiProvider === 'openai' ? 'sk-...' : 
-                          form.aiProvider === 'anthropic' ? 'sk-ant-...' : 
-                          form.aiProvider === 'google' ? 'AIza...' : 'Ingresa tu API key'} 
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" 
-            />
-            <p className="text-xs text-gray-500 mt-1">
-              {form.aiProvider === 'deepseek' ? 
-                '💡 DeepSeek es gratuito y recomendado para empezar. Obtén tu API key en deepseek.com' :
-                '💰 Este proveedor requiere una cuenta de pago. Los costos son por tu cuenta.'}
-            </p>
-          </div>
+          {/* Campo para API Key - Solo para proveedores que no sean DeepSeek */}
+          {form.aiProvider !== 'deepseek' && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                🔑 API Key {form.aiProvider === 'openai' ? 'de OpenAI' : 
+                          form.aiProvider === 'anthropic' ? 'de Anthropic' : 
+                          form.aiProvider === 'google' ? 'de Google' : ''} *
+              </label>
+              <input 
+                name="aiApiKey" 
+                type="password" 
+                value={form.aiApiKey || ''} 
+                onChange={handleChange} 
+                required 
+                placeholder={form.aiProvider === 'openai' ? 'sk-...' : 
+                            form.aiProvider === 'anthropic' ? 'sk-ant-...' : 
+                            form.aiProvider === 'google' ? 'AIza...' : 'Ingresa tu API key'} 
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" 
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                💰 Este proveedor requiere una cuenta de pago. Los costos son por tu cuenta.
+              </p>
+            </div>
+          )}
+          
+          {/* Mensaje para DeepSeek */}
+          {form.aiProvider === 'deepseek' && (
+            <div className="bg-green-100 border-l-4 border-green-400 p-4">
+              <div className="flex">
+                <div className="flex-shrink-0">
+                  <div className="text-2xl">🎁</div>
+                </div>
+                <div className="ml-3">
+                  <h5 className="text-sm font-medium text-green-800">DeepSeek Configurado Automáticamente</h5>
+                  <p className="text-sm text-green-700">
+                    DeepSeek ya está configurado con una API key por defecto. No necesitas ingresar ninguna clave adicional.
+                    Este modelo es completamente gratuito para el SaaS.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
         
         {/* ================= 🎯 GESTIÓN DE INTENCIONES SaaS ================= */}

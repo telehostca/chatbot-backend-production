@@ -1127,4 +1127,80 @@ export class WhatsappController {
       };
     }
   }
+
+  @Post('test-valery-direct/:chatbotId')
+  @Public()
+  async testValeryDirect(@Param('chatbotId') chatbotId: string, @Body() body: any) {
+    try {
+      this.logger.log(`🧪 TEST: Llamando DIRECTAMENTE a ValeryChatbotService`);
+      
+      const message = this.extractMessageFromPayload(body);
+      if (!message) {
+        return { success: false, error: 'No se pudo extraer mensaje del payload' };
+      }
+      
+      const cleanPhone = message.from.replace('@s.whatsapp.net', '');
+      this.logger.log(`🧪 TEST: Teléfono limpio: ${cleanPhone}`);
+      this.logger.log(`🧪 TEST: Mensaje: ${message.body}`);
+      
+      // LLAMAR DIRECTAMENTE A ValeryChatbotService
+      this.logger.log(`🧪 TEST: Llamando directamente a ValeryChatbotService.handleMessage()`);
+      
+      // Verificar si valeryChatbotService está disponible
+      const valeryChatbotService = (this.whatsappService as any).valeryChatbotService;
+      
+      if (!valeryChatbotService) {
+        return {
+          success: false,
+          error: 'ValeryChatbotService no está disponible en WhatsappService',
+          available_services: Object.keys(this.whatsappService)
+        };
+      }
+      
+      // Llamar directamente a ValeryChatbotService
+      const response = await valeryChatbotService.handleMessage(
+        message.body,
+        cleanPhone,
+        chatbotId
+      );
+      
+      this.logger.log(`🧪 TEST: ValeryChatbotService respondió: ${response?.substring(0, 100)}...`);
+      
+      // Verificar si se guardaron los mensajes
+      const session = await this.chatService.findSessionByPhoneOnly(cleanPhone);
+      
+      if (session) {
+        const messages: any = await this.chatService.getSessionMessages(session.id);
+        const messageData = Array.isArray(messages) ? messages : (messages?.data || []);
+        
+        return {
+          success: true,
+          test_type: 'VALERY_DIRECT_CALL',
+          results: {
+            session_id: session.id,
+            phone_number: session.phoneNumber,
+            message_count_in_session: session.messageCount,
+            messages_in_db: messageData.length,
+            last_5_messages: messageData.slice(-5), // Últimos 5 mensajes
+            valery_response: response,
+            extracted_message: message
+          }
+        };
+      } else {
+        return {
+          success: false,
+          error: 'No se encontró sesión después del procesamiento con ValeryChatbotService',
+          valery_response: response
+        };
+      }
+      
+    } catch (error) {
+      this.logger.error(`🧪 TEST: Error en test directo de Valery: ${error.message}`);
+      return {
+        success: false,
+        error: error.message,
+        stack: error.stack
+      };
+    }
+  }
 } 

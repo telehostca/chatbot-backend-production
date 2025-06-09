@@ -5,7 +5,7 @@ import { SessionsService } from '../services/sessions.service';
 
 @ApiTags('Sessions Management')
 @Controller('admin/sessions')
-@UseGuards(JwtAuthGuard)
+// @UseGuards(JwtAuthGuard) // Temporalmente deshabilitado para desarrollo
 @ApiBearerAuth()
 export class SessionsController {
   constructor(private readonly sessionsService: SessionsService) {}

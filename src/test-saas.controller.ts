@@ -4,7 +4,7 @@ import { DataSource } from 'typeorm';
 import { ModuleRef } from '@nestjs/core';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { ChatMessage } from '../chat/entities/message.entity';
+// import { ChatMessage } from '../chat/entities/message.entity';
 
 @Controller('saas')
 export class TestSaasController {
@@ -13,8 +13,8 @@ export class TestSaasController {
   constructor(
     @InjectDataSource('users') private dataSource: DataSource,
     private readonly moduleRef: ModuleRef,
-    @InjectRepository(ChatMessage, 'users')
-    private readonly chatMessageRepository: Repository<ChatMessage>
+    // @InjectRepository(ChatMessage, 'users')
+    // private readonly chatMessageRepository: Repository<ChatMessage>
   ) {}
 
   @Get('test')

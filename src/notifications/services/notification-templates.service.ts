@@ -337,6 +337,73 @@ export class NotificationTemplatesService {
   }
 
   /**
+   * Valida si un número de teléfono es válido para WhatsApp
+   */
+  private isValidWhatsAppNumber(phoneNumber: string): boolean {
+    // Limpiar el número
+    const cleanPhone = phoneNumber.replace(/\D/g, '');
+    
+    // Validaciones básicas
+    if (!cleanPhone || cleanPhone.length < 10 || cleanPhone.length > 15) {
+      return false;
+    }
+    
+    // Excluir números de prueba conocidos que causan error 400
+    const testNumbers = [
+      '584161234567',
+      '584151234567', 
+      '584141234567',
+      '584131234567',
+      '584121234567',
+      '584111234567'
+    ];
+    
+    if (testNumbers.includes(cleanPhone)) {
+      this.logger.warn(`📱 Número de prueba detectado y excluido: ${phoneNumber}`);
+      return false;
+    }
+    
+    // Validar formato Venezuela (584...)
+    if (cleanPhone.startsWith('584')) {
+      return cleanPhone.length === 12; // 584 + 9 dígitos
+    }
+    
+    // Para números locales de Venezuela (424...)
+    if (cleanPhone.startsWith('424') || cleanPhone.startsWith('414') || cleanPhone.startsWith('416') || cleanPhone.startsWith('426') || cleanPhone.startsWith('412')) {
+      return cleanPhone.length === 11; // 4XX + 8 dígitos
+    }
+    
+    // Otros formatos internacionales básicos
+    return cleanPhone.length >= 10 && cleanPhone.length <= 15;
+  }
+
+  /**
+   * Filtra números válidos de una lista
+   */
+  private filterValidNumbers(phoneNumbers: string[]): string[] {
+    return phoneNumbers.filter(phone => this.isValidWhatsAppNumber(phone));
+  }
+
+  /**
+   * Convierte número local a formato internacional
+   */
+  private normalizePhoneNumber(phoneNumber: string): string {
+    const cleanPhone = phoneNumber.replace(/\D/g, '');
+    
+    // Si es número local venezolano (04XX...), convertir a internacional
+    if (cleanPhone.startsWith('04') && cleanPhone.length === 11) {
+      return '58' + cleanPhone.substring(1); // Remover el 0 y agregar 58
+    }
+    
+    // Si ya tiene formato internacional, devolverlo
+    if (cleanPhone.startsWith('58') && cleanPhone.length === 12) {
+      return cleanPhone;
+    }
+    
+    return cleanPhone;
+  }
+
+  /**
    * Envía notificaciones personalizadas a múltiples destinatarios
    * con variables dinámicas específicas para cada usuario
    */
@@ -546,7 +613,15 @@ export class NotificationTemplatesService {
           break;
       }
 
-      return phoneNumbers.filter(phone => phone && phone.length > 10);
+      // Filtrar números válidos y registrar resultados
+      const validNumbers = this.filterValidNumbers(phoneNumbers);
+      const filteredCount = phoneNumbers.length - validNumbers.length;
+      
+      if (filteredCount > 0) {
+        this.logger.warn(`📱 Se filtraron ${filteredCount} números inválidos de ${phoneNumbers.length} totales`);
+      }
+      
+      return validNumbers;
     } catch (error) {
       this.logger.error(`Error obteniendo audiencia ${audience}: ${error.message}`);
       return [];
@@ -651,7 +726,7 @@ export class NotificationTemplatesService {
 
       await this.notificationsService.scheduleNotification(
         phoneNumber,
-        `🧪 [PRUEBA] 🧪 **PLANTILLA DE PRUEBA**\n\nEste es un mensaje de prueba creado automáticamente.\n\n🤖 Bot: ${template.chatbot?.name || 'Chatbot Seleccionado'}  \n📅 Fecha: {${new Date().toLocaleDateString('es-ES')}}\n⏰ Hora: {${new Date().toLocaleTimeString('es-ES')}}\n\n*Sistema funcionando correctamente* ✅`,
+        `🧪 [PRUEBA] 🧪 **PLANTILLA DE PRUEBA**\n\nEste es un mensaje de prueba creado automáticamente.\n\n🤖 Bot: ${template.chatbot?.name || 'Chatbot Seleccionado'}  \n📅 Fecha: ${new Date().toLocaleDateString('es-ES')}\n⏰ Hora: ${new Date().toLocaleTimeString('es-ES')}\n\n*Sistema funcionando correctamente* ✅`,
         new Date(),
         chatbotIdToUse
       );
@@ -663,4 +738,4 @@ export class NotificationTemplatesService {
       return false;
     }
   }
-} 
+}

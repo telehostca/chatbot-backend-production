@@ -133,9 +133,18 @@ CREATE TABLE IF NOT EXISTS "chat_sessions" (
 
 CREATE TABLE IF NOT EXISTS "cron_config" (
     "id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-    "enabled" boolean NOT NULL DEFAULT false,
-    "created_at" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+    "enabled" boolean DEFAULT false,
+    "max_notifications_per_hour" integer DEFAULT 50,
+    "retry_attempts" integer DEFAULT 3,
+    "batch_size" integer DEFAULT 100,
+    "timezone" varchar(50),
+    "allowed_time_ranges" json,
+    "blocked_days" text,
+    "last_run_at" TIMESTAMP,
+    "total_notifications_sent" integer DEFAULT 0,
+    "total_failures" integer DEFAULT 0,
+    "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS "discounts" (
@@ -177,13 +186,14 @@ CREATE TABLE IF NOT EXISTS "knowledge_bases" (
 
 CREATE TABLE IF NOT EXISTS "message_templates" (
     "id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-    "name" varchar NOT NULL,
-    "type" varchar(50) NOT NULL DEFAULT 'custom',
+    "name" varchar(100) NOT NULL,
     "content" text NOT NULL,
-    "status" varchar(20) NOT NULL DEFAULT 'active',
-    "chatbot_id" varchar NOT NULL,
-    "created_at" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+    "template_type" varchar(50),
+    "variables" text,
+    "is_active" boolean DEFAULT true,
+    "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    "chatbot_id" uuid
 );
 
 CREATE TABLE IF NOT EXISTS "notification_templates" (
@@ -298,6 +308,16 @@ CREATE TRIGGER update_user_plans_updated_at
     FOR EACH ROW
     EXECUTE FUNCTION update_updated_at_column();
 
+CREATE TRIGGER update_cron_config_updated_at
+    BEFORE UPDATE ON cron_config
+    FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TRIGGER update_message_templates_updated_at
+    BEFORE UPDATE ON message_templates
+    FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();
+
 -- Foreign Keys
 ALTER TABLE "chatbot_instances" 
 ADD CONSTRAINT "chatbot_instances_organization_id_fkey" 
@@ -313,6 +333,11 @@ ALTER TABLE "user_subscriptions"
 ADD CONSTRAINT "user_subscriptions_plan_id_fkey" 
 FOREIGN KEY ("plan_id") REFERENCES "user_plans" ("id") 
 ON DELETE RESTRICT;
+
+ALTER TABLE "message_templates" 
+ADD CONSTRAINT "message_templates_chatbot_id_fkey" 
+FOREIGN KEY ("chatbot_id") REFERENCES "chatbot_instances" ("id") 
+ON DELETE CASCADE;
 
 -- Datos iniciales
 INSERT INTO "organizations" (name, slug, description, plan_type, is_active) 
@@ -338,6 +363,11 @@ VALUES (
     true
 )
 ON CONFLICT (email) DO NOTHING;
+
+-- Configuración de cron por defecto
+INSERT INTO "cron_config" (enabled, max_notifications_per_hour, retry_attempts, batch_size, timezone, total_notifications_sent, total_failures) 
+VALUES (false, 50, 3, 100, 'UTC', 0, 0)
+ON CONFLICT (id) DO NOTHING;
 
 COMMIT;
 

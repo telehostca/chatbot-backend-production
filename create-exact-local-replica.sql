@@ -212,15 +212,16 @@ CREATE TABLE IF NOT EXISTS "organizations" (
     "slug" varchar(50) NOT NULL,
     "description" text,
     "logo" varchar(255),
-    "contactEmail" varchar(100),
-    "contactPhone" varchar(20),
+    "contact_email" varchar(100),
+    "contact_phone" varchar(20),
     "settings" text,
-    "isActive" boolean NOT NULL DEFAULT true,
-    "maxChatbots" integer NOT NULL DEFAULT 5,
-    "planType" varchar(20) NOT NULL DEFAULT 'trial',
-    "createdAt" TIMESTAMP NOT NULL DEFAULT now(),
-    "updatedAt" TIMESTAMP NOT NULL DEFAULT now(),
-    CONSTRAINT "organizations_slug_key" UNIQUE ("slug")
+    "is_active" boolean DEFAULT true,
+    "max_chatbots" integer DEFAULT 5,
+    "plan_type" varchar(20) DEFAULT 'trial',
+    "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "organizations_slug_key" UNIQUE ("slug"),
+    CONSTRAINT "organizations_plan_type_check" CHECK ("plan_type" IN ('trial','basic','pro','enterprise'))
 );
 
 -- 12. payments
@@ -472,8 +473,8 @@ END $$;
 -- ===============================
 
 -- Organización por defecto
-INSERT INTO "organizations" (name, slug, description, planType, isActive) 
-VALUES ('Organización por Defecto', 'default', 'Organización principal del sistema', 'premium', true)
+INSERT INTO "organizations" (name, slug, description, plan_type, is_active) 
+VALUES ('Organización por Defecto', 'default', 'Organización principal del sistema', 'enterprise', true)
 ON CONFLICT (slug) DO NOTHING;
 
 -- Planes exactos de local

@@ -145,41 +145,49 @@ export class AiService {
   }
 
   /**
-   * Genera una respuesta usando DeepSeek como proveedor principal.
-   * 
-   * @param {string} message - Mensaje del usuario
-   * @param {any[]} history - Historial de mensajes previos (simplificado)
-   * @returns {Promise<string>} Respuesta generada
-   * @throws {Error} Si hay un error al generar la respuesta
+   * Genera una respuesta usando el mejor proveedor de IA disponible
+   * @param message Mensaje del usuario
+   * @param systemPrompt Instrucciones para la IA
+   * @returns Respuesta generada
    */
-  async generateResponse(message: string, history: any[] = []): Promise<string> {
+  async generateResponse(message: string, systemPrompt: string): Promise<string> {
     try {
-      this.logger.log(`🧠 Generando respuesta con DeepSeek...`);
-      
-      // Convertir historial al formato requerido por DeepSeek
-      const messages = history.map(msg => ({
-        role: (msg.sender === 'user' ? 'user' : 'assistant') as 'user' | 'assistant',
-        content: msg.content
-      }));
-
-      // Usar el servicio DeepSeek si está configurado
+      // Intentar DeepSeek primero (el más recomendado)
       if (this.deepSeekService.isServiceConfigured()) {
-        const systemPrompt = this.configService.get('ai.systemPrompt') || 
-          'Eres un asistente virtual útil y amigable. Responde de manera clara y concisa.';
-        
-        return await this.deepSeekService.generateChatbotResponse(
-          message,
-          systemPrompt,
-          messages
-        );
-      } else {
-        this.logger.warn('⚠️ DeepSeek no configurado, usando respuesta básica');
-        return `Basándome en tu consulta "${message}", te puedo ayudar con información específica. ¿Podrías darme más detalles sobre lo que necesitas?`;
+        this.logger.log('🧠 Usando DeepSeek para generar respuesta');
+        return await this.deepSeekService.generateChatbotResponse(message, systemPrompt, []);
       }
+      
+      // Intentar OpenAI como alternativa
+      try {
+        this.logger.log('🧠 Usando OpenAI para generar respuesta');
+        return await this.openAIService.generateChatResponse({
+          messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: message }
+          ]
+        });
+      } catch (error) {
+        this.logger.error(`Error con OpenAI: ${error.message}`);
+      }
+      
+      // Intentar Anthropic como tercera opción
+      try {
+        this.logger.log('🧠 Usando Anthropic para generar respuesta');
+        return await this.anthropicService.generateResponse({
+          messages: [{ role: 'user', content: message }],
+          systemPrompt: systemPrompt
+        });
+      } catch (error) {
+        this.logger.error(`Error con Anthropic: ${error.message}`);
+      }
+      
+      // Usar respuesta genérica si ninguno está disponible
+      this.logger.warn('⚠️ Ningún servicio de IA disponible, usando respuesta genérica');
+      return `Hola, soy un asistente virtual. Lamentablemente, no tengo acceso a servicios de IA en este momento. ¿En qué puedo ayudarte?`;
     } catch (error) {
-      this.logger.error(`Error generando respuesta: ${error.message}`);
-      // Fallback básico
-      return `Disculpa, hubo un problema al generar la respuesta. Respecto a "${message}", ¿podrías reformular tu pregunta?`;
+      this.logger.error(`❌ Error generando respuesta con IA: ${error.message}`);
+      return `Lo siento, ocurrió un error al procesar tu consulta. Por favor, intenta de nuevo más tarde.`;
     }
   }
 

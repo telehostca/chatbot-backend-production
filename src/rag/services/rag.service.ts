@@ -484,7 +484,7 @@ PREGUNTA: ${query}
 RESPUESTA:`;
 
     try {
-      const response = await this.aiService.generateResponse(prompt, []);
+      const response = await this.aiService.generateResponse(prompt, "");
       return response;
     } catch (error) {
       this.logger.error(`Error generando respuesta: ${error.message}`);
@@ -801,7 +801,7 @@ PREGUNTA: ${query}
 
 RESPUESTA:`;
 
-      const response = await this.aiService.generateResponse(prompt, []);
+      const response = await this.aiService.generateResponse(prompt, "");
       return response;
     } catch (error) {
       this.logger.error(`Error generando respuesta simple: ${error.message}`);

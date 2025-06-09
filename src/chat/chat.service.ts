@@ -5,7 +5,7 @@
  * 
  * @class ChatService
  */
-import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
+import { Injectable, Logger, Inject, forwardRef, Optional } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ChatSession } from './entities/chat-session.entity';
@@ -17,6 +17,7 @@ import { AiService } from '../ai/ai.service';
 import { WhatsappService } from '../whatsapp/whatsapp.service';
 import { ConfigService } from '@nestjs/config';
 import { Chatbot } from '../admin/entities/chatbot.entity';
+import { GenericChatbotService } from '../chatbot/services/generic-chatbot.service';
 
 @Injectable()
 export class ChatService {
@@ -42,6 +43,19 @@ export class ChatService {
     private configService: ConfigService
   ) {
     this.defaultInstanceId = this.configService.get<string>('WHATSAPP_DEFAULT_INSTANCE');
+  }
+
+  // Propiedad para manejo manual del GenericChatbotService
+  private _genericChatbotService: any = null;
+
+  // Establecer el servicio desde el exterior (para evitar dependencia circular)
+  setGenericChatbotService(service: any) {
+    this._genericChatbotService = service;
+  }
+
+  // Obtener el servicio (usado internamente)
+  get genericChatbotService(): any {
+    return this._genericChatbotService;
   }
 
   /**
@@ -108,21 +122,57 @@ export class ChatService {
    * @param {string} chatbotId - ID del chatbot
    * @returns {Promise<string>} Respuesta generada
    */
-
-
-  /**
-   * Procesa un mensaje para un chatbot específico
-   * 
-   * @param {string} message - Mensaje del usuario
-   * @param {string} from - Número de teléfono del usuario
-   * @param {string} chatbotId - ID del chatbot
-   * @returns {Promise<string>} Respuesta generada
-   */
   async processMessage(message: string, from: string, chatbotId: string): Promise<string> {
     try {
       this.logger.log(`🔄 Procesando mensaje para chatbot ${chatbotId}: ${message}`);
       
-      // Por ahora, respuesta básica
+      // Obtener configuración del chatbot
+      const chatbot = await this.chatbotRepository.findOne({
+        where: { id: chatbotId, isActive: true }
+      });
+
+      if (!chatbot) {
+        throw new Error('Chatbot no encontrado o inactivo');
+      }
+
+      // Soporte para diferentes formatos de configuración 
+      // En Chatbot puede estar en settings.chatbot
+      // En ChatbotInstance puede estar en chatbotConfig
+      const chatbotSettings = (chatbot['settings'] || {}) as Record<string, any>;
+      const chatbotConfig = (chatbot['chatbotConfig'] || {}) as Record<string, any>;
+      
+      // Combinar todas las posibles fuentes de configuración
+      const config = {
+        ...(chatbotSettings.hasOwnProperty('chatbot') ? chatbotSettings['chatbot'] : {}),
+        ...chatbotConfig
+      };
+      
+      // Verificar si las intenciones están desactivadas
+      const intentionsDisabled = 
+        config.disableIntentMatching === true || 
+        config.intentProcessingMode === 'ai_only' ||
+        config.forceAIProcessing === true;
+      
+      // Si las intenciones están desactivadas, usar IA directamente (aiService)
+      if (intentionsDisabled) {
+        this.logger.log(`🧠 [INTENCIONES DESACTIVADAS] → USAR IA DIRECTAMENTE`);
+        
+        // Construir prompt del sistema para la IA
+        const systemPrompt = `Eres un asistente virtual amigable y útil de ${chatbot.name || 'la empresa'}. 
+Ayudas a los usuarios con sus consultas de manera profesional y cordial.`;
+        
+        // Generar respuesta usando OpenAI/DeepSeek
+        try {
+          const aiResponse = await this.aiService.generateResponse(message, systemPrompt);
+          return aiResponse;
+        } catch (aiError) {
+          this.logger.error(`❌ Error generando respuesta con IA: ${aiError.message}`);
+          return `Lo siento, tuve un problema procesando tu consulta. ¿Podrías intentar nuevamente con otras palabras?`;
+        }
+      }
+      
+      // Respuesta básica para intenciones activadas (caso no manejado en este endpoint)
+      this.logger.warn(`⚠️ Intenciones activadas pero no hay manejador específico, usando respuesta básica`);
       return `Mensaje recibido: "${message}". Estamos procesando tu consulta.`;
     } catch (error) {
       this.logger.error(`Error procesando mensaje: ${error.message}`);

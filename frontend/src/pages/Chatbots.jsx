@@ -159,25 +159,26 @@ const IntentManager = ({ chatbotType, intents = [], onChange }) => {
 
   // Intenciones predeterminadas según el tipo de chatbot
   const getDefaultIntents = (type) => {
+    const baseTime = Date.now();
     const defaultIntents = {
       'basico': [
-        { name: 'saludo', keywords: ['hola', 'buenos dias', 'buenas', 'hey'], response: '¡Hola! ¿En qué puedo ayudarte?', examples: ['hola', 'buenos días', 'hey'] },
-        { name: 'despedida', keywords: ['adios', 'chao', 'gracias', 'hasta luego'], response: '¡Hasta luego! Que tengas un excelente día.', examples: ['adiós', 'chao', 'hasta luego'] }
+        { id: baseTime + 1, name: 'saludo', keywords: ['hola', 'buenos dias', 'buenas', 'hey'], response: '¡Hola! ¿En qué puedo ayudarte?', examples: ['hola', 'buenos días', 'hey'], enabled: true },
+        { id: baseTime + 2, name: 'despedida', keywords: ['adios', 'chao', 'gracias', 'hasta luego'], response: '¡Hasta luego! Que tengas un excelente día.', examples: ['adiós', 'chao', 'hasta luego'], enabled: true }
       ],
       'informativo': [
-        { name: 'horarios', keywords: ['horario', 'hora', 'abierto', 'cerrado'], response: 'Nuestros horarios de atención son...', examples: ['¿qué horarios tienen?', '¿a qué hora abren?', '¿están abiertos?'] },
-        { name: 'ubicacion', keywords: ['ubicacion', 'direccion', 'donde', 'llegar'], response: 'Nos ubicamos en...', examples: ['¿dónde quedan?', '¿cuál es su dirección?', '¿cómo llego?'] },
-        { name: 'contacto', keywords: ['telefono', 'contacto', 'llamar', 'whatsapp'], response: 'Puedes contactarnos en...', examples: ['¿cuál es su teléfono?', '¿cómo los contacto?'] },
-        { name: 'servicios', keywords: ['servicio', 'ofrecer', 'hacer', 'que'], response: 'Ofrecemos los siguientes servicios...', examples: ['¿qué servicios ofrecen?', '¿qué hacen?'] }
+        { id: baseTime + 3, name: 'horarios', keywords: ['horario', 'hora', 'abierto', 'cerrado'], response: 'Nuestros horarios de atención son...', examples: ['¿qué horarios tienen?', '¿a qué hora abren?', '¿están abiertos?'], enabled: true },
+        { id: baseTime + 4, name: 'ubicacion', keywords: ['ubicacion', 'direccion', 'donde', 'llegar'], response: 'Nos ubicamos en...', examples: ['¿dónde quedan?', '¿cuál es su dirección?', '¿cómo llego?'], enabled: true },
+        { id: baseTime + 5, name: 'contacto', keywords: ['telefono', 'contacto', 'llamar', 'whatsapp'], response: 'Puedes contactarnos en...', examples: ['¿cuál es su teléfono?', '¿cómo los contacto?'], enabled: true },
+        { id: baseTime + 6, name: 'servicios', keywords: ['servicio', 'ofrecer', 'hacer', 'que'], response: 'Ofrecemos los siguientes servicios...', examples: ['¿qué servicios ofrecen?', '¿qué hacen?'], enabled: true }
       ],
       'ecommerce': [
-        { name: 'productos', keywords: ['producto', 'catalogo', 'venta', 'comprar'], response: 'Te ayudo a encontrar productos. ¿Qué buscas?', examples: ['¿qué productos tienen?', 'quiero comprar algo', 'muestrame el catálogo'] },
-        { name: 'precios', keywords: ['precio', 'costo', 'cuanto', 'valor'], response: 'Te ayudo con información de precios...', examples: ['¿cuánto cuesta?', '¿qué precios manejan?'] },
-        { name: 'pedidos', keywords: ['pedido', 'orden', 'compra', 'solicitar'], response: 'Te ayudo a procesar tu pedido...', examples: ['quiero hacer un pedido', 'cómo hago una orden'] }
+        { id: baseTime + 7, name: 'productos', keywords: ['producto', 'catalogo', 'venta', 'comprar'], response: 'Te ayudo a encontrar productos. ¿Qué buscas?', examples: ['¿qué productos tienen?', 'quiero comprar algo', 'muestrame el catálogo'], enabled: true },
+        { id: baseTime + 8, name: 'precios', keywords: ['precio', 'costo', 'cuanto', 'valor'], response: 'Te ayudo con información de precios...', examples: ['¿cuánto cuesta?', '¿qué precios manejan?'], enabled: true },
+        { id: baseTime + 9, name: 'pedidos', keywords: ['pedido', 'orden', 'compra', 'solicitar'], response: 'Te ayudo a procesar tu pedido...', examples: ['quiero hacer un pedido', 'cómo hago una orden'], enabled: true }
       ],
       'servicio_cliente': [
-        { name: 'problema', keywords: ['problema', 'error', 'falla', 'no funciona'], response: 'Lamento escuchar sobre tu problema. ¿Puedes describir qué está pasando?', examples: ['tengo un problema', 'no me funciona', 'hay un error'] },
-        { name: 'reclamo', keywords: ['reclamo', 'queja', 'insatisfecho', 'malo'], response: 'Entiendo tu molestia. Vamos a resolver esto juntos.', examples: ['tengo una queja', 'quiero hacer un reclamo'] }
+        { id: baseTime + 10, name: 'problema', keywords: ['problema', 'error', 'falla', 'no funciona'], response: 'Lamento escuchar sobre tu problema. ¿Puedes describir qué está pasando?', examples: ['tengo un problema', 'no me funciona', 'hay un error'], enabled: true },
+        { id: baseTime + 11, name: 'reclamo', keywords: ['reclamo', 'queja', 'insatisfecho', 'malo'], response: 'Entiendo tu molestia. Vamos a resolver esto juntos.', examples: ['tengo una queja', 'quiero hacer un reclamo'], enabled: true }
       ]
     };
     return defaultIntents[type] || defaultIntents['basico'];
@@ -193,7 +194,7 @@ const IntentManager = ({ chatbotType, intents = [], onChange }) => {
 
   const addIntent = () => {
     const newIntent = {
-      id: Date.now(),
+      id: Date.now() + Math.random() * 1000, // ID más único
       name: '',
       keywords: [],
       response: '',
@@ -274,7 +275,7 @@ const IntentManager = ({ chatbotType, intents = [], onChange }) => {
                 <span className="text-gray-500">Keywords:</span>
                 <div className="flex flex-wrap gap-1 mt-1">
                   {intent.keywords?.slice(0, 3).map((kw, i) => (
-                    <span key={i} className="bg-purple-100 text-purple-700 px-2 py-1 rounded text-xs">{kw}</span>
+                    <span key={`keyword-${intent.id}-${i}-${kw}`} className="bg-purple-100 text-purple-700 px-2 py-1 rounded text-xs">{kw}</span>
                   ))}
                   {intent.keywords?.length > 3 && <span className="text-gray-400 text-xs">+{intent.keywords.length - 3}</span>}
                 </div>
@@ -400,7 +401,7 @@ const IntentEditor = ({ intent, onSave, onCancel }) => {
             </div>
             <div className="flex flex-wrap gap-2">
               {form.keywords?.map((keyword, index) => (
-                <span key={index} className="bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-sm flex items-center gap-1">
+                <span key={`edit-keyword-${index}-${keyword}-${Date.now()}`} className="bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-sm flex items-center gap-1">
                   {keyword}
                   <button type="button" onClick={() => removeKeyword(index)} className="text-purple-500 hover:text-purple-700">
                     ✕
@@ -443,7 +444,7 @@ const IntentEditor = ({ intent, onSave, onCancel }) => {
             </div>
             <div className="space-y-1">
               {form.examples?.map((example, index) => (
-                <div key={index} className="bg-green-50 text-green-700 px-3 py-2 rounded text-sm flex items-center justify-between">
+                <div key={`example-${index}-${example.substring(0, 10)}-${Date.now()}`} className="bg-green-50 text-green-700 px-3 py-2 rounded text-sm flex items-center justify-between">
                   <span>"{example}"</span>
                   <button type="button" onClick={() => removeExample(index)} className="text-green-500 hover:text-green-700 ml-2">
                     ✕
@@ -1004,8 +1005,8 @@ const Chatbots = () => {
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
               >
                 {!form.aiProvider && <option value="">Seleccionar modelo...</option>}
-                {(AI_MODELS[form.aiProvider || 'deepseek'] || []).map(model => (
-                  <option key={model.value} value={model.value}>
+                {(AI_MODELS[form.aiProvider || 'deepseek'] || []).map((model, index) => (
+                  <option key={`${form.aiProvider}-${model.value}-${index}`} value={model.value}>
                     {model.label}
                   </option>
                 ))}
@@ -1128,19 +1129,44 @@ const Chatbots = () => {
         </div>
         
         {/* ================= 🎯 GESTIÓN DE INTENCIONES SaaS ================= */}
-        <div className="bg-gradient-to-r from-purple-50 to-indigo-50 p-6 rounded-lg border-2 border-purple-200 mb-6">
+        <div className="bg-gradient-to-r from-purple-50 to-indigo-50 p-6 rounded-lg border-2 border-purple-200 mb-6 smooth-transition">
           <div className="flex justify-between items-center mb-4">
             <h4 className="text-lg font-bold text-purple-800">🎯 Gestión de Intenciones (SaaS)</h4>
             
             {/* Botón de toggle para activar/desactivar intenciones */}
             <div className="flex items-center bg-white px-4 py-2 rounded-lg border border-purple-300 shadow-sm">
+              {/* Debug: Mostrar estado actual */}
+              {process.env.NODE_ENV === 'development' && (
+                <span className="text-xs text-red-500 mr-2">
+                  Debug: {form.disableIntentMatching ? 'OFF' : 'ON'}
+                </span>
+              )}
               <span className="mr-3 text-sm font-medium text-gray-700">Intenciones:</span>
-              <label className="inline-flex items-center cursor-pointer">
+              <label 
+                className="inline-flex items-center cursor-pointer"
+                onClick={(e) => {
+                  e.preventDefault();
+                  const currentlyEnabled = !form.disableIntentMatching;
+                  console.log('Label clicked, currently enabled:', currentlyEnabled);
+                  
+                  setForm(f => ({ 
+                    ...f, 
+                    disableIntentMatching: currentlyEnabled,
+                    aiFirst: currentlyEnabled,
+                    intentProcessingMode: currentlyEnabled ? 'ai_only' : 'hybrid',
+                    forceAIProcessing: currentlyEnabled,
+                    showAdvancedIntentConfig: false
+                  }));
+                }}
+              >
                 <input 
                   type="checkbox" 
                   checked={!form.disableIntentMatching} 
                   onChange={(e) => {
                     const intentionsEnabled = e.target.checked;
+                    console.log('Toggle clicked:', intentionsEnabled);
+                    
+                    // Actualizar el estado inmediatamente
                     setForm(f => ({ 
                       ...f, 
                       disableIntentMatching: !intentionsEnabled,
@@ -1148,11 +1174,29 @@ const Chatbots = () => {
                       aiFirst: !intentionsEnabled, // Si desactivamos intenciones, priorizamos IA
                       intentProcessingMode: !intentionsEnabled ? 'ai_only' : 'hybrid',
                       forceAIProcessing: !intentionsEnabled,
+                      // Resetear configuraciones avanzadas al cambiar el toggle principal
+                      showAdvancedIntentConfig: false
                     }));
                   }} 
                   className="sr-only peer"
                 />
-                <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-purple-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
+                <div 
+                  className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-purple-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 intent-toggle-switch peer-checked:bg-purple-600 cursor-pointer"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    const currentlyEnabled = !form.disableIntentMatching;
+                    console.log('Div clicked, currently enabled:', currentlyEnabled);
+                    
+                    setForm(f => ({ 
+                      ...f, 
+                      disableIntentMatching: currentlyEnabled,
+                      aiFirst: currentlyEnabled,
+                      intentProcessingMode: currentlyEnabled ? 'ai_only' : 'hybrid',
+                      forceAIProcessing: currentlyEnabled,
+                      showAdvancedIntentConfig: false
+                    }));
+                  }}
+                ></div>
                 <span className="ms-3 text-sm font-medium text-gray-700">
                   {form.disableIntentMatching ? 'Desactivadas' : 'Activadas'}
                 </span>
@@ -1177,7 +1221,7 @@ const Chatbots = () => {
             </div>
             
             {form.showAdvancedIntentConfig && (
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-3 pt-3 border-t border-purple-100">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-3 pt-3 border-t border-purple-100 form-transition">
                 <div>
                   <label className="block text-xs font-medium text-gray-700 mb-1">Modo de Procesamiento</label>
                   <select
@@ -1234,52 +1278,47 @@ const Chatbots = () => {
             )}
           </div>
           
-          {/* Contenedor con altura fija absoluta para evitar cambios de tamaño */}
-          <div className="h-[500px] overflow-hidden relative">
-            {/* Intent Manager Component - con posición absoluta */}
-            <div className={`absolute inset-0 transition-all duration-500 ease-in-out transform ${
-              !form.disableIntentMatching 
-                ? 'opacity-100 translate-x-0 scale-100' 
-                : 'opacity-0 translate-x-8 scale-95 pointer-events-none'
-            }`}>
-              <div className="h-full overflow-y-auto">
+          {/* Contenedor dinámico para intenciones */}
+          <div className="rounded-lg overflow-hidden">
+            {!form.disableIntentMatching ? (
+              // Mostrar el manager de intenciones cuando están activadas
+              <div className="bg-white rounded-lg border border-purple-200 p-4 smooth-transition">
                 <IntentManager 
                   chatbotType={form.chatbotType}
                   intents={form.intents || []}
                   onChange={(intents) => setForm(f => ({ ...f, intents }))}
                 />
               </div>
-            </div>
-            
-            {/* Mensaje cuando las intenciones están desactivadas - con posición absoluta */}
-            <div className={`absolute inset-0 transition-all duration-500 ease-in-out transform ${
-              form.disableIntentMatching 
-                ? 'opacity-100 translate-x-0 scale-100' 
-                : 'opacity-0 -translate-x-8 scale-95 pointer-events-none'
-            }`}>
-              <div className="bg-white p-6 rounded-lg border-2 border-dashed border-purple-200 text-center h-full flex flex-col justify-center">
-                <div className="text-6xl mb-4">🧠</div>
-                <h5 className="text-xl font-semibold text-purple-800 mb-3">IA Exclusiva Activada</h5>
-                <p className="text-gray-600 max-w-md mx-auto mb-6">
-                  Las intenciones predefinidas están desactivadas. El chatbot utilizará exclusivamente la <strong>Inteligencia Artificial</strong> para responder a todas las consultas de manera natural e inteligente.
-                </p>
-                <div className="bg-purple-50 p-4 rounded-lg max-w-md mx-auto mb-6">
-                  <p className="text-sm text-purple-700">
-                    <strong>Ventaja:</strong> Respuestas más naturales, contextuales y adaptables a cualquier consulta sin necesidad de configurar intenciones específicas.
+            ) : (
+              // Mostrar mensaje cuando las intenciones están desactivadas
+              <div className="bg-white p-8 rounded-lg border-2 border-dashed border-purple-200 text-center smooth-transition">
+                <div className="max-w-2xl mx-auto">
+                  <div className="text-6xl mb-6">🧠</div>
+                  <h5 className="text-2xl font-semibold text-purple-800 mb-4">IA Exclusiva Activada</h5>
+                  <p className="text-gray-600 mb-6 text-lg leading-relaxed">
+                    Las intenciones predefinidas están desactivadas. El chatbot utilizará exclusivamente la <strong>Inteligencia Artificial</strong> para responder a todas las consultas de manera natural e inteligente.
                   </p>
+                  <div className="bg-purple-50 p-6 rounded-lg mb-8">
+                    <p className="text-purple-700">
+                      <strong>✨ Ventaja:</strong> Respuestas más naturales, contextuales y adaptables a cualquier consulta sin necesidad de configurar intenciones específicas.
+                    </p>
+                  </div>
+                  <button 
+                    type="button"
+                    onClick={() => setForm(f => ({ 
+                      ...f, 
+                      disableIntentMatching: false,
+                      aiFirst: false,
+                      intentProcessingMode: 'hybrid',
+                      forceAIProcessing: false
+                    }))}
+                    className="px-8 py-4 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-all duration-300 shadow-lg hover:shadow-xl font-medium"
+                  >
+                    🎯 Activar Intenciones Manuales
+                  </button>
                 </div>
-                <button 
-                  type="button"
-                  onClick={() => setForm(f => ({ 
-                    ...f, 
-                    disableIntentMatching: false
-                  }))}
-                  className="mx-auto px-6 py-3 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors shadow-md"
-                >
-                  🎯 Activar Intenciones Manuales
-                </button>
               </div>
-            </div>
+            )}
           </div>
         </div>
 
@@ -1769,8 +1808,8 @@ const Chatbots = () => {
         <div className="text-center py-8 text-gray-400">Cargando...</div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-          {chatbots.map(chatbot => (
-            <div key={chatbot.id || chatbot._id || chatbot.name} className="bg-white rounded-lg shadow-md overflow-hidden card-hover">
+          {chatbots.map((chatbot, index) => (
+            <div key={`chatbot-${chatbot.id || chatbot._id || index}-${chatbot.name}`} className="bg-white rounded-lg shadow-md overflow-hidden card-hover">
               <div className="p-6">
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center space-x-3">

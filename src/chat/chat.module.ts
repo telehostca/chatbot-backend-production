@@ -27,6 +27,7 @@ import { AIModule } from '../ai/ai.module';
 import { WhatsappModule } from '../whatsapp/whatsapp.module';
 import { ValeryModule } from '../valery/valery.module';
 import { Chatbot } from '../admin/entities/chatbot.entity';
+import { ChatbotModule } from '../chatbot/chatbot.module';
 
 @Module({
   imports: [
@@ -43,6 +44,7 @@ import { Chatbot } from '../admin/entities/chatbot.entity';
     AIModule,
     // ValeryModule.forRoot(), // Temporalmente deshabilitado
     forwardRef(() => WhatsappModule),
+    forwardRef(() => ChatbotModule),
   ],
   controllers: [
     ChatController
@@ -50,7 +52,7 @@ import { Chatbot } from '../admin/entities/chatbot.entity';
   providers: [
     ChatService,
     TemplateService,
-    AutoResponseService
+    AutoResponseService,
   ],
   exports: [
     ChatService,

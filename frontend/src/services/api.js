@@ -225,17 +225,24 @@ class ApiService {
 
   // Métodos de intervención humana
   async pauseBot(sessionId) {
-    return this.request(`/chat/sessions/${sessionId}/pause-bot`, 'POST')
+    return this.request(`/chat/sessions/${sessionId}/pause-bot`, {
+      method: 'POST'
+    })
   }
 
   async resumeBot(sessionId) {
-    return this.request(`/chat/sessions/${sessionId}/resume-bot`, 'POST')
+    return this.request(`/chat/sessions/${sessionId}/resume-bot`, {
+      method: 'POST'
+    })
   }
 
   async sendManualMessage(sessionId, message, operatorName = 'Operador') {
-    return this.request(`/chat/sessions/${sessionId}/send-manual-message`, 'POST', {
-      message,
-      operatorName
+    return this.request(`/chat/sessions/${sessionId}/send-manual-message`, {
+      method: 'POST',
+      body: {
+        message,
+        operatorName
+      }
     })
   }
 

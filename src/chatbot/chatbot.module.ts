@@ -7,11 +7,12 @@ import { DatabaseConfigController } from './controllers/database-config.controll
 import { DatabaseMapperService } from './services/database-mapper.service';
 import { SchemaDetectionService } from './services/schema-detection.service';
 import { ChatbotInstance } from '../admin/entities/chatbot-instance.entity';
+import { PersistentSession } from '../chat/entities/persistent-session.entity';
 import { ExternalDbService } from '../external-db/external-db.service';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([ChatbotInstance], 'users')
+    TypeOrmModule.forFeature([ChatbotInstance, PersistentSession], 'users')
   ],
   controllers: [
     DatabaseConfigController

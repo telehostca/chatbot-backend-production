@@ -12,6 +12,10 @@ const Database = () => {
   const [autoDetecting, setAutoDetecting] = useState(false)
   const [generatingContext, setGeneratingContext] = useState(false)
   const [detectedSchema, setDetectedSchema] = useState(null)
+  // Estados para descubrimiento inteligente
+  const [discoveredResources, setDiscoveredResources] = useState(null)
+  const [suggestions, setSuggestions] = useState([])
+  const [resourceDiscoveryMode, setResourceDiscoveryMode] = useState(false)
   const { showNotification } = useNotification()
   const { setLoading } = useLoading()
 
@@ -241,6 +245,41 @@ const Database = () => {
     }
   }
 
+  // Nueva función INTELIGENTE para descubrir recursos
+  const handleDiscoverResources = async () => {
+    try {
+      setAutoDetecting(true)
+      const connectionData = {
+        databaseType: formData.databaseType,
+        host: formData.connection.host,
+        port: formData.connection.port,
+        database: formData.connection.database,
+        username: formData.connection.username,
+        password: formData.connection.password
+      }
+
+      console.log('🔍 Descubriendo recursos en servidor:', connectionData)
+      const response = await api.discoverDatabaseResources(connectionData)
+      console.log('🎯 Recursos descubiertos:', response)
+      
+      if (response && response.success) {
+        // Mostrar sugerencias al usuario
+        setDiscoveredResources(response.resources)
+        setSuggestions(response.suggestions)
+        setResourceDiscoveryMode(true)
+        
+        showNotification('success', 'Recursos descubiertos', 
+          `${response.message}. Revisa las sugerencias a continuación.`)
+      }
+    } catch (error) {
+      console.error('❌ Error descubriendo recursos:', error)
+      showNotification('error', 'Error de descubrimiento', 
+        error.response?.data?.message || error.message)
+    } finally {
+      setAutoDetecting(false)
+    }
+  }
+
   const handleAutoDetectSchema = async () => {
     try {
       setAutoDetecting(true)
@@ -409,6 +448,25 @@ const Database = () => {
         error.response?.data?.message || error.message || 'Error desconocido regenerando contexto')
     } finally {
       setGeneratingContext(false)
+    }
+  }
+
+  const handleApplySuggestion = (suggestion) => {
+    if (suggestion.config) {
+      setFormData({
+        ...formData,
+        connection: {
+          ...formData.connection,
+          host: suggestion.config.host,
+          port: suggestion.config.port,
+          database: suggestion.config.database,
+          username: suggestion.config.username,
+          password: suggestion.config.password
+        }
+      });
+      setResourceDiscoveryMode(false);
+      showNotification('success', 'Configuración aplicada', 
+        `Conexión configurada para ${suggestion.config.database}. Ahora puedes probar la conexión.`);
     }
   }
 
@@ -770,6 +828,15 @@ const Database = () => {
                       
                       <button
                         type="button"
+                        onClick={handleDiscoverResources}
+                        disabled={autoDetecting || !formData.connection.host}
+                        className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {autoDetecting ? '🔍 Buscando...' : '🧠 Descubrir BD'}
+                      </button>
+                      
+                      <button
+                        type="button"
                         onClick={handleAutoDetectSchema}
                         disabled={autoDetecting || !formData.connection.host || !formData.connection.database}
                         className="bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
@@ -790,6 +857,96 @@ const Database = () => {
                     </div>
                   </div>
                 </div>
+
+                {/* Sugerencias Inteligentes */}
+                {resourceDiscoveryMode && suggestions.length > 0 && (
+                  <div className="border-t pt-4">
+                    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-4">
+                      <div className="flex justify-between items-center mb-3">
+                        <h4 className="text-md font-semibold text-blue-900">🧠 Sugerencias Inteligentes</h4>
+                        <button
+                          type="button"
+                          onClick={() => setResourceDiscoveryMode(false)}
+                          className="text-blue-600 hover:text-blue-800 text-sm"
+                        >
+                          ✕ Cerrar
+                        </button>
+                      </div>
+                      
+                      <div className="space-y-3">
+                        {suggestions.map((suggestion, index) => (
+                          <div key={index} className={`border rounded-lg p-3 ${
+                            suggestion.priority === 'high' ? 'border-green-300 bg-green-50' :
+                            suggestion.priority === 'medium' ? 'border-yellow-300 bg-yellow-50' :
+                            'border-gray-300 bg-gray-50'
+                          }`}>
+                            <div className="flex justify-between items-start">
+                              <div className="flex-1">
+                                <h5 className="font-medium text-sm mb-1">{suggestion.title}</h5>
+                                <p className="text-xs text-gray-600 mb-2">{suggestion.description}</p>
+                                
+                                {suggestion.config && (
+                                  <div className="text-xs space-y-1">
+                                    <div><strong>Host:</strong> {suggestion.config.host}</div>
+                                    <div><strong>Base de datos:</strong> {suggestion.config.database}</div>
+                                    <div><strong>Usuario:</strong> {suggestion.config.username}</div>
+                                  </div>
+                                )}
+                                
+                                {suggestion.options && (
+                                  <div className="mt-2">
+                                    <p className="text-xs font-medium mb-1">Opciones disponibles:</p>
+                                    <div className="flex flex-wrap gap-1">
+                                      {suggestion.options.slice(0, 5).map((option, idx) => (
+                                        <span key={idx} className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">
+                                          {option.name}
+                                        </span>
+                                      ))}
+                                      {suggestion.options.length > 5 && (
+                                        <span className="text-xs text-gray-500">+{suggestion.options.length - 5} más</span>
+                                      )}
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                              
+                              <button
+                                type="button"
+                                onClick={() => handleApplySuggestion(suggestion)}
+                                className={`px-3 py-1 rounded text-xs font-medium ${
+                                  suggestion.priority === 'high' ? 'bg-green-600 hover:bg-green-700 text-white' :
+                                  suggestion.priority === 'medium' ? 'bg-yellow-600 hover:bg-yellow-700 text-white' :
+                                  'bg-gray-600 hover:bg-gray-700 text-white'
+                                } transition-colors`}
+                              >
+                                Usar
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                      
+                      {discoveredResources && (
+                        <div className="mt-4 pt-3 border-t border-blue-200">
+                          <div className="grid grid-cols-2 gap-4 text-sm">
+                            <div>
+                              <h6 className="font-medium text-blue-900 mb-1">📊 Servidor detectado</h6>
+                              <p className="text-xs text-blue-700">
+                                {discoveredResources.serverInfo?.type} {discoveredResources.serverInfo?.version}
+                              </p>
+                            </div>
+                            <div>
+                              <h6 className="font-medium text-blue-900 mb-1">📈 Recursos encontrados</h6>
+                              <p className="text-xs text-blue-700">
+                                {discoveredResources.databases?.length || 0} BD, {discoveredResources.users?.length || 0} usuarios
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
 
                 {/* Configuración de Tablas */}
                 <div className="border-t pt-4">

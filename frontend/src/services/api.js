@@ -150,10 +150,15 @@ class ApiService {
   }
 
   async detectDatabaseSchema(connectionData) {
-    return this.request('/database-config/detect-schema', {
-      method: 'POST',
-      body: connectionData,
-    })
+    try {
+      console.log('🔍 Enviando datos de conexión:', connectionData);
+      const response = await this.request('/database-config/detect-schema', 'POST', connectionData);
+      console.log('✅ Esquema detectado exitosamente:', response);
+      return response;
+    } catch (error) {
+      console.log('❌ Error en detección de esquema:', error.message);
+      throw error;
+    }
   }
 
   async applyDetectedConfiguration(chatbotId, detectedConfig) {
@@ -472,6 +477,19 @@ class ApiService {
       method: 'POST',
       body: payload,
     })
+  }
+
+  // Nuevo método para descubrir recursos disponibles (INTELIGENTE)
+  async discoverDatabaseResources(connectionData) {
+    try {
+      console.log('🔍 Descubriendo recursos disponibles en servidor:', connectionData);
+      const response = await this.request('/database-config/discover-resources', 'POST', connectionData);
+      console.log('✅ Recursos descubiertos:', response);
+      return response;
+    } catch (error) {
+      console.log('❌ Error descubriendo recursos:', error.message);
+      throw error;
+    }
   }
 }
 

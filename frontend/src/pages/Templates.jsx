@@ -50,7 +50,9 @@ const Templates = () => {
   const loadTemplates = async () => {
     setLoading(true)
     try {
-      const data = await api.getNotificationTemplates(selectedChatbot || null)
+      const response = await api.getNotificationTemplates(selectedChatbot || null)
+      console.log('Templates response:', response) // Debug log
+      const data = response.data || response || []
       setTemplates(Array.isArray(data) ? data : [])
     } catch (error) {
       console.error('Error loading templates:', error)

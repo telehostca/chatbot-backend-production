@@ -381,15 +381,15 @@ class ApiService {
 
   // Métodos para contactos de notificaciones
   async getContactStats() {
-    return this.request('/api/notifications/contacts/stats')
+    return this.request('/notifications/contacts/stats')
   }
 
   async getAudienceFilters() {
-    return this.request('/api/notifications/contacts/audience-filters')
+    return this.request('/notifications/contacts/audience-filters')
   }
 
   async searchContacts(filters) {
-    return this.request('/api/notifications/contacts/search', {
+    return this.request('/notifications/contacts/search', {
       method: 'POST',
       body: filters,
     })
@@ -400,25 +400,25 @@ class ApiService {
     if (chatbotIds && chatbotIds.length > 0) {
       params.append('chatbotIds', chatbotIds.join(','))
     }
-    return this.request(`/api/notifications/contacts/by-audience?${params}`)
+    return this.request(`/notifications/contacts/by-audience?${params}`)
   }
 
   async validatePhoneNumbers(phoneNumbers) {
-    return this.request('/api/notifications/contacts/validate-phones', {
+    return this.request('/notifications/contacts/validate-phones', {
       method: 'POST',
       body: { phoneNumbers },
     })
   }
 
   async getContactsByPhones(phoneNumbers) {
-    return this.request('/api/notifications/contacts/by-phones', {
+    return this.request('/notifications/contacts/by-phones', {
       method: 'POST',
       body: { phoneNumbers },
     })
   }
 
   async previewNotificationContacts(payload) {
-    return this.request('/api/notifications/contacts/preview', {
+    return this.request('/notifications/contacts/preview', {
       method: 'POST',
       body: payload,
     })

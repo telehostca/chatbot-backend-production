@@ -304,39 +304,49 @@ export class TestSaasController {
       const testMessage = 'Hola, esto es una prueba de guardado';
       const testChatbotId = 'test-chatbot';
       
-      // Crear session de prueba directamente en la base de datos
-      const sessionResult = await this.dataSource.query(`
-        INSERT INTO persistent_sessions (
-          "phoneNumber", 
-          "activeChatbotId", 
-          "clientPushname",
-          "isAuthenticated", 
-          "isNewClient", 
-          "context", 
-          "status", 
-          "messageCount", 
-          "searchCount", 
-          "lastActivity"
-        ) 
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) 
-        ON CONFLICT ("phoneNumber", "activeChatbotId") 
-        DO UPDATE SET "lastActivity" = EXCLUDED."lastActivity"
-        RETURNING id;
-      `, [
-        testPhoneNumber,
-        testChatbotId,
-        'Test User',
-        false,
-        true,
-        'test',
-        'active',
-        0,
-        0,
-        new Date()
-      ]);
+      // Verificar si ya existe una sesión con este teléfono
+      const existingSessions = await this.dataSource.query(`
+        SELECT id FROM persistent_sessions 
+        WHERE phonenumber = $1 
+        LIMIT 1;
+      `, [testPhoneNumber]);
       
-      const sessionId = sessionResult[0]?.id;
-      this.logger.log(`✅ Session created/updated: ${sessionId}`);
+      let sessionId;
+      if (existingSessions.length > 0) {
+        sessionId = existingSessions[0].id;
+        this.logger.log(`✅ Using existing session: ${sessionId}`);
+      } else {
+        // Crear nueva sesión usando los nombres de columna correctos
+        const sessionResult = await this.dataSource.query(`
+          INSERT INTO persistent_sessions (
+            phonenumber, 
+            activechatbotid, 
+            clientpushname,
+            isauthenticated, 
+            isnewclient, 
+            context, 
+            status, 
+            messagecount, 
+            searchcount, 
+            lastactivity
+          ) 
+          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) 
+          RETURNING id;
+        `, [
+          testPhoneNumber,
+          testChatbotId,
+          'Test User',
+          false,
+          true,
+          'test',
+          'active',
+          0,
+          0,
+          new Date()
+        ]);
+        sessionId = sessionResult[0]?.id;
+        this.logger.log(`✅ Created new session: ${sessionId}`);
+      }
       
       // Insertar mensajes de prueba directamente
       const userMessageResult = await this.dataSource.query(`

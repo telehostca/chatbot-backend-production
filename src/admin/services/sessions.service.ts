@@ -34,16 +34,10 @@ export class SessionsService {
       const { page, limit, chatbotId, search, status } = options;
       const skip = (page - 1) * limit;
 
-      // Crear query builder para sesiones con relaciones
+      // Crear query builder para sesiones sin relaciones problemáticas
       const queryBuilder = this.sessionRepository
         .createQueryBuilder('session')
-        .leftJoin('session.messages', 'messages')
-        .addSelect([
-          'messages.id',
-          'messages.content', 
-          'messages.sender', 
-          'messages.timestamp'
-        ])
+        // .leftJoin('session.messages', 'messages') // Temporalmente deshabilitado por problemas de schema en producción
         .orderBy('session.lastActivity', 'DESC');
 
       // Aplicar filtros
@@ -83,13 +77,8 @@ export class SessionsService {
         });
       });
 
-      // Formatear sesiones con información completa
+      // Formatear sesiones con información completa (sin depender de messages join)
       const formattedSessions = sessions.map(session => {
-        const lastMessage = session.messages && session.messages.length > 0
-          ? session.messages
-              .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())[0]
-          : null;
-
         // Obtener información del chatbot
         const chatbotInfo = chatbotMap.get(session.activeChatbotId) || {
           name: 'ChatBot General',
@@ -104,8 +93,8 @@ export class SessionsService {
           status: session.status,
           chatbotName: chatbotInfo.name,
           organizationName: chatbotInfo.organizationName,
-          lastMessage: session.lastUserMessage || lastMessage?.content || 'Sin mensajes',
-          lastMessageAt: session.lastActivity || lastMessage?.timestamp,
+          lastMessage: session.lastUserMessage || session.lastBotResponse || 'Sin mensajes',
+          lastMessageAt: session.lastActivity || session.updatedAt,
           messageCount: session.messageCount || 0,
           searchCount: session.searchCount || 0,
           createdAt: session.createdAt,

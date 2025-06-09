@@ -31,6 +31,7 @@ import { ChatbotInstance } from '../admin/entities/chatbot-instance.entity';
 import { Conversation } from '../admin/entities/conversation.entity';
 import { AdminMessage } from '../admin/entities/message.entity';
 import { Organization } from '../admin/entities/organization.entity';
+import { PersistentSession } from '../chat/entities/persistent-session.entity';
 import { MultiTenantService } from '../admin/services/multi-tenant.service';
 import { WhatsAppProvider } from './interfaces/whatsapp-provider.interface';
 
@@ -50,7 +51,8 @@ import { WhatsAppProvider } from './interfaces/whatsapp-provider.interface';
       ChatbotInstance,
       Conversation,
       AdminMessage,
-      Organization
+      Organization,
+      PersistentSession
     ], 'users'),
   ],
   controllers: [WhatsappController],

@@ -218,7 +218,33 @@ class ApiService {
     return this.request(url)
   }
 
+  // Métodos para obtener mensajes de sesión
   async getSessionMessages(sessionId) {
+    return this.request(`/chat/sessions/${sessionId}/messages`)
+  }
+
+  // Métodos de intervención humana
+  async pauseBot(sessionId) {
+    return this.request(`/chat/sessions/${sessionId}/pause-bot`, 'POST')
+  }
+
+  async resumeBot(sessionId) {
+    return this.request(`/chat/sessions/${sessionId}/resume-bot`, 'POST')
+  }
+
+  async sendManualMessage(sessionId, message, operatorName = 'Operador') {
+    return this.request(`/chat/sessions/${sessionId}/send-manual-message`, 'POST', {
+      message,
+      operatorName
+    })
+  }
+
+  async getBotStatus(sessionId) {
+    return this.request(`/chat/sessions/${sessionId}/bot-status`)
+  }
+
+  // Método existente mantenido
+  async getSessionMessagesOld(sessionId) {
     return this.request(`/admin/sessions/${sessionId}/messages`)
   }
   

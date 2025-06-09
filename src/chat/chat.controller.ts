@@ -94,4 +94,86 @@ export class ChatController {
       };
     }
   }
+
+  @Post('sessions/:sessionId/pause-bot')
+  async pauseBot(@Param('sessionId') sessionId: string) {
+    try {
+      const result = await this.chatService.pauseBotForSession(sessionId);
+      return { 
+        success: true, 
+        message: 'Bot pausado para esta sesión',
+        data: result 
+      };
+    } catch (error) {
+      this.logger.error(`Error pausando bot: ${error.message}`);
+      return {
+        success: false,
+        error: 'Error pausando bot',
+        details: error.message
+      };
+    }
+  }
+
+  @Post('sessions/:sessionId/resume-bot')
+  async resumeBot(@Param('sessionId') sessionId: string) {
+    try {
+      const result = await this.chatService.resumeBotForSession(sessionId);
+      return { 
+        success: true, 
+        message: 'Bot reanudado para esta sesión',
+        data: result 
+      };
+    } catch (error) {
+      this.logger.error(`Error reanudando bot: ${error.message}`);
+      return {
+        success: false,
+        error: 'Error reanudando bot',
+        details: error.message
+      };
+    }
+  }
+
+  @Post('sessions/:sessionId/send-manual-message')
+  async sendManualMessage(
+    @Param('sessionId') sessionId: string,
+    @Body() body: { message: string; operatorName?: string }
+  ) {
+    try {
+      const result = await this.chatService.sendManualMessage(
+        sessionId, 
+        body.message, 
+        body.operatorName || 'Operador'
+      );
+      return { 
+        success: true, 
+        message: 'Mensaje manual enviado',
+        data: result 
+      };
+    } catch (error) {
+      this.logger.error(`Error enviando mensaje manual: ${error.message}`);
+      return {
+        success: false,
+        error: 'Error enviando mensaje manual',
+        details: error.message
+      };
+    }
+  }
+
+  @Get('sessions/:sessionId/bot-status')
+  async getBotStatus(@Param('sessionId') sessionId: string) {
+    try {
+      const status = await this.chatService.getBotStatusForSession(sessionId);
+      return { 
+        success: true, 
+        data: status 
+      };
+    } catch (error) {
+      this.logger.error(`Error obteniendo estado del bot: ${error.message}`);
+      return {
+        success: false,
+        error: 'Error obteniendo estado del bot',
+        details: error.message
+      };
+    }
+  }
 } 

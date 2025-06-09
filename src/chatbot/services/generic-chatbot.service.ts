@@ -32,7 +32,7 @@ export class GenericChatbotService {
    * NUEVA FUNCIONALIDAD: Integración con IA para respuestas naturales + Base de Datos Externa
    */
 
-  async handleMessage(message: string, from: string, chatbotConfig: any, chatbotId?: string): Promise<string> {
+  async handleMessage(message: string, from: string, chatbotConfig: any, chatbotId?: string, additionalData?: { pushname?: string; messageType?: string }): Promise<string> {
     this.logger.log(`🤖 [VERSIÓN ACTUALIZADA] Chatbot genérico procesando mensaje: ${message} de ${from}`);
 
     try {
@@ -40,8 +40,9 @@ export class GenericChatbotService {
       let session = null;
       if (this.persistentSessionRepository) {
         try {
-          session = await this.getOrCreateSession(from, chatbotId);
+          session = await this.getOrCreateSession(from, chatbotId, additionalData?.pushname);
           this.logger.log(`💾 Sesión obtenida/creada: ${session.id} (messageCount: ${session.messageCount})`);
+          this.logger.log(`👤 Pushname del cliente: ${session.clientPushname || 'No disponible'}`);
         } catch (sessionError) {
           this.logger.error(`❌ Error creando/obteniendo sesión: ${sessionError.message}`);
           // Continuar sin sesión por ahora
@@ -778,7 +779,7 @@ Si el problema persiste, contacta a soporte técnico.`;
   /**
    * 🆕 NUEVO: Obtener o crear sesión persistente
    */
-  private async getOrCreateSession(phoneNumber: string, chatbotId: string): Promise<PersistentSession> {
+  private async getOrCreateSession(phoneNumber: string, chatbotId: string, pushname?: string): Promise<PersistentSession> {
     try {
       // Verificar que el repositorio esté disponible
       if (!this.persistentSessionRepository) {
@@ -802,8 +803,9 @@ Si el problema persiste, contacta a soporte técnico.`;
         session = this.persistentSessionRepository.create({
           phoneNumber: normalizedPhone,
           activeChatbotId: chatbotId,
+          clientPushname: pushname, // AGREGAR PUSHNAME A LA NUEVA SESIÓN
           isAuthenticated: false,
-          isNewClient: false,
+          isNewClient: true, // Es nueva sesión
           context: 'new_session',
           status: 'active',
           messageCount: 0,
@@ -815,10 +817,17 @@ Si el problema persiste, contacta a soporte técnico.`;
           }
         });
         
-        this.logger.log(`🆕 Nueva sesión genérica creada para ${normalizedPhone}`);
+        this.logger.log(`🆕 Nueva sesión genérica creada para ${normalizedPhone} (${pushname || 'Sin nombre'})`);
       } else {
-        // Actualizar última actividad
+        // Actualizar información de la sesión existente
         session.lastActivity = new Date();
+        session.isNewClient = false; // Ya no es nuevo
+        
+        // ACTUALIZAR PUSHNAME SI ES DIFERENTE O NO EXISTÍA
+        if (pushname && (!session.clientPushname || session.clientPushname !== pushname)) {
+          session.clientPushname = pushname;
+          this.logger.log(`👤 Pushname actualizado: ${pushname}`);
+        }
       }
       
       return session;

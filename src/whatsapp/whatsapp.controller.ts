@@ -508,7 +508,8 @@ export class WhatsappController {
         instanceId: chatbot.whatsappConfig?.instanceName || 'unknown',
         from: message.from,
         text: message.body,
-        messageType: message.type || 'text'
+        messageType: message.type || 'text',
+        pushname: message.pushname // PASAR PUSHNAME DEL MENSAJE EXTRAÍDO
       });
       
       this.logger.log(`✅ Mensaje procesado usando nueva arquitectura de procesadores`);
@@ -601,10 +602,29 @@ export class WhatsappController {
    */
   private extractMessageContent(msg: any): any | null {
     try {
+      // EXTRAER PUSHNAME DEL WEBHOOK
+      let pushname = null;
+      
+      // Buscar pushname en diferentes ubicaciones del payload
+      if (msg.pushName) {
+        pushname = msg.pushName;
+      } else if (msg.pushname) {
+        pushname = msg.pushname;
+      } else if (msg.verifiedBizName) {
+        pushname = msg.verifiedBizName;
+      } else if (msg.participant && msg.participant.pushName) {
+        pushname = msg.participant.pushName;
+      } else if (msg.key?.participant) {
+        pushname = msg.key.participant;
+      }
+      
+      this.logger.log(`👤 PUSHNAME EXTRAÍDO: ${pushname || 'No disponible'}`);
+      
       const baseMessage = {
         from: msg.key?.remoteJid || msg.from || 'unknown',
         timestamp: msg.messageTimestamp || msg.timestamp || Date.now(),
-        id: msg.key?.id || msg.id || Date.now().toString()
+        id: msg.key?.id || msg.id || Date.now().toString(),
+        pushname: pushname // AGREGAR PUSHNAME AL MENSAJE
       };
       
       // Mensaje de texto

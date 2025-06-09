@@ -22,6 +22,11 @@ const Sessions = () => {
   const [newMessage, setNewMessage] = useState('');
   const [sendingMessage, setSendingMessage] = useState(false);
 
+  // Estados para intervención humana
+  const [botStatuses, setBotStatuses] = useState({});
+  const [operatorName, setOperatorName] = useState('');
+  const [loadingBotAction, setLoadingBotAction] = useState(false);
+
   useEffect(() => {
     loadChatbots();
     loadSessions();
@@ -89,10 +94,21 @@ const Sessions = () => {
     }
   };
 
-  const handleViewChat = (session) => {
+  const handleViewChat = async (session) => {
     setSelectedSession(session);
     setShowChatModal(true);
     loadMessages(session.id);
+    
+    // Cargar estado del bot para la sesión
+    try {
+      const botStatus = await api.getBotStatus(session.id);
+      setBotStatuses(prev => ({
+        ...prev,
+        [session.id]: botStatus.data
+      }));
+    } catch (error) {
+      console.error('Error loading bot status:', error);
+    }
   };
 
   const handleSendMessage = (session) => {
@@ -118,6 +134,73 @@ const Sessions = () => {
     } catch (error) {
       console.error('Error sending message:', error);
       alert('❌ Error enviando mensaje: ' + error.message);
+    } finally {
+      setSendingMessage(false);
+    }
+  };
+
+  // 🆕 NUEVAS FUNCIONES PARA INTERVENCIÓN HUMANA
+
+  const handlePauseBot = async (sessionId) => {
+    try {
+      setLoadingBotAction(true);
+      const result = await api.pauseBot(sessionId);
+      
+      if (result.success) {
+        setBotStatuses(prev => ({
+          ...prev,
+          [sessionId]: { ...prev[sessionId], botStatus: 'paused', botPaused: true }
+        }));
+        alert('🛑 Bot pausado correctamente. Ahora puedes responder manualmente.');
+      }
+    } catch (error) {
+      console.error('Error pausing bot:', error);
+      alert('❌ Error pausando bot: ' + error.message);
+    } finally {
+      setLoadingBotAction(false);
+    }
+  };
+
+  const handleResumeBot = async (sessionId) => {
+    try {
+      setLoadingBotAction(true);
+      const result = await api.resumeBot(sessionId);
+      
+      if (result.success) {
+        setBotStatuses(prev => ({
+          ...prev,
+          [sessionId]: { ...prev[sessionId], botStatus: 'active', botPaused: false }
+        }));
+        alert('▶️ Bot reanudado correctamente. Las respuestas serán automáticas.');
+      }
+    } catch (error) {
+      console.error('Error resuming bot:', error);
+      alert('❌ Error reanudando bot: ' + error.message);
+    } finally {
+      setLoadingBotAction(false);
+    }
+  };
+
+  const handleSendManualMessage = async () => {
+    if (!newMessage.trim() || !selectedSession) return;
+
+    try {
+      setSendingMessage(true);
+      const result = await api.sendManualMessage(
+        selectedSession.id, 
+        newMessage, 
+        operatorName || 'Operador'
+      );
+      
+      if (result.success) {
+        // Recargar mensajes para mostrar el nuevo mensaje
+        loadMessages(selectedSession.id);
+        setNewMessage('');
+        alert('📤 Mensaje manual enviado correctamente');
+      }
+    } catch (error) {
+      console.error('Error sending manual message:', error);
+      alert('❌ Error enviando mensaje manual: ' + error.message);
     } finally {
       setSendingMessage(false);
     }
@@ -301,7 +384,7 @@ const Sessions = () => {
                         </div>
                         <div className="ml-4">
                           <div className="text-sm font-medium text-gray-900">
-                            {session.clientName || 'Cliente Anónimo'}
+                            {session.clientName || session.clientPushname || 'Cliente Anónimo'}
                           </div>
                           <div className="text-sm text-gray-500">
                             {session.phoneNumber}
@@ -416,19 +499,54 @@ const Sessions = () => {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl mx-4 max-h-96 flex flex-col">
             {/* Header del Modal */}
-            <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900">
-                  💬 Conversación con {selectedSession.clientName || 'Cliente Anónimo'}
-                </h3>
-                <p className="text-sm text-gray-500">{selectedSession.phoneNumber}</p>
+            <div className="px-6 py-4 border-b border-gray-200">
+              <div className="flex justify-between items-start">
+                <div className="flex-1">
+                  <h3 className="text-lg font-semibold text-gray-900">
+                    💬 Conversación con {selectedSession.clientName || selectedSession.clientPushname || 'Cliente Anónimo'}
+                  </h3>
+                  <p className="text-sm text-gray-500">{selectedSession.phoneNumber}</p>
+                  
+                  {/* Estado del Bot */}
+                  {botStatuses[selectedSession.id] && (
+                    <div className="mt-2 flex items-center space-x-2">
+                      <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                        botStatuses[selectedSession.id].botPaused 
+                          ? 'bg-red-100 text-red-800' 
+                          : 'bg-green-100 text-green-800'
+                      }`}>
+                        {botStatuses[selectedSession.id].botPaused ? '🛑 Bot Pausado' : '🤖 Bot Activo'}
+                      </span>
+                      
+                      {/* Controles de Bot */}
+                      {botStatuses[selectedSession.id].botPaused ? (
+                        <button
+                          onClick={() => handleResumeBot(selectedSession.id)}
+                          disabled={loadingBotAction}
+                          className="text-xs bg-green-600 text-white px-2 py-1 rounded hover:bg-green-700 disabled:opacity-50"
+                        >
+                          {loadingBotAction ? '⏳' : '▶️ Reanudar Bot'}
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => handlePauseBot(selectedSession.id)}
+                          disabled={loadingBotAction}
+                          className="text-xs bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700 disabled:opacity-50"
+                        >
+                          {loadingBotAction ? '⏳' : '🛑 Pausar Bot'}
+                        </button>
+                      )}
+                    </div>
+                  )}
+                </div>
+                
+                <button
+                  onClick={() => setShowChatModal(false)}
+                  className="text-gray-400 hover:text-gray-600 ml-4"
+                >
+                  ✕
+                </button>
               </div>
-              <button
-                onClick={() => setShowChatModal(false)}
-                className="text-gray-400 hover:text-gray-600"
-              >
-                ✕
-              </button>
             </div>
 
             {/* Mensajes */}
@@ -471,7 +589,41 @@ const Sessions = () => {
             </div>
 
             {/* Footer del Modal */}
-            <div className="px-6 py-4 border-t border-gray-200">
+            <div className="px-6 py-4 border-t border-gray-200 space-y-3">
+              {/* Envío de mensaje manual (solo si el bot está pausado) */}
+              {botStatuses[selectedSession.id]?.botPaused && (
+                <div className="space-y-2">
+                  <div className="flex space-x-2">
+                    <input
+                      type="text"
+                      placeholder="Tu nombre (opcional)"
+                      value={operatorName}
+                      onChange={(e) => setOperatorName(e.target.value)}
+                      className="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  <div className="flex space-x-2">
+                    <textarea
+                      placeholder="Escribe tu respuesta manual aquí..."
+                      value={newMessage}
+                      onChange={(e) => setNewMessage(e.target.value)}
+                      rows="2"
+                      className="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                    <button
+                      onClick={handleSendManualMessage}
+                      disabled={!newMessage.trim() || sendingMessage}
+                      className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+                    >
+                      {sendingMessage ? '📤...' : '📤 Enviar'}
+                    </button>
+                  </div>
+                  <p className="text-xs text-gray-500">
+                    💡 El bot está pausado. Tus mensajes se enviarán manualmente.
+                  </p>
+                </div>
+              )}
+              
               <button
                 onClick={() => setShowChatModal(false)}
                 className="w-full bg-gray-500 text-white py-2 px-4 rounded-md hover:bg-gray-600 transition-colors"
@@ -493,7 +645,7 @@ const Sessions = () => {
                 📱 Enviar Mensaje
               </h3>
               <p className="text-sm text-gray-500">
-                A: {selectedSession.clientName || 'Cliente Anónimo'} ({selectedSession.phoneNumber})
+                A: {selectedSession.clientName || selectedSession.clientPushname || 'Cliente Anónimo'} ({selectedSession.phoneNumber})
               </p>
             </div>
 

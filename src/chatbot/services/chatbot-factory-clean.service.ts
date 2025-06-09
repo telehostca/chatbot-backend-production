@@ -16,9 +16,9 @@ export class ChatbotFactoryCleanService {
     return this.genericService;
   }
 
-  async handleMessage(chatbotId: string, message: string, from: string, chatbotConfig: any): Promise<string> {
+  async handleMessage(chatbotId: string, message: string, from: string, chatbotConfig: any, additionalData?: any): Promise<string> {
     this.logger.log(`Factory procesando mensaje para chatbot ${chatbotId}: ${message}`);
-    return await this.genericService.handleMessage(message, from, chatbotConfig, chatbotId);
+    return await this.genericService.handleMessage(message, from, chatbotConfig, chatbotId, additionalData);
   }
 
   private extractChatbotType(config: any): string {

@@ -611,4 +611,235 @@ export class ChatService {
     }
     return `${minutes}m`;
   }
+
+  // 🆕 NUEVOS MÉTODOS PARA INTERVENCIÓN HUMANA
+
+  /**
+   * Pausa las respuestas automáticas del bot para una sesión específica
+   * 
+   * @param {string} sessionId - ID de la sesión
+   * @returns {Promise<Object>} Resultado de la operación
+   */
+  async pauseBotForSession(sessionId: string) {
+    try {
+      const session = await this.sessionRepository.findOne({
+        where: { id: sessionId }
+      });
+
+      if (!session) {
+        throw new Error('Sesión no encontrada');
+      }
+
+      // Marcar la sesión como pausada para intervención humana
+      session.status = 'human_intervention';
+      session.context = 'bot_paused';
+      session.metadata = {
+        ...session.metadata,
+        botPaused: true,
+        pausedAt: new Date().toISOString(),
+        pausedBy: 'operator'
+      };
+
+      await this.sessionRepository.save(session);
+
+      this.logger.log(`🛑 Bot pausado para sesión ${sessionId} (${session.phoneNumber})`);
+
+      return {
+        sessionId,
+        status: 'bot_paused',
+        message: 'Bot pausado correctamente. Los mensajes no se responderán automáticamente.',
+        pausedAt: new Date()
+      };
+    } catch (error) {
+      this.logger.error(`Error pausando bot para sesión ${sessionId}: ${error.message}`);
+      throw error;
+    }
+  }
+
+  /**
+   * Reanuda las respuestas automáticas del bot para una sesión específica
+   * 
+   * @param {string} sessionId - ID de la sesión
+   * @returns {Promise<Object>} Resultado de la operación
+   */
+  async resumeBotForSession(sessionId: string) {
+    try {
+      const session = await this.sessionRepository.findOne({
+        where: { id: sessionId }
+      });
+
+      if (!session) {
+        throw new Error('Sesión no encontrada');
+      }
+
+      // Restaurar la sesión a estado activo
+      session.status = 'active';
+      session.context = 'bot_resumed';
+      session.metadata = {
+        ...session.metadata,
+        botPaused: false,
+        resumedAt: new Date().toISOString(),
+        resumedBy: 'operator'
+      };
+
+      await this.sessionRepository.save(session);
+
+      this.logger.log(`▶️ Bot reanudado para sesión ${sessionId} (${session.phoneNumber})`);
+
+      return {
+        sessionId,
+        status: 'bot_active',
+        message: 'Bot reanudado correctamente. Los mensajes se responderán automáticamente.',
+        resumedAt: new Date()
+      };
+    } catch (error) {
+      this.logger.error(`Error reanudando bot para sesión ${sessionId}: ${error.message}`);
+      throw error;
+    }
+  }
+
+  /**
+   * Envía un mensaje manual desde un operador humano
+   * 
+   * @param {string} sessionId - ID de la sesión
+   * @param {string} message - Mensaje a enviar
+   * @param {string} operatorName - Nombre del operador
+   * @returns {Promise<Object>} Resultado del envío
+   */
+  async sendManualMessage(sessionId: string, message: string, operatorName: string) {
+    try {
+      const session = await this.sessionRepository.findOne({
+        where: { id: sessionId }
+      });
+
+      if (!session) {
+        throw new Error('Sesión no encontrada');
+      }
+
+      // Determinar el chatbotId a usar
+      let chatbotId = session.activeChatbotId;
+      
+      if (!chatbotId) {
+        const firstChatbot = await this.chatbotRepository.findOne({
+          where: { isActive: true }
+        });
+        
+        if (!firstChatbot) {
+          throw new Error('No hay chatbots activos disponibles');
+        }
+        
+        chatbotId = firstChatbot.id;
+      }
+
+      // Preparar mensaje con identificación del operador
+      const operatorMessage = `👤 *${operatorName}*: ${message}`;
+
+      // Enviar mensaje usando WhatsApp
+      await this.whatsappService.sendMessage(
+        session.phoneNumber,
+        operatorMessage,
+        chatbotId
+      );
+
+      // Guardar el mensaje en la base de datos
+      const savedMessage = await this.saveMessage(session, operatorMessage, 'operator');
+
+      // Actualizar sesión con información del mensaje manual
+      session.lastBotResponse = operatorMessage;
+      session.lastActivity = new Date();
+      session.metadata = {
+        ...session.metadata,
+        lastOperatorMessage: {
+          operatorName,
+          message,
+          timestamp: new Date().toISOString()
+        }
+      };
+
+      await this.sessionRepository.save(session);
+
+      this.logger.log(`📤 Mensaje manual enviado por ${operatorName} a sesión ${sessionId}`);
+
+      return {
+        messageId: savedMessage.id,
+        sessionId,
+        operatorName,
+        message: operatorMessage,
+        timestamp: savedMessage.timestamp,
+        status: 'sent'
+      };
+    } catch (error) {
+      this.logger.error(`Error enviando mensaje manual: ${error.message}`);
+      throw error;
+    }
+  }
+
+  /**
+   * Obtiene el estado del bot para una sesión específica
+   * 
+   * @param {string} sessionId - ID de la sesión
+   * @returns {Promise<Object>} Estado del bot
+   */
+  async getBotStatusForSession(sessionId: string) {
+    try {
+      const session = await this.sessionRepository.findOne({
+        where: { id: sessionId }
+      });
+
+      if (!session) {
+        throw new Error('Sesión no encontrada');
+      }
+
+      const botPaused = session.metadata?.botPaused === true || session.status === 'human_intervention';
+      
+      return {
+        sessionId,
+        phoneNumber: session.phoneNumber,
+        clientName: session.clientName || session.clientPushname || 'Cliente Anónimo',
+        botStatus: botPaused ? 'paused' : 'active',
+        botPaused,
+        status: session.status,
+        context: session.context,
+        lastActivity: session.lastActivity,
+        pausedAt: session.metadata?.pausedAt,
+        resumedAt: session.metadata?.resumedAt,
+        lastOperatorMessage: session.metadata?.lastOperatorMessage
+      };
+    } catch (error) {
+      this.logger.error(`Error obteniendo estado del bot: ${error.message}`);
+      throw error;
+    }
+  }
+
+  /**
+   * Verifica si el bot está pausado para una sesión específica
+   * 
+   * @param {string} phoneNumber - Número de teléfono del usuario
+   * @param {string} chatbotId - ID del chatbot
+   * @returns {Promise<boolean>} True si el bot está pausado
+   */
+  async isBotPausedForSession(phoneNumber: string, chatbotId: string): Promise<boolean> {
+    try {
+      const normalizedPhone = phoneNumber.replace('@s.whatsapp.net', '').replace('+', '');
+      
+      const session = await this.sessionRepository.findOne({
+        where: { 
+          phoneNumber: normalizedPhone, 
+          activeChatbotId: chatbotId,
+          status: 'human_intervention'
+        }
+      });
+
+      const isPaused = session?.metadata?.botPaused === true || session?.status === 'human_intervention';
+      
+      if (isPaused) {
+        this.logger.log(`🛑 Bot pausado para ${normalizedPhone} - Saltando respuesta automática`);
+      }
+      
+      return isPaused;
+    } catch (error) {
+      this.logger.error(`Error verificando estado del bot: ${error.message}`);
+      return false; // En caso de error, permitir respuesta del bot
+    }
+  }
 } 

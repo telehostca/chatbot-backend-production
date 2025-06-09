@@ -1479,7 +1479,7 @@ RESPONDE al mensaje del cliente usando el sistema SaaS de intenciones personaliz
     try {
       console.log('📥 Procesando mensaje WhatsApp:', JSON.stringify(data, null, 2));
 
-      const { instanceId, from, text, messageType } = data;
+      const { instanceId, from, text, messageType, pushname } = data;
 
       if (!from || !text) {
         console.log('⚠️ Mensaje incompleto, ignorando');
@@ -1494,14 +1494,36 @@ RESPONDE al mensaje del cliente usando el sistema SaaS de intenciones personaliz
       }
 
       console.log(`🤖 Chatbot encontrado: ${chatbot.name} (ID: ${chatbot.id})`);
+      console.log(`👤 Pushname del usuario: ${pushname || 'No disponible'}`);
+
+      // 🔧 VERIFICAR SI HAY INTERVENCIÓN HUMANA ANTES DE RESPONDER
+      const cleanPhone = from.replace('@s.whatsapp.net', '');
+      
+      // Verificar si el bot está pausado para esta sesión
+      if (this.chatService) {
+        try {
+          const botPaused = await this.chatService.isBotPausedForSession(cleanPhone, chatbot.id);
+          if (botPaused) {
+            console.log(`🛑 Bot pausado para ${cleanPhone} - SALTANDO respuesta automática`);
+            return; // No responder automáticamente
+          }
+        } catch (pauseCheckError) {
+          console.error(`❌ Error verificando pausa del bot: ${pauseCheckError.message}`);
+          // Continuar con respuesta normal en caso de error
+        }
+      }
 
       // 🔧 NUEVA LÓGICA: Usar ChatbotFactoryCleanService que SÍ crea sesiones persistentes
       console.log(`🏭 Usando ChatbotFactoryCleanService para crear sesiones persistentes`);
-      const cleanPhone = from.replace('@s.whatsapp.net', '');
       
       try {
         const chatbotService = await this.chatbotFactoryCleanService.createChatbotService(chatbot.id, chatbot);
-        const response = await chatbotService.handleMessage(text, cleanPhone, chatbot, chatbot.id);
+        
+        // PASAR PUSHNAME AL SERVICIO
+        const response = await chatbotService.handleMessage(text, cleanPhone, chatbot, chatbot.id, {
+          pushname: pushname,
+          messageType: messageType
+        });
         
         // Enviar respuesta
         if (response) {

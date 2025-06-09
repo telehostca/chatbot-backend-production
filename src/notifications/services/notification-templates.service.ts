@@ -164,6 +164,34 @@ export class NotificationTemplatesService {
     }
   }
 
+  async duplicateTemplate(id: string): Promise<NotificationTemplate> {
+    try {
+      const originalTemplate = await this.getTemplateById(id);
+      
+      // Crear copia de la plantilla
+      const duplicatedTemplate = this.templateRepository.create({
+        title: `${originalTemplate.title} - Copia`,
+        content: originalTemplate.content,
+        category: originalTemplate.category,
+        audience: originalTemplate.audience,
+        chatbotId: originalTemplate.chatbotId,
+        isActive: false, // Las copias inician desactivadas
+        cronEnabled: false, // Las copias inician sin programación
+        cronExpression: originalTemplate.cronExpression,
+        variables: originalTemplate.variables,
+        createdBy: 'system'
+      });
+      
+      const savedTemplate = await this.templateRepository.save(duplicatedTemplate);
+      
+      this.logger.log(`📋 Plantilla duplicada: ${originalTemplate.title} -> ${savedTemplate.title}`);
+      return savedTemplate;
+    } catch (error) {
+      this.logger.error(`Error duplicando plantilla: ${error.message}`);
+      throw error;
+    }
+  }
+
   // ============================================================================
   // CONFIGURACIÓN DE CRON
   // ============================================================================

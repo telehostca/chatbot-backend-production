@@ -213,6 +213,38 @@ export class NotificationTemplatesController {
     }
   }
 
+  @Post(':id/duplicate')
+  @ApiOperation({ summary: 'Duplicar plantilla de notificación' })
+  @ApiResponse({ status: 201, description: 'Plantilla duplicada exitosamente' })
+  @ApiResponse({ status: 404, description: 'Plantilla no encontrada' })
+  async duplicateTemplate(@Param('id') id: string) {
+    try {
+      const duplicatedTemplate = await this.notificationTemplatesService.duplicateTemplate(id);
+      
+      this.logger.log(`📋 Plantilla duplicada exitosamente: ${duplicatedTemplate.title} (${duplicatedTemplate.id})`);
+      
+      return {
+        success: true,
+        data: duplicatedTemplate,
+        message: 'Plantilla duplicada exitosamente'
+      };
+    } catch (error) {
+      this.logger.error(`Error duplicando plantilla ${id}: ${error.message}`);
+      
+      if (error.message.includes('no encontrada')) {
+        throw new HttpException(
+          { success: false, error: 'Plantilla no encontrada' },
+          HttpStatus.NOT_FOUND
+        );
+      }
+      
+      throw new HttpException(
+        { success: false, error: 'Error duplicando plantilla' },
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
+    }
+  }
+
   @Post(':id/test')
   @ApiOperation({ summary: 'Enviar notificación de prueba' })
   @ApiResponse({ status: 200, description: 'Notificación de prueba enviada' })

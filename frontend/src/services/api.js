@@ -305,6 +305,18 @@ class ApiService {
     })
   }
 
+  async duplicateNotificationTemplate(id) {
+    return this.request(`/admin/multi-tenant/notifications/${id}/duplicate`, {
+      method: 'POST',
+    })
+  }
+
+  async toggleNotificationTemplate(id) {
+    return this.request(`/admin/multi-tenant/notifications/${id}/toggle`, {
+      method: 'POST',
+    })
+  }
+
   async testNotificationTemplate(id, phoneNumber) {
     return this.request(`/admin/multi-tenant/notifications/${id}/test`, {
       method: 'POST',

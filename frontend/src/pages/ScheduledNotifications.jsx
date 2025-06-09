@@ -39,7 +39,30 @@ const ScheduledNotifications = () => {
 
   useEffect(() => {
     loadData();
+    checkForSelectedTemplate();
   }, []);
+
+  const checkForSelectedTemplate = () => {
+    const selectedTemplate = localStorage.getItem('selectedTemplate');
+    if (selectedTemplate) {
+      try {
+        const templateData = JSON.parse(selectedTemplate);
+        setNewNotification(prev => ({
+          ...prev,
+          title: templateData.title || '',
+          content: templateData.content || '',
+          audience: templateData.audience || 'all',
+          category: 'promotion', // Default category
+          isActive: true
+        }));
+        localStorage.removeItem('selectedTemplate'); // Limpiar después de usar
+        setShowCreateModal(true); // Abrir modal automáticamente
+      } catch (error) {
+        console.error('Error loading template:', error);
+        localStorage.removeItem('selectedTemplate');
+      }
+    }
+  };
 
   const loadData = async () => {
     try {

@@ -1132,7 +1132,7 @@ export class WhatsappController {
   @Public()
   async testValeryDirect(@Param('chatbotId') chatbotId: string, @Body() body: any) {
     try {
-      this.logger.log(`🧪 TEST: Llamando DIRECTAMENTE a ValeryChatbotService`);
+      this.logger.log(`🧪 TEST: Usando ChatbotFactoryCleanService EXACTO como webhook real`);
       
       const message = this.extractMessageFromPayload(body);
       if (!message) {
@@ -1143,28 +1143,40 @@ export class WhatsappController {
       this.logger.log(`🧪 TEST: Teléfono limpio: ${cleanPhone}`);
       this.logger.log(`🧪 TEST: Mensaje: ${message.body}`);
       
-      // LLAMAR DIRECTAMENTE A ValeryChatbotService
-      this.logger.log(`🧪 TEST: Llamando directamente a ValeryChatbotService.handleMessage()`);
+      // BUSCAR CHATBOT EXACTO COMO EL WEBHOOK
+      const chatbot = await this.chatbotInstanceRepository.findOne({
+        where: { id: chatbotId },
+        relations: ['organization']
+      });
       
-      // Verificar si valeryChatbotService está disponible
-      const valeryChatbotService = (this.whatsappService as any).valeryChatbotService;
-      
-      if (!valeryChatbotService) {
-        return {
-          success: false,
-          error: 'ValeryChatbotService no está disponible en WhatsappService',
-          available_services: Object.getOwnPropertyNames(this.whatsappService).concat(Object.getOwnPropertyNames(Object.getPrototypeOf(this.whatsappService)))
-        };
+      if (!chatbot) {
+        return { success: false, error: 'Chatbot no encontrado' };
       }
       
-      // Llamar directamente a ValeryChatbotService
-      const response = await valeryChatbotService.handleMessage(
+      this.logger.log(`🧪 TEST: Chatbot encontrado: ${chatbot.name}`);
+      
+      // USAR CHATBOT FACTORY CLEAN SERVICE EXACTO COMO EL WEBHOOK
+      this.logger.log(`🧪 TEST: Llamando a ChatbotFactoryCleanService.createChatbotService()`);
+      
+      // Acceder al servicio a través de WhatsappService
+      const chatbotFactoryService = (this.whatsappService as any).chatbotFactoryCleanService;
+      
+      if (!chatbotFactoryService) {
+        return { success: false, error: 'ChatbotFactoryCleanService no disponible' };
+      }
+      
+      const chatbotService = await chatbotFactoryService.createChatbotService(chatbot.id, chatbot);
+      
+      this.logger.log(`🧪 TEST: Servicio creado, llamando a handleMessage()`);
+      
+      const response = await chatbotService.handleMessage(
         message.body,
         cleanPhone,
-        chatbotId
+        chatbot,
+        chatbot.id
       );
       
-      this.logger.log(`🧪 TEST: ValeryChatbotService respondió: ${response?.substring(0, 100)}...`);
+      this.logger.log(`🧪 TEST: ChatbotFactoryCleanService respondió: ${response?.substring(0, 100)}...`);
       
       // Verificar si se guardaron los mensajes
       const session = await this.chatService.findSessionByPhoneOnly(cleanPhone);
@@ -1175,32 +1187,52 @@ export class WhatsappController {
         
         return {
           success: true,
-          test_type: 'VALERY_DIRECT_CALL',
+          test_type: 'CHATBOT_FACTORY_EXACT_FLOW',
           results: {
             session_id: session.id,
             phone_number: session.phoneNumber,
             message_count_in_session: session.messageCount,
             messages_in_db: messageData.length,
             last_5_messages: messageData.slice(-5), // Últimos 5 mensajes
-            valery_response: response,
-            extracted_message: message
+            factory_response: response,
+            extracted_message: message,
+            chatbot: {
+              id: chatbot.id,
+              name: chatbot.name,
+              type: this.extractChatbotType(chatbot)
+            }
           }
         };
       } else {
         return {
           success: false,
-          error: 'No se encontró sesión después del procesamiento con ValeryChatbotService',
-          valery_response: response
+          error: 'No se encontró sesión después del procesamiento con ChatbotFactoryCleanService',
+          factory_response: response
         };
       }
       
     } catch (error) {
-      this.logger.error(`🧪 TEST: Error en test directo de Valery: ${error.message}`);
+      this.logger.error(`🧪 TEST: Error en test ChatbotFactory: ${error.message}`);
       return {
         success: false,
         error: error.message,
         stack: error.stack
       };
+    }
+  }
+
+  private extractChatbotType(chatbot: any): string {
+    try {
+      if (chatbot?.chatbotConfig) {
+        const chatbotConfig = typeof chatbot.chatbotConfig === 'string' 
+          ? JSON.parse(chatbot.chatbotConfig) 
+          : chatbot.chatbotConfig;
+        
+        return chatbotConfig?.type || 'basic';
+      }
+      return 'basic';
+    } catch (error) {
+      return 'basic';
     }
   }
 } 

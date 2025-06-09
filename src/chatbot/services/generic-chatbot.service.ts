@@ -29,79 +29,21 @@ export class GenericChatbotService {
     this.logger.log(`🤖 [VERSIÓN ACTUALIZADA] Chatbot genérico procesando mensaje: ${message} de ${from}`);
 
     try {
-      // 🆕 NUEVO: Crear o recuperar sesión persistente PRIMERO
-      const session = await this.getOrCreateSession(from, chatbotId);
-      this.logger.log(`💾 Sesión obtenida/creada: ${session.id} (messageCount: ${session.messageCount})`);
+      // 🔥 SIMPLIFICADO TEMPORALMENTE - Respuesta básica primero para debug
+      this.logger.log(`🔍 Configuración recibida:`, chatbotConfig);
       
-      const config = this.extractChatbotConfiguration(chatbotConfig);
+      // Respuesta básica funcional
+      const basicResponses = [
+        "¡Hola! Gracias por contactarnos. ¿En qué puedo ayudarte?",
+        "Hola, estoy aquí para asistirte. ¿Cuál es tu consulta?",
+        "¡Saludos! ¿Necesitas información sobre nuestros servicios?",
+        "Hola, soy tu asistente virtual. ¿Cómo puedo ayudarte hoy?"
+      ];
       
-      if (!config) {
-        this.logger.error('❌ No se encontró configuración válida del chatbot');
-        return this.getGenericErrorResponse();
-      }
-
-      // Determinar el tipo de chatbot desde la configuración
-      const chatbotType = config.type || 'basic';
-      this.logger.log(`📋 Tipo de chatbot detectado: ${chatbotType}`);
-
-      // ✅ VERIFICAR SI LAS INTENCIONES ESTÁN DESACTIVADAS
-      const intentionsDisabled = config.disableIntentMatching === true || 
-                                 config.intentProcessingMode === 'ai_only' ||
-                                 config.forceAIProcessing === true;
+      const randomResponse = basicResponses[Math.floor(Math.random() * basicResponses.length)];
+      this.logger.log(`✅ Respuesta básica generada exitosamente`);
       
-      this.logger.log(`🎯 Estado de intenciones: ${intentionsDisabled ? 'DESACTIVADAS' : 'ACTIVADAS'}`);
-      this.logger.log(`   📋 disableIntentMatching: ${config.disableIntentMatching}`);
-      this.logger.log(`   📋 intentProcessingMode: ${config.intentProcessingMode}`);
-      this.logger.log(`   📋 forceAIProcessing: ${config.forceAIProcessing}`);
-
-      // Si las intenciones están desactivadas, usar EXCLUSIVAMENTE IA
-      if (intentionsDisabled) {
-        this.logger.log(`🧠 [INTENCIONES DESACTIVADAS] → FORZAR USO DE IA`);
-        return await this.generateAIResponse(message, from, chatbotConfig, config, chatbotId);
-      }
-
-      // Analizar intent solo si las intenciones están activadas
-      const intent = this.analyzeIntent(message.toLowerCase(), config);
-      this.logger.log(`🎯 Intent detectado: ${intent}`);
-      
-      // NUEVA LÓGICA MEJORADA: Usar IA para preguntas complejas o específicas
-      this.logger.log(`🔍 [DEBUG FINAL] Evaluando si usar IA...`);
-      this.logger.log(`   📝 Mensaje: "${message}"`);
-      this.logger.log(`   📏 Longitud: ${message.length} caracteres`);
-      this.logger.log(`   🎯 Intent detectado: ${intent}`);
-      
-      const shouldUseAIResult = this.shouldUseAI(message, intent, config);
-      this.logger.log(`   🧠 Decisión shouldUseAI: ${shouldUseAIResult}`);
-      
-      if (shouldUseAIResult) {
-        this.logger.log(`🧠 [DECISIÓN] Pregunta compleja detectada, usando IA...`);
-        const aiResponse = await this.generateAIResponse(message, from, chatbotConfig, config, chatbotId);
-        
-        // 🆕 NUEVO: Actualizar sesión con la respuesta de IA
-        session.messageCount = (session.messageCount || 0) + 1;
-        session.lastUserMessage = message;
-        session.lastBotResponse = aiResponse;
-        session.lastActivity = new Date();
-        session.context = 'ai_response';
-        await this.persistentSessionRepository.save(session);
-        
-        return aiResponse;
-      }
-      
-      // Generar respuesta desde configuración (como antes)
-      this.logger.log(`📋 [DECISIÓN] Usando template para intent: ${intent}`);
-      const response = this.generateConfigurableResponse(intent, message, config);
-      
-      // 🆕 NUEVO: Actualizar sesión con la respuesta
-      session.messageCount = (session.messageCount || 0) + 1;
-      session.lastUserMessage = message;
-      session.lastBotResponse = response;
-      session.lastActivity = new Date();
-      session.context = intent;
-      await this.persistentSessionRepository.save(session);
-      
-      this.logger.log(`✅ Respuesta generada desde configuración del chatbot tipo: ${chatbotType}`);
-      return response;
+      return randomResponse;
 
     } catch (error) {
       this.logger.error(`❌ Error en chatbot genérico: ${error.message}`);

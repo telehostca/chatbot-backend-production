@@ -837,4 +837,78 @@ export class WhatsappController {
       };
     }
   }
+
+  @Post('debug-message-process/:chatbotId')
+  @Public()
+  async debugMessageProcess(@Param('chatbotId') chatbotId: string, @Body() body: any) {
+    try {
+      this.logger.log(`🔧 DEBUG: Iniciando procesamiento de mensaje de prueba`);
+      this.logger.log(`🔧 DEBUG: ChatbotId: ${chatbotId}`);
+      this.logger.log(`🔧 DEBUG: Body recibido:`, JSON.stringify(body, null, 2));
+      
+      // Simular el flujo del webhook
+      const message = this.extractMessageFromPayload(body);
+      
+      if (!message) {
+        return { 
+          success: false, 
+          error: 'No se pudo extraer mensaje del payload',
+          logs: ['ERROR: Payload no procesable']
+        };
+      }
+      
+      this.logger.log(`🔧 DEBUG: Mensaje extraído:`, JSON.stringify(message, null, 2));
+      
+      // Buscar chatbot
+      const chatbot = await this.chatbotInstanceRepository.findOne({
+        where: { id: chatbotId },
+        relations: ['organization']
+      });
+      
+      if (!chatbot) {
+        return { 
+          success: false, 
+          error: 'Chatbot no encontrado',
+          logs: [`ERROR: Chatbot ${chatbotId} no encontrado`]
+        };
+      }
+      
+      this.logger.log(`🔧 DEBUG: Chatbot encontrado: ${chatbot.name}`);
+      
+      // Procesar con WhatsappService
+      this.logger.log(`🔧 DEBUG: Llamando a whatsappService.handleMessage`);
+      
+      await this.whatsappService.handleMessage({
+        instanceId: chatbot.whatsappConfig?.instanceName || 'unknown',
+        from: message.from,
+        text: message.body,
+        messageType: message.type || 'text',
+        pushname: message.pushname
+      });
+      
+      this.logger.log(`🔧 DEBUG: WhatsappService completado exitosamente`);
+      
+      return { 
+        success: true,
+        message: 'Procesamiento completado',
+        extractedMessage: message,
+        chatbot: {
+          id: chatbot.id,
+          name: chatbot.name
+        },
+        logs: ['DEBUG endpoint completado - revisar logs del servidor para detalles completos']
+      };
+      
+    } catch (error) {
+      this.logger.error(`🔧 DEBUG ERROR: ${error.message}`);
+      this.logger.error(`🔧 DEBUG STACK: ${error.stack}`);
+      
+      return { 
+        success: false, 
+        error: error.message,
+        stack: error.stack,
+        logs: [`ERROR: ${error.message}`]
+      };
+    }
+  }
 } 

@@ -890,29 +890,70 @@ Si el problema persiste, contacta a soporte técnico.`;
     }
   }
 
-  // 🆕 NUEVO: Método para guardar mensajes individuales en chat_messages
-  private async saveMessageToHistory(session: PersistentSession, content: string, sender: 'user' | 'assistant'): Promise<void> {
+  /**
+   * Guarda un mensaje en el historial de chat
+   * 
+   * @param {PersistentSession} session - Sesión persistente
+   * @param {string} message - Contenido del mensaje
+   * @param {string} sender - Emisor del mensaje ('user' o 'assistant')
+   */
+  private async saveMessageToHistory(session: PersistentSession, message: string, sender: string): Promise<void> {
     try {
+      this.logger.log(`💾 GUARDANDO MENSAJE EN HISTORIAL:`);
+      this.logger.log(`   📱 Sesión ID: ${session.id}`);
+      this.logger.log(`   👤 Sender: ${sender}`);
+      this.logger.log(`   💬 Mensaje: ${message.substring(0, 100)}...`);
+      
+      // VERIFICAR QUE EL REPOSITORIO ESTÉ DISPONIBLE
       if (!this.chatMessageRepository) {
-        this.logger.warn('⚠️ ChatMessage repository no disponible, saltando guardado de mensaje');
+        this.logger.error(`❌ chatMessageRepository NO está disponible - NO SE PUEDE GUARDAR MENSAJE`);
         return;
       }
       
-      this.logger.log(`🔍 Guardando mensaje: ${content.substring(0, 50)}... (sender: ${sender})`);
+      this.logger.log(`✅ Repository disponible - continuando con guardado...`);
       
-      const message = this.chatMessageRepository.create({
-        content,
-        sender,
+      const chatMessage = this.chatMessageRepository.create({
+        content: message,
+        sender: sender,
         timestamp: new Date(),
-        session
+        session: session, // USAR la relación directa a PersistentSession
+        createdAt: new Date()
       });
       
-      const savedMessage = await this.chatMessageRepository.save(message);
-      this.logger.log(`✅ Mensaje guardado exitosamente con ID: ${savedMessage.id}`);
+      this.logger.log(`📝 Mensaje creado en memoria:`, JSON.stringify({
+        content: chatMessage.content.substring(0, 50),
+        sender: chatMessage.sender,
+        sessionId: session.id,
+        timestamp: chatMessage.timestamp
+      }, null, 2));
+      
+      const savedMessage = await this.chatMessageRepository.save(chatMessage);
+      
+      this.logger.log(`✅ MENSAJE GUARDADO EXITOSAMENTE:`);
+      this.logger.log(`   🆔 ID: ${savedMessage.id}`);
+      this.logger.log(`   📱 Session: ${session.id}`);
+      this.logger.log(`   👤 Sender: ${savedMessage.sender}`);
+      this.logger.log(`   🕐 Timestamp: ${savedMessage.timestamp}`);
+      
+      // VERIFICAR QUE EL MENSAJE REALMENTE SE GUARDÓ
+      const verification = await this.chatMessageRepository.findOne({ 
+        where: { id: savedMessage.id },
+        relations: ['session']
+      });
+      
+      if (verification) {
+        this.logger.log(`🔍 VERIFICACIÓN: Mensaje encontrado en BD con ID ${verification.id}`);
+        this.logger.log(`🔍 VERIFICACIÓN: Session ID asociado: ${verification.session?.id}`);
+      } else {
+        this.logger.error(`❌ VERIFICACIÓN FALLÓ: Mensaje NO encontrado en BD después de guardar`);
+      }
       
     } catch (error) {
-      this.logger.error(`❌ Error guardando mensaje en historial: ${error.message}`);
-      this.logger.error(`❌ Stack trace: ${error.stack}`);
+      this.logger.error(`❌ ERROR GUARDANDO MENSAJE EN HISTORIAL:`);
+      this.logger.error(`   💥 Error: ${error.message}`);
+      this.logger.error(`   📚 Stack: ${error.stack}`);
+      this.logger.error(`   📱 Session ID intentado: ${session?.id}`);
+      this.logger.error(`   👤 Sender intentado: ${sender}`);
     }
   }
 

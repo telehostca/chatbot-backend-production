@@ -58,7 +58,7 @@ import { EnhancedAIAgentService } from './ai/services/enhanced-ai-agent.service'
 import { RAGModule } from './rag/rag.module';
 import { KnowledgeBase } from './rag/entities/knowledge-base.entity';
 import { DocumentChunk } from './rag/entities/document-chunk.entity';
-import { TestSaasController } from './test-saas.controller';
+// import { TestSaasController } from './test-saas.controller'; // COMENTADO TEMPORALMENTE
 import { SetupController } from './setup/setup.controller';
 
 @Module({
@@ -153,7 +153,10 @@ import { SetupController } from './setup/setup.controller';
     RAGModule,
     ChatbotModule,
   ],
-  controllers: [TestSaasController, SetupController],
+  controllers: [
+    // TestSaasController, // COMENTADO TEMPORALMENTE
+    SetupController
+  ],
   providers: [EnhancedAIAgentService],
 })
 export class AppModule {} 

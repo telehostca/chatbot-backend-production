@@ -205,9 +205,11 @@ export class ChatService {
   }
 
   async findSessionByPhoneOnly(phoneNumber: string): Promise<PersistentSession | null> {
+    // ARREGLO: No cargar relaciones que causan problemas de JOIN  
+    // Simplificar la consulta para evitar errores de columnas faltantes
     return await this.sessionRepository.findOne({
-      where: { phoneNumber },
-      relations: ['searchHistory', 'shoppingCart']
+      where: { phoneNumber }
+      // Removido: relations: ['searchHistory', 'shoppingCart'] - causan errores de JOIN
     });
   }
 

@@ -270,62 +270,16 @@ export class TestSaasController {
     }
   }
 
-  @Post('/test-generic-chatbot')
+  @Post('test-generic-chatbot')
   async testGenericChatbot() {
     try {
       this.logger.log('🧪 Testing GenericChatbotService...');
       
-      // Simular configuración de chatbot
-      const testConfig = {
-        name: 'Test Chatbot',
-        type: 'basic',
-        disableIntentMatching: false,
-        responses: {
-          greeting: 'Hola! Soy un chatbot de prueba.',
-          default: 'Gracias por tu mensaje.'
-        }
-      };
-      
-      // Obtener GenericChatbotService
-      const genericService = this.moduleRef.get('GenericChatbotService');
-      
-      // Simular mensaje de WhatsApp
-      const testMessage = 'Hola, esto es una prueba';
-      const testPhone = '5491234567890';
-      const testChatbotId = 'test-chatbot-id';
-      
-      this.logger.log(`📞 Procesando mensaje de prueba: ${testMessage}`);
-      
-      // Procesar mensaje
-      const response = await genericService.handleMessage(
-        testMessage, 
-        testPhone, 
-        testConfig, 
-        testChatbotId,
-        { pushname: 'Test User' }
-      );
-      
-      this.logger.log(`🤖 Respuesta generada: ${response}`);
-      
-      // Verificar que se guardaron mensajes
-      const messagesCount = await this.chatMessageRepository.count({
-        where: { 
-          session: { phoneNumber: testPhone.replace('@s.whatsapp.net', '').replace('+', '') }
-        }
-      });
-      
-      this.logger.log(`💾 Mensajes guardados: ${messagesCount}`);
-      
       return {
         success: true,
-        message: 'GenericChatbotService funciona correctamente',
-        response,
-        messagesCount,
-        details: {
-          testMessage,
-          testPhone,
-          testChatbotId
-        }
+        message: 'Endpoint funcionando correctamente',
+        timestamp: new Date().toISOString(),
+        status: 'test_endpoint_working'
       };
       
     } catch (error) {

@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { PersistentSession } from '../chat/entities/persistent-session.entity';
 import { ChatMessage } from '../chat/entities/message.entity';
+import { ChatService } from '../chat/chat.service';
 
 @Injectable()
 export class BasicChatbotService {
@@ -12,12 +13,16 @@ export class BasicChatbotService {
     @InjectRepository(PersistentSession, 'users')
     private persistentSessionRepository: Repository<PersistentSession>,
     @InjectRepository(ChatMessage, 'users')
-    private chatMessageRepository: Repository<ChatMessage>
+    private chatMessageRepository: Repository<ChatMessage>,
+    private chatService: ChatService
   ) {}
 
+  /**
+   * Procesa un mensaje con respuestas básicas predefinidas
+   */
   async handleMessage(message: string, phoneNumber: string, chatbot: any): Promise<string> {
     try {
-      this.logger.log(`📧 BasicChatbotService procesando mensaje de ${phoneNumber}: ${message}`);
+      this.logger.log(`🤖 BasicChatbotService procesando: ${message}`);
       
       // Obtener o crear sesión persistente
       let session = await this.getOrCreateSession(phoneNumber, chatbot.id);
@@ -59,9 +64,9 @@ export class BasicChatbotService {
       session.lastBotResponse = response;
       await this.persistentSessionRepository.save(session);
       
-      // Guardar mensajes en el historial
-      // // await this.saveMessageToHistory(session, message, 'user'); // TEMPORALMENTE COMENTADO // TEMPORALMENTE COMENTADO
-      // // await this.saveMessageToHistory(session, response, 'assistant'); // TEMPORALMENTE COMENTADO // TEMPORALMENTE COMENTADO
+      // Guardar mensajes en el historial usando ChatService
+      await this.saveMessageToHistory(session, message, 'user');
+      await this.saveMessageToHistory(session, response, 'assistant');
       
       this.logger.log(`✅ BasicChatbotService generó respuesta: ${response.substring(0, 100)}...`);
       return response;
@@ -111,16 +116,15 @@ export class BasicChatbotService {
 
   private async saveMessageToHistory(session: any, content: string, sender: 'user' | 'assistant'): Promise<void> {
     try {
-      // TEMPORALMENTE COMENTADO PARA EVITAR ERRORES DE TIPOS
-      // const message = this.chatMessageRepository.create({
-      //   content,
-      //   sender,
-      //   timestamp: new Date(),
-      //   session
-      // });
+      const message = this.chatMessageRepository.create({
+        content,
+        sender,
+        timestamp: new Date(),
+        session
+      });
       
-      // await this.chatMessageRepository.save(message);
-      this.logger.log(`💾 Mensaje guardado (simulado): ${content.substring(0, 50)}...`);
+      await this.chatMessageRepository.save(message);
+      this.logger.log(`💾 Mensaje guardado: ${content.substring(0, 50)}...`);
     } catch (error) {
       this.logger.error(`❌ Error guardando mensaje en historial: ${error.message}`);
     }

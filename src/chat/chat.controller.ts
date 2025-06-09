@@ -201,4 +201,19 @@ export class ChatController {
       };
     }
   }
+
+  @Get('test-connection')
+  async testConnection() {
+    return {
+      success: true,
+      message: 'Chat API funcionando correctamente',
+      timestamp: new Date(),
+      endpoints: {
+        pauseBot: 'POST /chat/sessions/{sessionId}/pause-bot',
+        resumeBot: 'POST /chat/sessions/{sessionId}/resume-bot',
+        sendMessage: 'POST /chat/sessions/{sessionId}/send-manual-message',
+        botStatus: 'GET /chat/sessions/{sessionId}/bot-status'
+      }
+    };
+  }
 } 

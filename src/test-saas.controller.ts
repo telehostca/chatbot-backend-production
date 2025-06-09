@@ -1,13 +1,20 @@
 import { Controller, Get, Post, Body, Logger } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
+import { ModuleRef } from '@nestjs/core';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { ChatMessage } from '../chat/entities/message.entity';
 
 @Controller('saas')
 export class TestSaasController {
   private readonly logger = new Logger(TestSaasController.name);
 
   constructor(
-    @InjectDataSource('users') private dataSource: DataSource
+    @InjectDataSource('users') private dataSource: DataSource,
+    private readonly moduleRef: ModuleRef,
+    @InjectRepository(ChatMessage, 'users')
+    private readonly chatMessageRepository: Repository<ChatMessage>
   ) {}
 
   @Get('test')
@@ -259,6 +266,76 @@ export class TestSaasController {
       return { 
         success: false, 
         message: `Error: ${error.message}`
+      };
+    }
+  }
+
+  @Post('/test-generic-chatbot')
+  async testGenericChatbot() {
+    try {
+      this.logger.log('🧪 Testing GenericChatbotService...');
+      
+      // Simular configuración de chatbot
+      const testConfig = {
+        name: 'Test Chatbot',
+        type: 'basic',
+        disableIntentMatching: false,
+        responses: {
+          greeting: 'Hola! Soy un chatbot de prueba.',
+          default: 'Gracias por tu mensaje.'
+        }
+      };
+      
+      // Obtener GenericChatbotService
+      const genericService = this.moduleRef.get('GenericChatbotService');
+      
+      // Simular mensaje de WhatsApp
+      const testMessage = 'Hola, esto es una prueba';
+      const testPhone = '5491234567890';
+      const testChatbotId = 'test-chatbot-id';
+      
+      this.logger.log(`📞 Procesando mensaje de prueba: ${testMessage}`);
+      
+      // Procesar mensaje
+      const response = await genericService.handleMessage(
+        testMessage, 
+        testPhone, 
+        testConfig, 
+        testChatbotId,
+        { pushname: 'Test User' }
+      );
+      
+      this.logger.log(`🤖 Respuesta generada: ${response}`);
+      
+      // Verificar que se guardaron mensajes
+      const messagesCount = await this.chatMessageRepository.count({
+        where: { 
+          session: { phoneNumber: testPhone.replace('@s.whatsapp.net', '').replace('+', '') }
+        }
+      });
+      
+      this.logger.log(`💾 Mensajes guardados: ${messagesCount}`);
+      
+      return {
+        success: true,
+        message: 'GenericChatbotService funciona correctamente',
+        response,
+        messagesCount,
+        details: {
+          testMessage,
+          testPhone,
+          testChatbotId
+        }
+      };
+      
+    } catch (error) {
+      this.logger.error(`❌ Error en test de GenericChatbotService: ${error.message}`);
+      this.logger.error(`Stack: ${error.stack}`);
+      
+      return {
+        success: false,
+        error: error.message,
+        stack: error.stack
       };
     }
   }

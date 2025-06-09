@@ -962,7 +962,7 @@ const Chatbots = () => {
                 onChange={handleChange}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
               >
-                <option value="deepseek">🎁 DeepSeek (Gratis - Recomendado)</option>
+                <option value="deepseek">🎁 DeepSeek (Gratis - Recomendado) ⭐</option>
                 <option value="openai">🔥 OpenAI (GPT-3.5, GPT-4)</option>
                 <option value="anthropic">🧠 Anthropic (Claude)</option>
                 <option value="google">🌟 Google (Gemini)</option>
@@ -977,7 +977,7 @@ const Chatbots = () => {
                 onChange={handleChange}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
               >
-                <option value="">Seleccionar modelo...</option>
+                {!form.aiProvider && <option value="">Seleccionar modelo...</option>}
                 {(AI_MODELS[form.aiProvider || 'deepseek'] || []).map(model => (
                   <option key={model.value} value={model.value}>
                     {model.label}
@@ -1681,8 +1681,8 @@ const Chatbots = () => {
             organizationId: '',
             name: '',
             description: '',
-            aiProvider: '',
-            aiModel: '',
+            aiProvider: 'deepseek',
+            aiModel: 'deepseek-chat',
             aiApiKey: '',
             temperature: 0.7,
             whisperApiKey: '',

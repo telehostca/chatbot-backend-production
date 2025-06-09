@@ -317,10 +317,10 @@ class ApiService {
     })
   }
 
-  async testNotificationTemplate(id, phoneNumber) {
+  async testNotificationTemplate(id, phoneNumber, chatbotId = null) {
     return this.request(`/admin/multi-tenant/notifications/${id}/test`, {
       method: 'POST',
-      body: { phoneNumber },
+      body: { phoneNumber, chatbotId },
     })
   }
 

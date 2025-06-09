@@ -175,7 +175,11 @@ const Templates = () => {
     
     setSubmitting(true)
     try {
-      await api.testNotificationTemplate(testingId, testPhone)
+      // Obtener la plantilla actual para verificar su chatbot asignado
+      const template = templates.find(t => t.id === testingId)
+      const chatbotIdToUse = template?.chatbotId || selectedChatbot || null
+      
+      await api.testNotificationTemplate(testingId, testPhone, chatbotIdToUse)
       setShowTest(false)
       alert('Mensaje de prueba enviado exitosamente')
     } catch (err) {

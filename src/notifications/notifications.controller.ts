@@ -228,10 +228,10 @@ export class NotificationTemplatesController {
 
   @Post(':id/test')
   @ApiOperation({ summary: 'Enviar notificación de prueba' })
-  async testTemplate(@Param('id') id: string, @Body() data: { phoneNumber: string }) {
+  async testTemplate(@Param('id') id: string, @Body() data: { phoneNumber: string; chatbotId?: string }) {
     try {
-      this.logger.log(`🧪 Enviando notificación de prueba: ${id} -> ${data.phoneNumber}`);
-      const success = await this.notificationTemplatesService.testNotification(id, data.phoneNumber);
+      this.logger.log(`🧪 Enviando notificación de prueba: ${id} -> ${data.phoneNumber} (chatbot: ${data.chatbotId || 'auto'})`);
+      const success = await this.notificationTemplatesService.testNotification(id, data.phoneNumber, data.chatbotId);
       return { success, message: success ? 'Notificación de prueba enviada' : 'Error al enviar' };
     } catch (error) {
       this.logger.error(`Error enviando prueba ${id}: ${error.message}`);

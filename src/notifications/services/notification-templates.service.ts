@@ -488,9 +488,14 @@ export class NotificationTemplatesService {
   // TESTING
   // ============================================================================
 
-  async testNotification(templateId: string, phoneNumber: string): Promise<boolean> {
+  async testNotification(templateId: string, phoneNumber: string, overrideChatbotId?: string): Promise<boolean> {
     try {
       const template = await this.getTemplateById(templateId);
+      
+      // Usar el chatbotId especificado desde el frontend, o el de la plantilla, o null
+      const chatbotIdToUse = overrideChatbotId || template.chatbotId || null;
+      
+      this.logger.log(`🎯 Usando chatbot para envío: ${chatbotIdToUse || 'default'} (override: ${overrideChatbotId || 'none'}, template: ${template.chatbotId || 'none'})`);
       
       const message = this.replaceVariables(template.content, {
         nombre: 'Usuario de Prueba',
@@ -501,12 +506,12 @@ export class NotificationTemplatesService {
 
       await this.notificationsService.scheduleNotification(
         phoneNumber,
-        `🧪 [PRUEBA] 🧪 **PLANTILLA DE PRUEBA**\n\nEste es un mensaje de prueba creado automáticamente.\n\n🤖 Bot: ${template.chatbot?.name || 'Desconocido'}  \n📅 Fecha: {${new Date().toLocaleDateString('es-ES')}}\n⏰ Hora: {${new Date().toLocaleTimeString('es-ES')}}\n\n*Sistema funcionando correctamente* ✅`,
+        `🧪 [PRUEBA] 🧪 **PLANTILLA DE PRUEBA**\n\nEste es un mensaje de prueba creado automáticamente.\n\n🤖 Bot: ${template.chatbot?.name || 'Chatbot Seleccionado'}  \n📅 Fecha: {${new Date().toLocaleDateString('es-ES')}}\n⏰ Hora: {${new Date().toLocaleTimeString('es-ES')}}\n\n*Sistema funcionando correctamente* ✅`,
         new Date(),
-        template.chatbotId
+        chatbotIdToUse
       );
 
-      this.logger.log(`🧪 Notificación de prueba enviada: ${template.title} - ${new Date().toISOString().split('T')[0]} -> ${phoneNumber}`);
+      this.logger.log(`🧪 Notificación de prueba enviada: ${template.title} - ${new Date().toISOString().split('T')[0]} -> ${phoneNumber} (chatbot: ${chatbotIdToUse || 'default'})`);
       return true;
     } catch (error) {
       this.logger.error(`Error enviando notificación de prueba: ${error.message}`);

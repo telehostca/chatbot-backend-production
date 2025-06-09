@@ -1234,22 +1234,30 @@ const Chatbots = () => {
             )}
           </div>
           
-          {/* Contenedor con altura fija para evitar cambios de tamaño */}
-          <div className="min-h-[400px] transition-all duration-300 ease-in-out">
-            {/* Intent Manager Component - mostrarlo solo si las intenciones están activadas */}
-            {!form.disableIntentMatching && (
-              <div className="animate-fadeIn">
+          {/* Contenedor con altura fija absoluta para evitar cambios de tamaño */}
+          <div className="h-[500px] overflow-hidden relative">
+            {/* Intent Manager Component - con posición absoluta */}
+            <div className={`absolute inset-0 transition-all duration-500 ease-in-out transform ${
+              !form.disableIntentMatching 
+                ? 'opacity-100 translate-x-0 scale-100' 
+                : 'opacity-0 translate-x-8 scale-95 pointer-events-none'
+            }`}>
+              <div className="h-full overflow-y-auto">
                 <IntentManager 
                   chatbotType={form.chatbotType}
                   intents={form.intents || []}
                   onChange={(intents) => setForm(f => ({ ...f, intents }))}
                 />
               </div>
-            )}
+            </div>
             
-            {/* Mensaje cuando las intenciones están desactivadas */}
-            {form.disableIntentMatching && (
-              <div className="bg-white p-6 rounded-lg border-2 border-dashed border-purple-200 text-center animate-fadeIn flex flex-col justify-center min-h-[350px]">
+            {/* Mensaje cuando las intenciones están desactivadas - con posición absoluta */}
+            <div className={`absolute inset-0 transition-all duration-500 ease-in-out transform ${
+              form.disableIntentMatching 
+                ? 'opacity-100 translate-x-0 scale-100' 
+                : 'opacity-0 -translate-x-8 scale-95 pointer-events-none'
+            }`}>
+              <div className="bg-white p-6 rounded-lg border-2 border-dashed border-purple-200 text-center h-full flex flex-col justify-center">
                 <div className="text-6xl mb-4">🧠</div>
                 <h5 className="text-xl font-semibold text-purple-800 mb-3">IA Exclusiva Activada</h5>
                 <p className="text-gray-600 max-w-md mx-auto mb-6">
@@ -1271,7 +1279,7 @@ const Chatbots = () => {
                   🎯 Activar Intenciones Manuales
                 </button>
               </div>
-            )}
+            </div>
           </div>
         </div>
 

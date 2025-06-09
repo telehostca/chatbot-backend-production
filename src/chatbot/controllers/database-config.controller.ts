@@ -509,6 +509,7 @@ export class DatabaseConfigController {
         // Intentar conexiones comunes de admin si falla
         { ...connectionData, database: 'postgres', username: 'postgres' },
         { ...connectionData, database: 'template1', username: 'postgres' },
+        { ...connectionData, database: connectionData.database, username: 'postgres' }
       ];
 
       let availableResources = null;
@@ -690,7 +691,26 @@ export class DatabaseConfigController {
       });
     });
 
-    // Sugerencia 3: Opciones disponibles
+    // Sugerencia 3: Usar usuario específico si existe
+    const targetUser = resources.users.find(user => 
+      user.username.toLowerCase() === originalData.username.toLowerCase()
+    );
+
+    if (targetUser && !targetDb) {
+      suggestions.push({
+        type: 'user_exists',
+        priority: 'medium',
+        title: `👤 Usuario encontrado: ${targetUser.username}`,
+        description: 'El usuario existe, pero necesitas especificar la base de datos correcta',
+        config: {
+          ...originalData,
+          username: targetUser.username,
+          database: resources.databases[0]?.name || 'postgres'
+        }
+      });
+    }
+
+    // Sugerencia 4: Opciones disponibles
     if (resources.databases.length > 0) {
       suggestions.push({
         type: 'available_options',
@@ -1129,254 +1149,6 @@ export class DatabaseConfigController {
         }
         resolve();
       }, 1000);
-    });
-  }
-
-  /**
-   * DETECTA recursos disponibles en el servidor (BD y usuarios)
-   */
-  @Post('discover-resources')
-  @ApiOperation({ 
-    summary: 'Descubrir bases de datos y usuarios disponibles',
-    description: 'Conecta al servidor y lista bases de datos y usuarios disponibles para el usuario'
-  })
-  async discoverDatabaseResources(@Body() connectionData: DatabaseTestConnectionDto): Promise<any> {
-    const { DataSource } = require('typeorm');
-    let dataSource: any;
-    
-    try {
-      this.logger.log(`🔍 Descubriendo recursos en servidor: ${connectionData.host}:${connectionData.port}`);
-      
-      // Intentar conectar como admin primero para descubrir recursos
-      const adminConnections = [
-        // Intentar con credenciales proporcionadas
-        { ...connectionData },
-        // Intentar conexiones comunes de admin si falla
-        { ...connectionData, database: 'postgres', username: 'postgres' },
-        { ...connectionData, database: 'template1', username: 'postgres' },
-        { ...connectionData, database: connectionData.database, username: 'postgres' }
-      ];
-
-      let availableResources = null;
-      let connectionUsed = null;
-
-      for (const connConfig of adminConnections) {
-        try {
-          dataSource = new DataSource({
-            type: connConfig.databaseType,
-            host: connConfig.host,
-            port: connConfig.port,
-            username: connConfig.username,
-            password: connConfig.password,
-            database: connConfig.database,
-            synchronize: false,
-            logging: false
-          });
-
-          await dataSource.initialize();
-          this.logger.log(`✅ Conectado como ${connConfig.username} a ${connConfig.database}`);
-          connectionUsed = connConfig;
-
-          // Detectar bases de datos disponibles
-          let databases = [];
-          let users = [];
-
-          if (connConfig.databaseType === 'postgres') {
-            // Listar bases de datos
-            databases = await dataSource.query(`
-              SELECT datname as name, pg_database_size(datname) as size 
-              FROM pg_database 
-              WHERE datistemplate = false 
-              AND datname NOT IN ('postgres', 'template0', 'template1')
-              ORDER BY datname
-            `);
-
-            // Listar usuarios/roles
-            users = await dataSource.query(`
-              SELECT rolname as username, rolcanlogin as can_login,
-                     rolsuper as is_superuser, rolcreatedb as can_create_db
-              FROM pg_roles 
-              WHERE rolname NOT LIKE 'pg_%' 
-              AND rolname != 'postgres'
-              ORDER BY rolname
-            `);
-          } else if (connConfig.databaseType === 'mysql') {
-            // Listar bases de datos MySQL
-            databases = await dataSource.query(`SHOW DATABASES`);
-            databases = databases
-              .filter(db => !['information_schema', 'performance_schema', 'mysql', 'sys'].includes(db.Database))
-              .map(db => ({ name: db.Database, size: null }));
-
-            // Listar usuarios MySQL
-            users = await dataSource.query(`
-              SELECT User as username, Host as host 
-              FROM mysql.user 
-              WHERE User != 'root' AND User != '' 
-              ORDER BY User
-            `);
-          }
-
-          availableResources = {
-            databases: databases || [],
-            users: users || [],
-            serverInfo: {
-              type: connConfig.databaseType,
-              version: await this.getServerVersion(dataSource, connConfig.databaseType),
-              host: connConfig.host,
-              port: connConfig.port
-            }
-          };
-
-          break; // Salir del loop si la conexión fue exitosa
-        } catch (error) {
-          this.logger.warn(`⚠️ No se pudo conectar como ${connConfig.username}: ${error.message}`);
-          if (dataSource?.isInitialized) {
-            await dataSource.destroy();
-          }
-          continue; // Intentar siguiente configuración
-        }
-      }
-
-      if (!availableResources) {
-        throw new Error('No se pudo conectar al servidor con ninguna de las credenciales proporcionadas o comunes');
-      }
-
-      await dataSource.destroy();
-
-      // Generar sugerencias inteligentes
-      const suggestions = this.generateConnectionSuggestions(
-        availableResources, 
-        connectionData,
-        connectionUsed
-      );
-
-      this.logger.log(`✅ Recursos descubiertos: ${availableResources.databases.length} BD, ${availableResources.users.length} usuarios`);
-
-      return {
-        success: true,
-        resources: availableResources,
-        suggestions,
-        connectionUsed: {
-          username: connectionUsed.username,
-          database: connectionUsed.database
-        },
-        message: `Encontradas ${availableResources.databases.length} bases de datos y ${availableResources.users.length} usuarios`
-      };
-
-    } catch (error) {
-      this.logger.error(`Error descubriendo recursos: ${error.message}`);
-      throw new HttpException(`Error: ${error.message}`, HttpStatus.BAD_REQUEST);
-    } finally {
-      if (dataSource && dataSource.isInitialized) {
-        await dataSource.destroy();
-      }
-    }
-  }
-
-  /**
-   * Obtiene la versión del servidor de base de datos
-   */
-  private async getServerVersion(dataSource: any, dbType: string): Promise<string> {
-    try {
-      if (dbType === 'postgres') {
-        const result = await dataSource.query('SELECT version()');
-        return result[0].version.split(' ')[1];
-      } else if (dbType === 'mysql') {
-        const result = await dataSource.query('SELECT VERSION() as version');
-        return result[0].version;
-      }
-      return 'unknown';
-    } catch {
-      return 'unknown';
-    }
-  }
-
-  /**
-   * Genera sugerencias inteligentes de conexión
-   */
-  private generateConnectionSuggestions(resources: any, originalData: any, connectionUsed: any): any[] {
-    const suggestions = [];
-
-    // Sugerencia 1: Usar la base de datos solicitada si existe
-    const targetDb = resources.databases.find(db => 
-      db.name.toLowerCase() === originalData.database.toLowerCase()
-    );
-
-    if (targetDb) {
-      suggestions.push({
-        type: 'exact_match',
-        priority: 'high',
-        title: `✅ Base de datos encontrada: ${targetDb.name}`,
-        description: 'La base de datos que buscas existe en el servidor',
-        config: {
-          ...originalData,
-          database: targetDb.name,
-          username: connectionUsed.username
-        }
-      });
-    }
-
-    // Sugerencia 2: Buscar bases de datos similares
-    const similarDbs = resources.databases.filter(db => 
-      db.name.toLowerCase().includes(originalData.database.toLowerCase().split('_')[0]) ||
-      originalData.database.toLowerCase().includes(db.name.toLowerCase())
-    );
-
-    similarDbs.forEach(db => {
-      suggestions.push({
-        type: 'similar_match',
-        priority: 'medium',
-        title: `🔍 Base de datos similar: ${db.name}`,
-        description: 'Esta base de datos tiene un nombre similar al que buscas',
-        config: {
-          ...originalData,
-          database: db.name,
-          username: connectionUsed.username
-        }
-      });
-    });
-
-    // Sugerencia 3: Usar usuario específico si existe
-    const targetUser = resources.users.find(user => 
-      user.username.toLowerCase() === originalData.username.toLowerCase()
-    );
-
-    if (targetUser && !targetDb) {
-      suggestions.push({
-        type: 'user_exists',
-        priority: 'medium',
-        title: `👤 Usuario encontrado: ${targetUser.username}`,
-        description: 'El usuario existe, pero necesitas especificar la base de datos correcta',
-        config: {
-          ...originalData,
-          username: targetUser.username,
-          database: resources.databases[0]?.name || 'postgres'
-        }
-      });
-    }
-
-    // Sugerencia 4: Opciones disponibles
-    if (resources.databases.length > 0) {
-      suggestions.push({
-        type: 'available_options',
-        priority: 'low',
-        title: `📋 Bases de datos disponibles (${resources.databases.length})`,
-        description: 'Todas las bases de datos disponibles en el servidor',
-        config: {
-          ...originalData,
-          database: resources.databases[0].name,
-          username: connectionUsed.username
-        },
-        options: resources.databases.map(db => ({
-          name: db.name,
-          size: db.size
-        }))
-      });
-    }
-
-    return suggestions.sort((a, b) => {
-      const priorityOrder = { high: 3, medium: 2, low: 1 };
-      return priorityOrder[b.priority] - priorityOrder[a.priority];
     });
   }
 }

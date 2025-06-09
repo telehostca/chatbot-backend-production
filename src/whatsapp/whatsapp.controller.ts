@@ -911,4 +911,122 @@ export class WhatsappController {
       };
     }
   }
+
+  @Post('test-message-save/:chatbotId')
+  @Public()
+  async testMessageSave(@Param('chatbotId') chatbotId: string, @Body() body: any) {
+    try {
+      this.logger.log(`🧪 TEST: Iniciando test de guardado de mensajes`);
+      
+      // Simular el flujo exacto del webhook
+      const message = this.extractMessageFromPayload(body);
+      if (!message) {
+        return { success: false, error: 'No se pudo extraer mensaje del payload' };
+      }
+      
+      // Buscar chatbot
+      const chatbot = await this.chatbotInstanceRepository.findOne({
+        where: { id: chatbotId },
+        relations: ['organization']
+      });
+      
+      if (!chatbot) {
+        return { success: false, error: 'Chatbot no encontrado' };
+      }
+      
+      // Simular llamada directa a ChatService para ver qué pasa
+      const cleanPhone = message.from.replace('@s.whatsapp.net', '');
+      
+      // 1. Obtener o crear sesión (usando ChatService directamente)
+      let session = await this.chatService.findSessionByPhoneOnly(cleanPhone);
+      
+      if (!session) {
+        session = this.chatService.createSession(cleanPhone, chatbotId, 'active');
+        session = await this.chatService.saveSession(session);
+      }
+      
+      this.logger.log(`🧪 TEST: Sesión obtenida/creada: ${session.id}`);
+      
+      // 2. Intentar guardar mensaje directamente usando ChatService
+      let saveResult = null;
+      let saveError = null;
+      
+      try {
+        saveResult = await this.chatService.saveMessage(session, message.body, 'user');
+        this.logger.log(`🧪 TEST: Mensaje guardado exitosamente con ID: ${saveResult.id}`);
+      } catch (error) {
+        saveError = error.message;
+        this.logger.error(`🧪 TEST: Error guardando mensaje: ${error.message}`);
+      }
+      
+      // 3. Verificar si el mensaje aparece en la consulta de mensajes
+      let retrievedMessages: any[] = [];
+      let retrieveError = null;
+      
+      try {
+        const messages: any = await this.chatService.getSessionMessages(session.id);
+        retrievedMessages = messages?.data || messages || [];
+        this.logger.log(`🧪 TEST: Mensajes recuperados: ${retrievedMessages.length}`);
+      } catch (error: any) {
+        retrieveError = error.message;
+        this.logger.error(`🧪 TEST: Error recuperando mensajes: ${error.message}`);
+      }
+      
+      // 4. Verificar con una segunda consulta
+      let directQuery: any[] = [];
+      let directError = null;
+      
+      try {
+        // Intentar segunda consulta
+        const allMessages: any = await this.chatService.getSessionMessages(session.id);
+        directQuery = allMessages?.data || allMessages || [];
+        this.logger.log(`🧪 TEST: Segunda consulta encontró: ${directQuery.length} mensajes`);
+      } catch (error: any) {
+        directError = error.message;
+        this.logger.error(`🧪 TEST: Error en segunda consulta: ${error.message}`);
+      }
+      
+      return {
+        success: true,
+        test_results: {
+          session: {
+            id: session.id,
+            phoneNumber: session.phoneNumber,
+            messageCount: session.messageCount,
+            status: session.status
+          },
+          save_attempt: {
+            success: saveResult !== null,
+            message_id: saveResult?.id,
+            error: saveError
+          },
+          retrieve_attempt: {
+            success: retrieveError === null,
+            message_count: retrievedMessages.length,
+            messages: retrievedMessages,
+            error: retrieveError
+          },
+          direct_query: {
+            success: directError === null,
+            message_count: directQuery?.length || 0,
+            messages: directQuery || [],
+            error: directError
+          },
+          extracted_message: message,
+          chatbot: {
+            id: chatbot.id,
+            name: chatbot.name
+          }
+        }
+      };
+      
+    } catch (error) {
+      this.logger.error(`🧪 TEST ERROR: ${error.message}`);
+      return { 
+        success: false, 
+        error: error.message,
+        stack: error.stack
+      };
+    }
+  }
 } 

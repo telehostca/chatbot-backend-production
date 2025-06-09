@@ -319,6 +319,36 @@ export class NotificationTemplatesController {
     }
   }
 
+  @Get('cron/status')
+  @ApiOperation({ summary: 'Verificar estado simple del cron' })
+  @ApiResponse({ status: 200, description: 'Estado del cron obtenido exitosamente' })
+  async getCronStatus() {
+    try {
+      const config = await this.notificationTemplatesService.getCronConfig();
+      
+      return {
+        success: true,
+        data: {
+          enabled: config.enabled,
+          status: config.enabled ? 'ACTIVO' : 'INACTIVO',
+          maxNotificationsPerHour: config.maxNotificationsPerHour,
+          timezone: config.timezone,
+          lastRunAt: config.lastRunAt,
+          totalNotificationsSent: config.totalNotificationsSent,
+          allowedTimeRanges: config.allowedTimeRanges,
+          blockedDays: config.blockedDays ? JSON.parse(config.blockedDays) : []
+        }
+      };
+    } catch (error) {
+      this.logger.error(`Error obteniendo estado del cron: ${error.message}`);
+      return {
+        success: false,
+        error: 'Error obteniendo estado del cron',
+        status: 'ERROR'
+      };
+    }
+  }
+
   // ============================================================================
   // ESTADÍSTICAS
   // ============================================================================

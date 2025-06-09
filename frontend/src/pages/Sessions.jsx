@@ -139,8 +139,6 @@ const Sessions = () => {
     }
   };
 
-
-
   const getStatusBadge = (status) => {
     const badges = {
       'active': 'bg-green-100 text-green-800',
@@ -216,8 +214,11 @@ const Sessions = () => {
         [sessionId]: { ...prev[sessionId], loading: true }
       }))
       
+      console.log('🛑 Pausando bot para sesión:', sessionId)
       const response = await api.pauseBot(sessionId)
-      if (response.success) {
+      console.log('📤 Respuesta pausar bot:', response)
+      
+      if (response.sessionId || response.status === 'bot_paused') {
         setBotStatuses(prev => ({
           ...prev,
           [sessionId]: { isPaused: true, loading: false }
@@ -244,8 +245,11 @@ const Sessions = () => {
         [sessionId]: { ...prev[sessionId], loading: true }
       }))
       
+      console.log('▶️ Reanudando bot para sesión:', sessionId)
       const response = await api.resumeBot(sessionId)
-      if (response.success) {
+      console.log('📤 Respuesta reanudar bot:', response)
+      
+      if (response.sessionId || response.status === 'bot_active') {
         setBotStatuses(prev => ({
           ...prev,
           [sessionId]: { isPaused: false, loading: false }
@@ -273,9 +277,11 @@ const Sessions = () => {
 
     try {
       setSendingMessage(true)
+      console.log('📤 Enviando mensaje manual:', { sessionId, message: newMessage, operatorName })
       const response = await api.sendManualMessage(sessionId, newMessage, operatorName)
+      console.log('📥 Respuesta mensaje manual:', response)
       
-      if (response.success) {
+      if (response.messageId || response.status === 'sent') {
         setNewMessage('')
         // Recargar mensajes para mostrar el nuevo mensaje
         await loadMessages(sessionId)
@@ -487,10 +493,10 @@ const Sessions = () => {
                   return (
                     <tr key={session.id} className="border-b border-gray-200 hover:bg-gray-50">
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {session.phone_number}
+                        {session.phoneNumber}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {session.client_pushname || session.client_name || 'Cliente Anónimo'}
+                        {session.clientName || 'Cliente Anónimo'}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
@@ -506,10 +512,10 @@ const Sessions = () => {
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {session.message_count || 0}
+                        {session.messageCount || 0}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {session.last_activity ? new Date(session.last_activity).toLocaleString() : 'N/A'}
+                        {session.lastMessageAt ? new Date(session.lastMessageAt).toLocaleString() : 'N/A'}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <div className="flex space-x-2">
@@ -588,10 +594,10 @@ const Sessions = () => {
               <div className="flex justify-between items-center">
                 <div>
                   <h3 className="text-lg font-semibold text-gray-900">
-                    💬 Chat con {selectedSession.client_pushname || selectedSession.client_name || 'Cliente Anónimo'}
+                    💬 Chat con {selectedSession.clientName || 'Cliente Anónimo'}
                   </h3>
                   <p className="text-sm text-gray-600">
-                    📱 {selectedSession.phone_number} | 
+                    📱 {selectedSession.phoneNumber} | 
                     {botStatuses[selectedSession.id]?.isPaused ? 
                       ' 🛑 Bot Pausado' : ' 🤖 Bot Activo'
                     }
@@ -753,7 +759,7 @@ const Sessions = () => {
                 📱 Enviar Mensaje
               </h3>
               <p className="text-sm text-gray-500">
-                A: {selectedSession.client_pushname || selectedSession.client_name || 'Cliente Anónimo'} ({selectedSession.phone_number})
+                A: {selectedSession.clientName || 'Cliente Anónimo'} ({selectedSession.phoneNumber})
               </p>
             </div>
 

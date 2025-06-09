@@ -32,6 +32,7 @@ import { Conversation } from '../admin/entities/conversation.entity';
 import { AdminMessage } from '../admin/entities/message.entity';
 import { Organization } from '../admin/entities/organization.entity';
 import { PersistentSession } from '../chat/entities/persistent-session.entity';
+import { ChatMessage } from '../chat/entities/message.entity';
 import { MultiTenantService } from '../admin/services/multi-tenant.service';
 import { WhatsAppProvider } from './interfaces/whatsapp-provider.interface';
 
@@ -52,7 +53,8 @@ import { WhatsAppProvider } from './interfaces/whatsapp-provider.interface';
       Conversation,
       AdminMessage,
       Organization,
-      PersistentSession
+      PersistentSession,
+      ChatMessage
     ], 'users'),
   ],
   controllers: [WhatsappController],

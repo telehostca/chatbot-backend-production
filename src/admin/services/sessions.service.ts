@@ -42,7 +42,7 @@ export class SessionsService {
           'messages.id',
           'messages.content', 
           'messages.sender', 
-          'messages.timestamp'
+          'messages.createdAt'
         ])
         .orderBy('session.lastActivity', 'DESC');
 
@@ -87,7 +87,7 @@ export class SessionsService {
       const formattedSessions = sessions.map(session => {
         const lastMessage = session.messages && session.messages.length > 0
           ? session.messages
-              .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())[0]
+              .sort((a, b) => new Date(b.createdAt || b.timestamp || 0).getTime() - new Date(a.createdAt || a.timestamp || 0).getTime())[0]
           : null;
 
         // Obtener información del chatbot
@@ -105,7 +105,7 @@ export class SessionsService {
           chatbotName: chatbotInfo.name,
           organizationName: chatbotInfo.organizationName,
           lastMessage: session.lastUserMessage || lastMessage?.content || 'Sin mensajes',
-          lastMessageAt: session.lastActivity || lastMessage?.timestamp,
+          lastMessageAt: session.lastActivity || lastMessage?.createdAt || lastMessage?.timestamp,
           messageCount: session.messageCount || 0,
           searchCount: session.searchCount || 0,
           createdAt: session.createdAt,
@@ -158,14 +158,14 @@ export class SessionsService {
         throw new Error('Sesión no encontrada');
       }
 
-      // Ordenar mensajes por timestamp
+      // Ordenar mensajes por timestamp o createdAt
       const messages = session.messages
-        .sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime())
+        .sort((a, b) => new Date(a.createdAt || a.timestamp || 0).getTime() - new Date(b.createdAt || b.timestamp || 0).getTime())
         .map(message => ({
           id: message.id,
           content: message.content,
           sender: message.sender,
-          timestamp: message.timestamp,
+          timestamp: message.timestamp || message.createdAt,
           createdAt: message.createdAt
         }));
 

@@ -4,7 +4,7 @@ import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { StatsService } from '../services/stats.service';
 
 @ApiTags('Statistics')
-@Controller('api/admin/stats')
+@Controller('admin/stats')
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
 export class StatsController {

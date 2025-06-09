@@ -4,7 +4,7 @@ import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { SessionsService } from '../services/sessions.service';
 
 @ApiTags('Sessions Management')
-@Controller('api/admin/sessions')
+@Controller('admin/sessions')
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
 export class SessionsController {

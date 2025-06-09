@@ -1,4 +1,4 @@
-import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
+import { Injectable, Logger, Inject, forwardRef, Optional } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import axios from 'axios';
@@ -12,12 +12,17 @@ export class GenericChatbotService {
 
   constructor(
     private readonly databaseMapperService: DatabaseMapperService,
+    @Optional()
     @InjectRepository(PersistentSession, 'users')
     private persistentSessionRepository: Repository<PersistentSession>,
+    @Optional()
     @Inject(forwardRef(() => ChatService))
     private chatService: ChatService,
   ) {
     // Constructor inicializado correctamente
+    this.logger.log(`🔧 GenericChatbotService inicializado`);
+    this.logger.log(`📊 Repository disponible: ${!!this.persistentSessionRepository}`);
+    this.logger.log(`💬 ChatService disponible: ${!!this.chatService}`);
   }
 
   /**
@@ -31,14 +36,18 @@ export class GenericChatbotService {
     this.logger.log(`🤖 [VERSIÓN ACTUALIZADA] Chatbot genérico procesando mensaje: ${message} de ${from}`);
 
     try {
-      // 🆕 NUEVO: Crear o recuperar sesión persistente PRIMERO
+      // 🆕 NUEVO: Crear o recuperar sesión persistente PRIMERO (solo si el repositorio está disponible)
       let session = null;
-      try {
-        session = await this.getOrCreateSession(from, chatbotId);
-        this.logger.log(`💾 Sesión obtenida/creada: ${session.id} (messageCount: ${session.messageCount})`);
-      } catch (sessionError) {
-        this.logger.error(`❌ Error creando/obteniendo sesión: ${sessionError.message}`);
-        // Continuar sin sesión por ahora
+      if (this.persistentSessionRepository) {
+        try {
+          session = await this.getOrCreateSession(from, chatbotId);
+          this.logger.log(`💾 Sesión obtenida/creada: ${session.id} (messageCount: ${session.messageCount})`);
+        } catch (sessionError) {
+          this.logger.error(`❌ Error creando/obteniendo sesión: ${sessionError.message}`);
+          // Continuar sin sesión por ahora
+        }
+      } else {
+        this.logger.warn(`⚠️ PersistentSessionRepository no disponible, saltando creación de sesión`);
       }
       
       // ✅ RESTAURAR FUNCIONALIDAD COMPLETA
@@ -64,7 +73,7 @@ export class GenericChatbotService {
         const aiResponse = await this.generateAIResponse(message, from, chatbotConfig, config, chatbotId);
         
         // Actualizar sesión con respuesta de IA
-        if (session) {
+        if (session && this.persistentSessionRepository) {
           try {
             session.messageCount = (session.messageCount || 0) + 1;
             session.lastUserMessage = message;
@@ -72,6 +81,7 @@ export class GenericChatbotService {
             session.lastActivity = new Date();
             session.context = 'ai_response';
             await this.persistentSessionRepository.save(session);
+            this.logger.log(`💾 Sesión actualizada con respuesta de IA`);
           } catch (updateError) {
             this.logger.error(`❌ Error actualizando sesión: ${updateError.message}`);
           }
@@ -92,7 +102,7 @@ export class GenericChatbotService {
       this.logger.log(`✅ Respuesta básica generada (intenciones activadas)`);
       
       // 🆕 NUEVO: Actualizar sesión si existe
-      if (session) {
+      if (session && this.persistentSessionRepository) {
         try {
           session.messageCount = (session.messageCount || 0) + 1;
           session.lastUserMessage = message;
@@ -770,6 +780,11 @@ Si el problema persiste, contacta a soporte técnico.`;
    */
   private async getOrCreateSession(phoneNumber: string, chatbotId: string): Promise<PersistentSession> {
     try {
+      // Verificar que el repositorio esté disponible
+      if (!this.persistentSessionRepository) {
+        throw new Error('PersistentSessionRepository no está disponible');
+      }
+      
       // Normalizar número de teléfono
       const normalizedPhone = phoneNumber.replace('@s.whatsapp.net', '').replace('+', '');
       

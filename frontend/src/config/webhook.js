@@ -32,9 +32,9 @@ export function getWebhookBaseUrl() {
       return ngrokUrl;
     }
     
-    // URL de ngrok hardcodeada (temporal)
-    console.log('🌐 Usando ngrok URL hardcodeada');
-    return WEBHOOK_CONFIG.DEFAULT_NGROK_URL;
+    // En desarrollo, usar la URL de producción para webhooks (más estable)
+    console.log('🌐 Usando URL de producción para webhooks en desarrollo');
+    return WEBHOOK_CONFIG.PRODUCTION_URL;
   }
   
   // En producción, usar la URL actual
@@ -69,9 +69,10 @@ export function generateWebhookUrl(chatbotId, fallbackName = 'nuevo-chatbot') {
     }
   }
   
-  // Para chatbots nuevos SIN ID real, generar URL placeholder que se actualizará después
-  console.log(`⚠️ Generando URL placeholder para chatbot nuevo sin ID`);
-  return `${baseUrl}/api/whatsapp/webhook/TEMP-ID-WILL-BE-UPDATED`;
+  // Para chatbots nuevos SIN ID real, usar un ID temporal pero válido
+  console.log(`⚠️ Generando URL temporal para chatbot nuevo sin ID`);
+  const tempId = `new-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  return `${baseUrl}/api/whatsapp/webhook/${tempId}`;
 }
 
 /**
@@ -96,13 +97,17 @@ export function isValidChatbotId(id) {
 export function needsWebhookUpdate(webhookUrl) {
   if (!webhookUrl) return true;
   
+  const lastSegment = webhookUrl.split('/').pop();
+  
   return webhookUrl.includes('localhost') ||
+         webhookUrl.includes('ngrok') ||
          webhookUrl.includes('TEMP-ID') || 
          webhookUrl.includes('paciente') ||
          webhookUrl.includes('nuevo-chatbot') ||
          webhookUrl.includes('WILL-BE-UPDATED') ||
-         /\-\d{6}$/.test(webhookUrl.split('/').pop()) ||
-         !isValidChatbotId(webhookUrl.split('/').pop());
+         lastSegment.startsWith('new-') ||
+         /\-\d{6}$/.test(lastSegment) ||
+         !isValidChatbotId(lastSegment);
 }
 
 /**
@@ -137,7 +142,7 @@ function slugifyForUrl(str) {
 
 // Configuración por defecto
 export const WEBHOOK_CONFIG = {
-  DEFAULT_NGROK_URL: 'https://fb6b-86-106-87-91.ngrok-free.app',
+  PRODUCTION_URL: 'https://mybot.zemog.info',
   LOCALHOST_FALLBACK: 'http://localhost:3000',
   WEBHOOK_PATH: '/api/whatsapp/webhook',
   UPDATE_WEBHOOK_ON_CREATE: true

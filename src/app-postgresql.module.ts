@@ -70,6 +70,7 @@ import { TestSaasController } from './test-saas.controller';
       autoLoadEntities: true,
       logging: true,
     }),
+    TypeOrmModule.forFeature([ChatMessage], 'users'),
     UsersModule,
     SaasModule,
     AuthModule,

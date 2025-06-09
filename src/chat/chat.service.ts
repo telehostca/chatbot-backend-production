@@ -404,13 +404,12 @@ export class ChatService {
       const { page, limit, chatbotId, search, status } = options;
       const skip = (page - 1) * limit;
 
-      // Verificar si la tabla existe antes de hacer la consulta
+      // Construir consulta con manejo de errores para la tabla de mensajes
       try {
         const queryBuilder = this.sessionRepository
           .createQueryBuilder('session')
-          // Temporalmente removemos el JOIN con messages hasta resolver el problema de la tabla
-          // .leftJoin('session.messages', 'messages')
-          // .addSelect(['messages.content', 'messages.sender', 'messages.timestamp'])
+          .leftJoin('session.messages', 'messages')
+          .addSelect(['messages.content', 'messages.sender', 'messages.timestamp'])
           .orderBy('session.lastActivity', 'DESC');
 
         // Filtrar por chatbot si se especifica
@@ -438,10 +437,9 @@ export class ChatService {
 
         // Formatear las sesiones para el frontend
         const formattedSessions = await Promise.all(sessions.map(async session => {
-          // Por ahora no usamos los mensajes hasta resolver el problema de la tabla
-          // const lastMessage = session.messages && session.messages.length > 0 
-          //   ? session.messages[session.messages.length - 1] 
-          //   : null;
+          const lastMessage = session.messages && session.messages.length > 0 
+            ? session.messages[session.messages.length - 1] 
+            : null;
 
           // Obtener información real del chatbot si está disponible
           let chatbotName = 'Chatbot General';
@@ -465,8 +463,8 @@ export class ChatService {
             status: session.status,
             chatbotName,
             organizationName,
-            lastMessage: session.lastUserMessage || null, // Usamos el campo directo por ahora
-            lastMessageAt: session.lastActivity || null,
+            lastMessage: session.lastUserMessage || lastMessage?.content || null,
+            lastMessageAt: session.lastActivity || lastMessage?.timestamp || null,
             messageCount: session.messageCount || 0,
             searchCount: session.searchCount || 0,
             createdAt: session.createdAt,
@@ -486,15 +484,57 @@ export class ChatService {
           }
         };
       } catch (dbError) {
-        // Si hay error de base de datos, devolver datos vacíos
-        this.logger.warn(`Tabla persistent_sessions no disponible: ${dbError.message}`);
+        // Si hay error con messages, hacer consulta sin JOIN
+        this.logger.warn(`Error con tabla chat_messages, usando consulta simple: ${dbError.message}`);
+        
+        const queryBuilder = this.sessionRepository
+          .createQueryBuilder('session')
+          .orderBy('session.lastActivity', 'DESC');
+
+        // Aplicar los mismos filtros
+        if (chatbotId) {
+          queryBuilder.andWhere('session.activeChatbotId = :chatbotId', { chatbotId });
+        }
+        if (status) {
+          queryBuilder.andWhere('session.status = :status', { status });
+        }
+        if (search) {
+          queryBuilder.andWhere(
+            '(session.phone_number LIKE :search OR session.client_name LIKE :search OR session.client_id LIKE :search)',
+            { search: `%${search}%` }
+          );
+        }
+
+        const [sessions, total] = await queryBuilder
+          .skip(skip)
+          .take(limit)
+          .getManyAndCount();
+
+        const formattedSessions = sessions.map(session => ({
+          id: session.id,
+          phoneNumber: session.phoneNumber,
+          clientName: session.clientName || session.clientPushname || null,
+          clientId: session.clientId,
+          status: session.status,
+          chatbotName: session.activeChatbotId ? `Chatbot ${session.activeChatbotId.slice(0, 8)}` : 'Chatbot General',
+          organizationName: 'Sistema',
+          lastMessage: session.lastUserMessage || null,
+          lastMessageAt: session.lastActivity || null,
+          messageCount: session.messageCount || 0,
+          searchCount: session.searchCount || 0,
+          createdAt: session.createdAt,
+          duration: this.calculateSessionDuration(session.createdAt, session.lastActivity),
+          isAuthenticated: session.isAuthenticated,
+          context: session.context
+        }));
+
         return {
-          data: [],
+          data: formattedSessions,
           meta: {
-            total: 0,
+            total,
             page,
             limit,
-            totalPages: 0
+            totalPages: Math.ceil(total / limit)
           }
         };
       }

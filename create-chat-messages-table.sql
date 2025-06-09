@@ -9,19 +9,17 @@ CREATE TABLE IF NOT EXISTS chat_messages (
     timestamp TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     chat_session_id UUID,
     session_id UUID,
-    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    
-    -- Foreign key constraints (opcional, descomentar si las tablas existen)
-    -- CONSTRAINT fk_chat_messages_chat_session 
-    --     FOREIGN KEY (chat_session_id) REFERENCES chat_sessions(id) ON DELETE CASCADE,
-    -- CONSTRAINT fk_chat_messages_session 
-    --     FOREIGN KEY (session_id) REFERENCES persistent_sessions(id) ON DELETE CASCADE
+    "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Crear índices para mejorar el rendimiento
 CREATE INDEX IF NOT EXISTS idx_chat_messages_session_id ON chat_messages(session_id);
 CREATE INDEX IF NOT EXISTS idx_chat_messages_chat_session_id ON chat_messages(chat_session_id);
 CREATE INDEX IF NOT EXISTS idx_chat_messages_timestamp ON chat_messages(timestamp);
+
+-- Opcional: Agregar foreign keys si las tablas existen
+-- ALTER TABLE chat_messages ADD CONSTRAINT fk_chat_messages_session 
+--     FOREIGN KEY (session_id) REFERENCES persistent_sessions(id) ON DELETE CASCADE;
 
 -- Verificar la estructura de la tabla
 SELECT 

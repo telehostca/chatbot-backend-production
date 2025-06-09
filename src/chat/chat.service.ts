@@ -408,8 +408,9 @@ export class ChatService {
       try {
         const queryBuilder = this.sessionRepository
           .createQueryBuilder('session')
-          .leftJoin('session.messages', 'messages')
-          .addSelect(['messages.content', 'messages.sender', 'messages.timestamp'])
+          // Temporalmente removemos el JOIN con messages hasta resolver el problema de la tabla
+          // .leftJoin('session.messages', 'messages')
+          // .addSelect(['messages.content', 'messages.sender', 'messages.timestamp'])
           .orderBy('session.lastActivity', 'DESC');
 
         // Filtrar por chatbot si se especifica
@@ -437,9 +438,10 @@ export class ChatService {
 
         // Formatear las sesiones para el frontend
         const formattedSessions = await Promise.all(sessions.map(async session => {
-          const lastMessage = session.messages && session.messages.length > 0 
-            ? session.messages[session.messages.length - 1] 
-            : null;
+          // Por ahora no usamos los mensajes hasta resolver el problema de la tabla
+          // const lastMessage = session.messages && session.messages.length > 0 
+          //   ? session.messages[session.messages.length - 1] 
+          //   : null;
 
           // Obtener información real del chatbot si está disponible
           let chatbotName = 'Chatbot General';
@@ -463,8 +465,8 @@ export class ChatService {
             status: session.status,
             chatbotName,
             organizationName,
-            lastMessage: session.lastUserMessage || lastMessage?.content,
-            lastMessageAt: session.lastActivity || lastMessage?.timestamp,
+            lastMessage: session.lastUserMessage || null, // Usamos el campo directo por ahora
+            lastMessageAt: session.lastActivity || null,
             messageCount: session.messageCount || 0,
             searchCount: session.searchCount || 0,
             createdAt: session.createdAt,
@@ -528,12 +530,19 @@ export class ChatService {
         throw new Error('Sesión no encontrada');
       }
 
+      // Si no hay mensajes o hay problemas con la tabla, devolver array vacío
+      if (!session.messages || session.messages.length === 0) {
+        this.logger.warn(`No se encontraron mensajes para la sesión ${sessionId}`);
+        return [];
+      }
+
       return session.messages.sort((a, b) => 
         new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
       );
     } catch (error) {
       this.logger.error(`Error obteniendo mensajes de sesión: ${error.message}`);
-      throw error;
+      // En lugar de hacer throw, devolvemos array vacío para no romper la UI
+      return [];
     }
   }
 

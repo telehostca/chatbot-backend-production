@@ -547,6 +547,10 @@ const Chatbots = () => {
   const handleCreateChatbot = async (formData) => {
     setError('');
     if (!formData.name || !formData.organizationId) return setError('Nombre y organización son obligatorios');
+    // Validar API key solo para proveedores que no sean DeepSeek
+    if (formData.aiProvider !== 'deepseek' && !formData.aiApiKey) {
+      return setError('API Key es obligatoria para el proveedor seleccionado');
+    }
     setSubmitting(true);
     try {
       // Transformar datos del formulario plano a estructura anidada que espera el backend
@@ -671,6 +675,10 @@ const Chatbots = () => {
   const handleEditChatbot = async (formData) => {
     setError('');
     if (!formData.name || !formData.organizationId) return setError('Nombre y organización son obligatorios');
+    // Validar API key solo para proveedores que no sean DeepSeek
+    if (formData.aiProvider !== 'deepseek' && !formData.aiApiKey) {
+      return setError('API Key es obligatoria para el proveedor seleccionado');
+    }
     setSubmitting(true);
     try {
       // Transformar datos del formulario plano a estructura anidada que espera el backend
@@ -1062,7 +1070,7 @@ const Chatbots = () => {
                 type="password" 
                 value={form.aiApiKey || ''} 
                 onChange={handleChange} 
-                required 
+                required={form.aiProvider !== 'deepseek'}
                 placeholder={form.aiProvider === 'openai' ? 'sk-...' : 
                             form.aiProvider === 'anthropic' ? 'sk-ant-...' : 
                             form.aiProvider === 'google' ? 'AIza...' : 'Ingresa tu API key'} 

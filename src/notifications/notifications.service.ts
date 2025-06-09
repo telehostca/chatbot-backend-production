@@ -266,13 +266,15 @@ export class NotificationsService {
       batchSize?: number;
       template?: string;
       variables?: Record<string, any>;
+      chatbotId?: string;
     } = {}
   ): Promise<{ sent: number; failed: number; details: any[] }> {
     const {
       delayBetweenMessages = 1000,
       batchSize = 10,
       template,
-      variables = {}
+      variables = {},
+      chatbotId
     } = options;
 
     const results = {
@@ -295,7 +297,7 @@ export class NotificationsService {
             await this.whatsappService.sendMessage(
               phoneNumber,
               personalizedMessage,
-              this.defaultInstanceId
+              chatbotId || this.defaultInstanceId
             );
 
             results.sent++;
@@ -342,7 +344,7 @@ export class NotificationsService {
         }
       }
 
-      this.logger.log(`📤 Notificación masiva completada: ${results.sent} enviadas, ${results.failed} fallidas`);
+      this.logger.log(`📤 Notificación masiva completada: ${results.sent} enviadas, ${results.failed} fallidas (chatbot: ${chatbotId || 'default'})`);
       return results;
     } catch (error) {
       this.logger.error(`Error en notificación masiva: ${error.message}`);

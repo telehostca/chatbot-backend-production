@@ -296,6 +296,7 @@ export class NotificationTemplatesService {
   private async executeNotificationTemplate(template: NotificationTemplate, config: CronConfig): Promise<void> {
     try {
       this.logger.log(`🚀 Ejecutando plantilla programada: ${template.title}`);
+      this.logger.log(`🎯 Plantilla configurada para chatbot: ${template.chatbotId || 'global/default'}`);
 
       // Obtener audiencia según el tipo
       const recipients = await this.getAudiencePhoneNumbers(template.audience, template.chatbotId);
@@ -315,7 +316,8 @@ export class NotificationTemplatesService {
         this.replaceVariables(template.content, template.variables || {}),
         {
           batchSize: config.batchSize,
-          delayBetweenMessages: Math.max(1000, 3600000 / config.maxNotificationsPerHour) // Respetar límite por hora
+          delayBetweenMessages: Math.max(1000, 3600000 / config.maxNotificationsPerHour), // Respetar límite por hora
+          chatbotId: template.chatbotId // ✅ Pasar el chatbotId de la plantilla
         }
       );
 

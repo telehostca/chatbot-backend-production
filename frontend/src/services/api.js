@@ -38,6 +38,23 @@ class ApiService {
     }
   }
 
+  // Método GET helpers
+  async get(endpoint) {
+    return this.request(endpoint, { method: 'GET' })
+  }
+
+  async post(endpoint, body) {
+    return this.request(endpoint, { method: 'POST', body })
+  }
+
+  async put(endpoint, body) {
+    return this.request(endpoint, { method: 'PUT', body })
+  }
+
+  async delete(endpoint) {
+    return this.request(endpoint, { method: 'DELETE' })
+  }
+
   // Métodos para chatbots
   async getChatbots() {
     return this.request('/admin/multi-tenant/chatbots')

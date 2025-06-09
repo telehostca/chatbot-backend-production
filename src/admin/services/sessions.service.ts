@@ -139,31 +139,44 @@ export class SessionsService {
       this.logger.log(`📨 Obteniendo mensajes para sesión: ${sessionId}`);
 
       const session = await this.sessionRepository.findOne({
-        where: { id: sessionId },
-        relations: ['messages']
+        where: { id: sessionId }
+        // relations: ['messages'] // Temporalmente deshabilitado por problemas de schema
       });
 
       if (!session) {
         throw new Error('Sesión no encontrada');
       }
 
-      // Ordenar mensajes por timestamp
-      const messages = session.messages
-        .sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime())
-        .map(message => ({
-          id: message.id,
-          content: message.content,
-          sender: message.sender,
-          timestamp: message.timestamp,
-          createdAt: message.timestamp // Usar timestamp como createdAt para compatibilidad
-        }));
+      // Buscar mensajes directamente con query builder para evitar problemas de relación
+      const messages = await this.messageRepository
+        .createQueryBuilder('message')
+        .where('message.session_id = :sessionId', { sessionId })
+        .orderBy('message.timestamp', 'ASC')
+        .getMany();
 
-      this.logger.log(`✅ Obtenidos ${messages.length} mensajes para sesión ${sessionId}`);
-      return messages;
+      const formattedMessages = messages.map(message => ({
+        id: message.id,
+        content: message.content,
+        sender: message.sender,
+        timestamp: message.timestamp || message.createdAt,
+        createdAt: message.createdAt || message.timestamp
+      }));
+
+      this.logger.log(`✅ Obtenidos ${formattedMessages.length} mensajes para sesión ${sessionId}`);
+      return formattedMessages;
 
     } catch (error) {
       this.logger.error(`❌ Error obteniendo mensajes de sesión: ${error.message}`);
-      throw error;
+      // En caso de error, retornar array vacío con mensaje de info de la sesión
+      return [
+        {
+          id: 'info-message',
+          content: 'No se pudieron cargar los mensajes de esta sesión.',
+          sender: 'system',
+          timestamp: new Date(),
+          createdAt: new Date()
+        }
+      ];
     }
   }
 

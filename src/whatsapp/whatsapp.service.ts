@@ -904,36 +904,46 @@ export class WhatsappService implements OnModuleInit {
       ragEnabled: config.ragEnabled,
       useValeryService: config.useValeryService,
       aiFirst: config.aiFirst,
-      forceAIProcessing: config.forceAIProcessing
+      forceAIProcessing: config.forceAIProcessing,
+      disableIntentMatching: config.disableIntentMatching,
+      intentProcessingMode: config.intentProcessingMode
     });
     
-    // REGLA 0 (NUEVA): PRIORIDAD ABSOLUTA IA - Si tiene aiFirst o forceAIProcessing, SIEMPRE usar RAG
-    if (config.aiFirst === true || config.forceAIProcessing === true) {
+    // REGLA 0 (NUEVA): INTENCIONES DESACTIVADAS - Usar GenericChatbotService
+    if (config.disableIntentMatching === true || 
+        config.intentProcessingMode === 'ai_only' ||
+        config.forceAIProcessing === true) {
+      console.log(`🧠 INTENCIONES DESACTIVADAS: Usando GenericChatbotService directo`);
+      return 'generic';
+    }
+    
+    // REGLA 1 (NUEVA): PRIORIDAD ABSOLUTA IA - Si tiene aiFirst, SIEMPRE usar RAG
+    if (config.aiFirst === true) {
       console.log(`🧠 IA FIRST: Prioridad absoluta para IA - Forzando procesador RAG`);
       return 'rag';
     }
     
-    // REGLA 1: Si es tipo 'ecommerce' o tiene processor 'valery' explícitamente, usar ValeryChatbotService
+    // REGLA 2: Si es tipo 'ecommerce' o tiene processor 'valery' explícitamente, usar ValeryChatbotService
     if ((config.chatbotType === 'ecommerce' && config.processor === 'valery') || 
         (config.useValeryService === true && config.processor === 'valery')) {
       console.log(`🛍️ VALERY: E-commerce explícito - Usando ValeryChatbotService`);
       return 'valery';
     }
     
-    // REGLA 2: Si tiene RAG explícitamente deshabilitado, usar tipo específico
+    // REGLA 3: Si tiene RAG explícitamente deshabilitado, usar tipo específico
     if (config.useRAG === false || config.ragEnabled === false) {
       console.log('⚠️ RAG DESHABILITADO: Usando procesador específico o básico');
       return config.processor || 'basic';
     }
     
-    // REGLA 3 (NUEVA): SAAS DEFAULT - RAG por defecto para todos los chatbots
+    // REGLA 4 (NUEVA): SAAS DEFAULT - RAG por defecto para todos los chatbots
     // Solo usar otros procesadores si están explícitamente configurados
     if (config.processor && config.processor !== 'rag') {
       console.log(`🤖 ESPECÍFICO: Usando procesador ${config.processor} (configurado explícitamente)`);
       return config.processor;
     }
     
-    // REGLA 4 (NUEVA): RAG es el PREDETERMINADO en sistema SaaS
+    // REGLA 5 (NUEVA): RAG es el PREDETERMINADO en sistema SaaS
     console.log('🧠 SAAS DEFAULT: Usando procesador RAG (sistema SaaS predeterminado)');
     return 'rag';
   }
@@ -948,6 +958,9 @@ export class WhatsappService implements OnModuleInit {
   ): Promise<string> {
     
     switch (processor) {
+      case 'generic':
+        return await this.processGenericMessage(from, text, chatbot, contact);
+        
       case 'rag':
         return await this.processRAGMessage(from, text, chatbot, contact);
         
@@ -970,6 +983,39 @@ export class WhatsappService implements OnModuleInit {
       case 'basic':
       default:
         return await this.processBasicMessage(from, text, chatbot, contact);
+    }
+  }
+
+  // 🤖 Procesador Genérico (Cuando intenciones están desactivadas)
+  private async processGenericMessage(
+    from: string,
+    text: string,
+    chatbot: any,
+    contact?: any
+  ): Promise<string> {
+    try {
+      console.log(`🤖 Procesando con GenericChatbotService (intenciones desactivadas): ${chatbot.name}`);
+      const cleanPhone = from.replace('@s.whatsapp.net', '');
+      
+      // Usar directamente el GenericChatbotService que ya corregimos
+      const response = await this.genericChatbotService.handleMessage(
+        text,
+        cleanPhone,
+        chatbot,
+        chatbot.id
+      );
+      
+      if (response && response.trim()) {
+        console.log(`✅ GenericChatbotService generó respuesta: ${response.substring(0, 100)}...`);
+        return response.trim();
+      } else {
+        console.log(`⚠️ GenericChatbotService no generó respuesta válida`);
+        return `🤖 Hola! Soy ${chatbot.name}. ¿En qué puedo ayudarte?`;
+      }
+    } catch (error) {
+      console.error('❌ Error en processGenericMessage:', error);
+      return `😔 Disculpa, hubo un error procesando tu mensaje.\n\n` +
+             `Por favor, intenta de nuevo o contacta al soporte técnico.`;
     }
   }
 

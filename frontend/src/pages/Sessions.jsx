@@ -24,7 +24,7 @@ const Sessions = () => {
 
   // Estados para intervención humana
   const [botStatuses, setBotStatuses] = useState({});
-  const [operatorName, setOperatorName] = useState('');
+  const [operatorName, setOperatorName] = useState('Operador');
   const [loadingBotAction, setLoadingBotAction] = useState(false);
 
   useEffect(() => {
@@ -139,72 +139,7 @@ const Sessions = () => {
     }
   };
 
-  // 🆕 NUEVAS FUNCIONES PARA INTERVENCIÓN HUMANA
 
-  const handlePauseBot = async (sessionId) => {
-    try {
-      setLoadingBotAction(true);
-      const result = await api.pauseBot(sessionId);
-      
-      if (result.success) {
-        setBotStatuses(prev => ({
-          ...prev,
-          [sessionId]: { ...prev[sessionId], botStatus: 'paused', botPaused: true }
-        }));
-        alert('🛑 Bot pausado correctamente. Ahora puedes responder manualmente.');
-      }
-    } catch (error) {
-      console.error('Error pausing bot:', error);
-      alert('❌ Error pausando bot: ' + error.message);
-    } finally {
-      setLoadingBotAction(false);
-    }
-  };
-
-  const handleResumeBot = async (sessionId) => {
-    try {
-      setLoadingBotAction(true);
-      const result = await api.resumeBot(sessionId);
-      
-      if (result.success) {
-        setBotStatuses(prev => ({
-          ...prev,
-          [sessionId]: { ...prev[sessionId], botStatus: 'active', botPaused: false }
-        }));
-        alert('▶️ Bot reanudado correctamente. Las respuestas serán automáticas.');
-      }
-    } catch (error) {
-      console.error('Error resuming bot:', error);
-      alert('❌ Error reanudando bot: ' + error.message);
-    } finally {
-      setLoadingBotAction(false);
-    }
-  };
-
-  const handleSendManualMessage = async () => {
-    if (!newMessage.trim() || !selectedSession) return;
-
-    try {
-      setSendingMessage(true);
-      const result = await api.sendManualMessage(
-        selectedSession.id, 
-        newMessage, 
-        operatorName || 'Operador'
-      );
-      
-      if (result.success) {
-        // Recargar mensajes para mostrar el nuevo mensaje
-        loadMessages(selectedSession.id);
-        setNewMessage('');
-        alert('📤 Mensaje manual enviado correctamente');
-      }
-    } catch (error) {
-      console.error('Error sending manual message:', error);
-      alert('❌ Error enviando mensaje manual: ' + error.message);
-    } finally {
-      setSendingMessage(false);
-    }
-  };
 
   const getStatusBadge = (status) => {
     const badges = {
@@ -245,6 +180,179 @@ const Sessions = () => {
     setCurrentPage(1);
     loadSessions();
   };
+
+  // Función para obtener el estado del bot para una sesión
+  const getBotStatus = async (sessionId) => {
+    try {
+      setBotStatuses(prev => ({
+        ...prev,
+        [sessionId]: { ...prev[sessionId], loading: true }
+      }))
+      
+      const response = await api.getBotStatus(sessionId)
+      const isPaused = response.data?.botPaused || false
+      
+      setBotStatuses(prev => ({
+        ...prev,
+        [sessionId]: { isPaused, loading: false }
+      }))
+      
+      return isPaused
+    } catch (error) {
+      console.error('Error getting bot status:', error)
+      setBotStatuses(prev => ({
+        ...prev,
+        [sessionId]: { isPaused: false, loading: false }
+      }))
+      return false
+    }
+  }
+
+  // Función para pausar el bot
+  const pauseBot = async (sessionId) => {
+    try {
+      setBotStatuses(prev => ({
+        ...prev,
+        [sessionId]: { ...prev[sessionId], loading: true }
+      }))
+      
+      const response = await api.pauseBot(sessionId)
+      if (response.success) {
+        setBotStatuses(prev => ({
+          ...prev,
+          [sessionId]: { isPaused: true, loading: false }
+        }))
+        alert('✅ Bot pausado correctamente')
+      } else {
+        throw new Error(response.details || 'Error pausando bot')
+      }
+    } catch (error) {
+      console.error('Error pausing bot:', error)
+      setBotStatuses(prev => ({
+        ...prev,
+        [sessionId]: { isPaused: false, loading: false }
+      }))
+      alert(`❌ Error pausando bot: ${error.message}`)
+    }
+  }
+
+  // Función para reanudar el bot
+  const resumeBot = async (sessionId) => {
+    try {
+      setBotStatuses(prev => ({
+        ...prev,
+        [sessionId]: { ...prev[sessionId], loading: true }
+      }))
+      
+      const response = await api.resumeBot(sessionId)
+      if (response.success) {
+        setBotStatuses(prev => ({
+          ...prev,
+          [sessionId]: { isPaused: false, loading: false }
+        }))
+        alert('✅ Bot reanudado correctamente')
+      } else {
+        throw new Error(response.details || 'Error reanudando bot')
+      }
+    } catch (error) {
+      console.error('Error resuming bot:', error)
+      setBotStatuses(prev => ({
+        ...prev,
+        [sessionId]: { isPaused: true, loading: false }
+      }))
+      alert(`❌ Error reanudando bot: ${error.message}`)
+    }
+  }
+
+  // Función para enviar mensaje manual
+  const sendManualMessage = async (sessionId) => {
+    if (!newMessage.trim()) {
+      alert('Por favor escribe un mensaje')
+      return
+    }
+
+    try {
+      setSendingMessage(true)
+      const response = await api.sendManualMessage(sessionId, newMessage, operatorName)
+      
+      if (response.success) {
+        setNewMessage('')
+        // Recargar mensajes para mostrar el nuevo mensaje
+        await loadMessages(sessionId)
+        alert('✅ Mensaje enviado correctamente')
+      } else {
+        throw new Error(response.details || 'Error enviando mensaje')
+      }
+    } catch (error) {
+      console.error('Error sending manual message:', error)
+      alert(`❌ Error enviando mensaje: ${error.message}`)
+    } finally {
+      setSendingMessage(false)
+    }
+  }
+
+  // Función para enviar mensaje de chat normal
+  const sendChatMessage = async () => {
+    if (!newMessage.trim() || !selectedSession) {
+      return
+    }
+
+    try {
+      setSendingMessage(true)
+      
+      // Agregar mensaje temporalmente a la UI
+      const tempMessage = {
+        id: Date.now(),
+        content: newMessage,
+        sender: 'admin',
+        timestamp: new Date().toISOString(),
+        temp: true
+      }
+      
+      setMessages(prev => [...prev, tempMessage])
+      setNewMessage('')
+      
+      // Enviar mensaje al backend
+      await api.sendMessageToSession(selectedSession.id, newMessage)
+      
+      // Recargar mensajes para obtener la respuesta actualizada
+      setTimeout(() => {
+        loadMessages(selectedSession.id)
+      }, 1000)
+      
+    } catch (error) {
+      console.error('Error sending chat message:', error)
+      // Remover mensaje temporal en caso de error
+      setMessages(prev => prev.filter(msg => !msg.temp))
+      alert(`❌ Error enviando mensaje: ${error.message}`)
+    } finally {
+      setSendingMessage(false)
+    }
+  }
+
+  // Manejar tecla Enter en el input de chat
+  const handleChatKeyPress = (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault()
+      sendChatMessage()
+    }
+  }
+
+  // Función para abrir el modal y cargar datos
+  const openChatModal = async (session) => {
+    setSelectedSession(session)
+    setShowChatModal(true)
+    await loadMessages(session.id)
+    await getBotStatus(session.id)
+  }
+
+  // Cerrar modal
+  const closeModal = () => {
+    setShowChatModal(false)
+    setSelectedSession(null)
+    setMessages([])
+    setNewMessage('')
+  }
 
   return (
     <div className="space-y-6">
@@ -373,85 +481,62 @@ const Sessions = () => {
                   </td>
                 </tr>
               ) : (
-                Array.isArray(sessions) && sessions.map((session) => (
-                  <tr key={session.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center">
-                        <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-                          <span className="text-white font-medium text-sm">
-                            {session.clientName ? session.clientName.charAt(0).toUpperCase() : '?'}
-                          </span>
+                Array.isArray(sessions) && sessions.map((session) => {
+                  const botStatus = botStatuses[session.id] || { isPaused: false, loading: false }
+                  
+                  return (
+                    <tr key={session.id} className="border-b border-gray-200 hover:bg-gray-50">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {session.phone_number}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {session.client_pushname || session.client_name || 'Cliente Anónimo'}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                          session.status === 'active' ? 'bg-green-100 text-green-800' :
+                          session.status === 'inactive' ? 'bg-gray-100 text-gray-800' :
+                          session.status === 'human_intervention' ? 'bg-yellow-100 text-yellow-800' :
+                          'bg-red-100 text-red-800'
+                        }`}>
+                          {session.status === 'active' ? 'Activa' :
+                           session.status === 'inactive' ? 'Inactiva' :
+                           session.status === 'human_intervention' ? 'Intervención' :
+                           session.status}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {session.message_count || 0}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {session.last_activity ? new Date(session.last_activity).toLocaleString() : 'N/A'}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <div className="flex space-x-2">
+                          <button
+                            onClick={() => openChatModal(session)}
+                            className="text-blue-600 hover:text-blue-900"
+                          >
+                            💬 Ver Chat
+                          </button>
+                          
+                          {/* Botón de pausar/reanudar bot */}
+                          <button
+                            onClick={() => botStatus.isPaused ? resumeBot(session.id) : pauseBot(session.id)}
+                            disabled={botStatus.loading}
+                            className={`px-2 py-1 text-xs rounded ${
+                              botStatus.isPaused 
+                                ? 'bg-green-100 text-green-700 hover:bg-green-200' 
+                                : 'bg-yellow-100 text-yellow-700 hover:bg-yellow-200'
+                            } ${botStatus.loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                          >
+                            {botStatus.loading ? '⏳' : (botStatus.isPaused ? '▶️ Reanudar' : '⏸️ Pausar')}
+                          </button>
                         </div>
-                        <div className="ml-4">
-                          <div className="text-sm font-medium text-gray-900">
-                            {session.clientName || session.clientPushname || 'Cliente Anónimo'}
-                          </div>
-                          <div className="text-sm text-gray-500">
-                            {session.phoneNumber}
-                          </div>
-                          {session.clientId && (
-                            <div className="text-xs text-gray-400">
-                              ID: {session.clientId}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">{session.chatbotName}</div>
-                      <div className="text-xs text-gray-500">{session.organizationName}</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusBadge(session.status)}`}>
-                        {session.status === 'active' && '🟢 Activo'}
-                        {session.status === 'idle' && '🟡 Inactivo'}
-                        {session.status === 'ended' && '⚫ Finalizado'}
-                        {session.status === 'blocked' && '🔴 Bloqueado'}
-                        {session.status === 'inactive' && '⚪ Inactivo'}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="text-sm text-gray-900 max-w-xs truncate">
-                        {session.lastMessage || 'Sin mensajes'}
-                      </div>
-                      <div className="text-xs text-gray-500">
-                        {formatDate(session.lastMessageAt)}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-center">
-                      <div className="text-lg font-bold text-blue-600">
-                        {session.messageCount || 0}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-center">
-                      <div className="text-lg font-bold text-green-600">
-                        {session.searchCount || 0}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">
-                        {formatDate(session.createdAt)}
-                      </div>
-                      <div className="text-xs text-gray-500">
-                        Duración: {session.duration || 'N/A'}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm space-y-1">
-                      <button 
-                        onClick={() => handleViewChat(session)}
-                        className="w-full bg-blue-50 text-blue-600 px-3 py-1 rounded text-xs hover:bg-blue-100 transition-colors"
-                      >
-                        👀 Ver Chat
-                      </button>
-                      <button 
-                        onClick={() => handleSendMessage(session)}
-                        className="w-full bg-green-50 text-green-600 px-3 py-1 rounded text-xs hover:bg-green-100 transition-colors"
-                      >
-                        📱 Enviar Mensaje
-                      </button>
-                    </td>
-                  </tr>
-                ))
+                      </td>
+                    </tr>
+                  )
+                })
               )}
             </tbody>
           </table>
@@ -494,142 +579,165 @@ const Sessions = () => {
         )}
       </div>
 
-      {/* Modal Ver Chat */}
+      {/* Modal de Chat Mejorado */}
       {showChatModal && selectedSession && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl mx-4 max-h-96 flex flex-col">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl h-5/6 flex flex-col">
             {/* Header del Modal */}
-            <div className="px-6 py-4 border-b border-gray-200">
-              <div className="flex justify-between items-start">
-                <div className="flex-1">
+            <div className="p-6 border-b border-gray-200 bg-gray-50 rounded-t-lg">
+              <div className="flex justify-between items-center">
+                <div>
                   <h3 className="text-lg font-semibold text-gray-900">
-                    💬 Conversación con {selectedSession.clientName || selectedSession.clientPushname || 'Cliente Anónimo'}
+                    💬 Chat con {selectedSession.client_pushname || selectedSession.client_name || 'Cliente Anónimo'}
                   </h3>
-                  <p className="text-sm text-gray-500">{selectedSession.phoneNumber}</p>
-                  
-                  {/* Estado del Bot */}
-                  {botStatuses[selectedSession.id] && (
-                    <div className="mt-2 flex items-center space-x-2">
-                      <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                        botStatuses[selectedSession.id].botPaused 
-                          ? 'bg-red-100 text-red-800' 
-                          : 'bg-green-100 text-green-800'
-                      }`}>
-                        {botStatuses[selectedSession.id].botPaused ? '🛑 Bot Pausado' : '🤖 Bot Activo'}
-                      </span>
-                      
-                      {/* Controles de Bot */}
-                      {botStatuses[selectedSession.id].botPaused ? (
-                        <button
-                          onClick={() => handleResumeBot(selectedSession.id)}
-                          disabled={loadingBotAction}
-                          className="text-xs bg-green-600 text-white px-2 py-1 rounded hover:bg-green-700 disabled:opacity-50"
-                        >
-                          {loadingBotAction ? '⏳' : '▶️ Reanudar Bot'}
-                        </button>
-                      ) : (
-                        <button
-                          onClick={() => handlePauseBot(selectedSession.id)}
-                          disabled={loadingBotAction}
-                          className="text-xs bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700 disabled:opacity-50"
-                        >
-                          {loadingBotAction ? '⏳' : '🛑 Pausar Bot'}
-                        </button>
-                      )}
-                    </div>
-                  )}
+                  <p className="text-sm text-gray-600">
+                    📱 {selectedSession.phone_number} | 
+                    {botStatuses[selectedSession.id]?.isPaused ? 
+                      ' 🛑 Bot Pausado' : ' 🤖 Bot Activo'
+                    }
+                  </p>
                 </div>
-                
                 <button
-                  onClick={() => setShowChatModal(false)}
-                  className="text-gray-400 hover:text-gray-600 ml-4"
+                  onClick={closeModal}
+                  className="text-gray-400 hover:text-gray-600 text-2xl"
                 >
                   ✕
                 </button>
               </div>
+              
+              {/* Controles de Intervención Humana */}
+              <div className="mt-4 flex flex-wrap gap-2">
+                <button
+                  onClick={() => {
+                    const currentStatus = botStatuses[selectedSession.id]
+                    if (currentStatus?.isPaused) {
+                      resumeBot(selectedSession.id)
+                    } else {
+                      pauseBot(selectedSession.id)
+                    }
+                  }}
+                  disabled={botStatuses[selectedSession.id]?.loading}
+                  className={`px-3 py-1 text-sm rounded ${
+                    botStatuses[selectedSession.id]?.isPaused
+                      ? 'bg-green-500 text-white hover:bg-green-600'
+                      : 'bg-yellow-500 text-white hover:bg-yellow-600'
+                  } ${botStatuses[selectedSession.id]?.loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                >
+                  {botStatuses[selectedSession.id]?.loading ? '⏳ Procesando...' :
+                   botStatuses[selectedSession.id]?.isPaused ? '▶️ Reanudar Bot' : '⏸️ Pausar Bot'}
+                </button>
+                
+                <button
+                  onClick={() => loadMessages(selectedSession.id)}
+                  className="px-3 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600"
+                >
+                  🔄 Actualizar
+                </button>
+              </div>
             </div>
 
-            {/* Mensajes */}
-            <div className="flex-1 overflow-y-auto p-6">
-              {loadingMessages ? (
-                <div className="flex items-center justify-center py-8">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                  <span className="ml-2 text-gray-600">Cargando mensajes...</span>
-                </div>
-              ) : messages.length === 0 ? (
-                <div className="text-center py-8">
-                  <div className="text-6xl mb-4">💭</div>
-                  <p className="text-gray-500">No hay mensajes en esta conversación</p>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {messages.map((message, index) => (
+            {/* Área de Mensajes */}
+            <div className="flex-1 p-4 overflow-y-auto bg-gray-50">
+              <div className="space-y-3 max-h-full">
+                {messages.length === 0 ? (
+                  <div className="text-center text-gray-500 py-8">
+                    📝 No hay mensajes en esta conversación
+                  </div>
+                ) : (
+                  messages.map((message, index) => (
                     <div
-                      key={index}
-                      className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+                      key={message.id || index}
+                      className={`flex ${
+                        message.sender === 'user' ? 'justify-start' : 'justify-end'
+                      }`}
                     >
                       <div
                         className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
                           message.sender === 'user'
+                            ? 'bg-gray-200 text-gray-800'
+                            : message.sender === 'admin'
                             ? 'bg-blue-500 text-white'
-                            : 'bg-gray-200 text-gray-900'
-                        }`}
+                            : 'bg-green-500 text-white'
+                        } ${message.temp ? 'opacity-70' : ''}`}
                       >
                         <p className="text-sm">{message.content}</p>
                         <p className={`text-xs mt-1 ${
-                          message.sender === 'user' ? 'text-blue-100' : 'text-gray-500'
+                          message.sender === 'user' ? 'text-gray-500' : 'text-gray-200'
                         }`}>
-                          {formatDate(message.timestamp)}
+                          {message.sender === 'user' ? '👤 Usuario' : 
+                           message.sender === 'admin' ? '👨‍💼 Admin' : '🤖 Bot'} • {' '}
+                          {message.created_at ? 
+                            new Date(message.created_at).toLocaleTimeString() :
+                            message.timestamp ? 
+                            new Date(message.timestamp).toLocaleTimeString() :
+                            'Ahora'
+                          }
                         </p>
                       </div>
                     </div>
-                  ))}
-                </div>
-              )}
+                  ))
+                )}
+              </div>
             </div>
 
-            {/* Footer del Modal */}
-            <div className="px-6 py-4 border-t border-gray-200 space-y-3">
-              {/* Envío de mensaje manual (solo si el bot está pausado) */}
-              {botStatuses[selectedSession.id]?.botPaused && (
-                <div className="space-y-2">
-                  <div className="flex space-x-2">
+            {/* Área de Mensaje Manual (Solo cuando el bot está pausado) */}
+            {botStatuses[selectedSession.id]?.isPaused && (
+              <div className="p-4 bg-yellow-50 border-t border-yellow-200">
+                <div className="mb-3">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    👨‍💼 Mensaje de Operador (Bot Pausado)
+                  </label>
+                  <div className="flex space-x-2 mb-2">
                     <input
                       type="text"
-                      placeholder="Tu nombre (opcional)"
                       value={operatorName}
                       onChange={(e) => setOperatorName(e.target.value)}
-                      className="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="Nombre del operador"
+                      className="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
                     />
                   </div>
                   <div className="flex space-x-2">
                     <textarea
-                      placeholder="Escribe tu respuesta manual aquí..."
                       value={newMessage}
                       onChange={(e) => setNewMessage(e.target.value)}
+                      placeholder="Escribe tu mensaje como operador..."
                       rows="2"
-                      className="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
                     />
                     <button
-                      onClick={handleSendManualMessage}
-                      disabled={!newMessage.trim() || sendingMessage}
-                      className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+                      onClick={() => sendManualMessage(selectedSession.id)}
+                      disabled={sendingMessage || !newMessage.trim()}
+                      className="px-4 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
                     >
-                      {sendingMessage ? '📤...' : '📤 Enviar'}
+                      {sendingMessage ? '📤' : '📨 Enviar'}
                     </button>
                   </div>
-                  <p className="text-xs text-gray-500">
-                    💡 El bot está pausado. Tus mensajes se enviarán manualmente.
-                  </p>
                 </div>
-              )}
-              
-              <button
-                onClick={() => setShowChatModal(false)}
-                className="w-full bg-gray-500 text-white py-2 px-4 rounded-md hover:bg-gray-600 transition-colors"
-              >
-                Cerrar
-              </button>
+              </div>
+            )}
+
+            {/* Área de Escritura Principal */}
+            <div className="p-4 bg-white border-t border-gray-200 rounded-b-lg">
+              <div className="flex space-x-2">
+                <input
+                  type="text"
+                  value={newMessage}
+                  onChange={(e) => setNewMessage(e.target.value)}
+                  onKeyPress={handleChatKeyPress}
+                  placeholder="Escribe un mensaje..."
+                  className="flex-1 px-4 py-2 border border-gray-300 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                <button
+                  onClick={sendChatMessage}
+                  disabled={sendingMessage || !newMessage.trim()}
+                  className="px-6 py-2 bg-blue-500 text-white rounded-full hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
+                >
+                  {sendingMessage ? '📤' : '📨 Enviar'}
+                </button>
+              </div>
+              <p className="text-xs text-gray-500 mt-2">
+                💡 Presiona Enter para enviar • Shift+Enter para nueva línea
+              </p>
             </div>
           </div>
         </div>
@@ -645,7 +753,7 @@ const Sessions = () => {
                 📱 Enviar Mensaje
               </h3>
               <p className="text-sm text-gray-500">
-                A: {selectedSession.clientName || selectedSession.clientPushname || 'Cliente Anónimo'} ({selectedSession.phoneNumber})
+                A: {selectedSession.client_pushname || selectedSession.client_name || 'Cliente Anónimo'} ({selectedSession.phone_number})
               </p>
             </div>
 

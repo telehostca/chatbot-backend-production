@@ -400,4 +400,48 @@ export class TestSaasController {
       };
     }
   }
+
+  // �� NUEVO: Endpoint de debug para ver todos los mensajes en la BD
+  @Get('debug-messages')
+  async debugMessages() {
+    try {
+      this.logger.log('🔍 Debug: Consultando estructura de tablas...');
+      
+      // Primero verificar la estructura de persistent_sessions
+      const sessionColumns = await this.dataSource.query(`
+        SELECT column_name, data_type 
+        FROM information_schema.columns 
+        WHERE table_name = 'persistent_sessions'
+        ORDER BY ordinal_position;
+      `);
+      
+      // Verificar la estructura de chat_messages
+      const messageColumns = await this.dataSource.query(`
+        SELECT column_name, data_type 
+        FROM information_schema.columns 
+        WHERE table_name = 'chat_messages'
+        ORDER BY ordinal_position;
+      `);
+      
+      this.logger.log(`✅ Debug completado - Estructuras obtenidas`);
+      
+      return {
+        success: true,
+        data: {
+          table_structures: {
+            persistent_sessions_columns: sessionColumns,
+            chat_messages_columns: messageColumns
+          }
+        }
+      };
+      
+    } catch (error) {
+      this.logger.error(`❌ Error en debug: ${error.message}`);
+      return {
+        success: false,
+        error: error.message,
+        stack: error.stack
+      };
+    }
+  }
 } 

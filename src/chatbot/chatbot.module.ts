@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { BasicChatbotService } from './basic-chatbot.service';
 import { GenericChatbotService } from './services/generic-chatbot.service';
@@ -9,10 +9,12 @@ import { SchemaDetectionService } from './services/schema-detection.service';
 import { ChatbotInstance } from '../admin/entities/chatbot-instance.entity';
 import { PersistentSession } from '../chat/entities/persistent-session.entity';
 import { ExternalDbService } from '../external-db/external-db.service';
+import { ChatModule } from '../chat/chat.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([ChatbotInstance, PersistentSession], 'users')
+    TypeOrmModule.forFeature([ChatbotInstance, PersistentSession], 'users'),
+    forwardRef(() => ChatModule)
   ],
   controllers: [
     DatabaseConfigController

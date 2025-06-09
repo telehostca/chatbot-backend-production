@@ -216,4 +216,96 @@ export class ChatController {
       }
     };
   }
+
+  @Post('test-all-functions/:sessionId')
+  async testAllFunctions(@Param('sessionId') sessionId: string) {
+    try {
+      const results = [];
+
+      // 1. Test obtener status del bot
+      try {
+        const statusResult = await this.chatService.getBotStatusForSession(sessionId);
+        results.push({
+          test: 'getBotStatus',
+          status: 'success',
+          data: statusResult
+        });
+      } catch (error) {
+        results.push({
+          test: 'getBotStatus',
+          status: 'error',
+          error: error.message
+        });
+      }
+
+      // 2. Test pausar bot
+      try {
+        const pauseResult = await this.chatService.pauseBotForSession(sessionId);
+        results.push({
+          test: 'pauseBot',
+          status: 'success',
+          data: pauseResult
+        });
+      } catch (error) {
+        results.push({
+          test: 'pauseBot',
+          status: 'error',
+          error: error.message
+        });
+      }
+
+      // 3. Test enviar mensaje manual
+      try {
+        const messageResult = await this.chatService.sendManualMessage(
+          sessionId, 
+          '🧪 Test completo de funcionalidades desde API - Todo funcionando correctamente!', 
+          'Sistema Test'
+        );
+        results.push({
+          test: 'sendManualMessage',
+          status: 'success',
+          data: messageResult
+        });
+      } catch (error) {
+        results.push({
+          test: 'sendManualMessage',
+          status: 'error',
+          error: error.message
+        });
+      }
+
+      // 4. Test reanudar bot
+      try {
+        const resumeResult = await this.chatService.resumeBotForSession(sessionId);
+        results.push({
+          test: 'resumeBot',
+          status: 'success',
+          data: resumeResult
+        });
+      } catch (error) {
+        results.push({
+          test: 'resumeBot',
+          status: 'error',
+          error: error.message
+        });
+      }
+
+      return {
+        success: true,
+        message: 'Test completo ejecutado',
+        sessionId,
+        timestamp: new Date(),
+        results
+      };
+
+    } catch (error) {
+      return {
+        success: false,
+        message: 'Error en test completo',
+        error: error.message,
+        sessionId,
+        timestamp: new Date()
+      };
+    }
+  }
 } 
